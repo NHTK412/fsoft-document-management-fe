@@ -67,7 +67,7 @@ export default function ProjectSidebar({ activeMenu = "dashboard" }) {
           <circle cx="12" cy="12" r="3" />
         </svg>
       ),
-      path: "#",
+      path: "/settings",
     },
   ];
 
