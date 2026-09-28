@@ -1,5 +1,5 @@
 import React from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import ProjectSidebar from "../components/layout/ProjectSidebar.jsx";
 import WorkspaceTopbar from "../components/layout/WorkspaceTopbar.jsx";
 import {
@@ -11,6 +11,7 @@ import {
 } from "../components/dashboard";
 
 export default function ProjectDashboard() {
+  const navigate = useNavigate();
   const location = useLocation();
   const params = useParams();
   const currentProject = location.state?.project;
@@ -30,7 +31,7 @@ export default function ProjectDashboard() {
   };
 
   const handleViewAllFiles = () => {
-    console.log("Navigate to Explorer");
+    navigate("/documents", { state: { project: currentProject } });
   };
 
   const handleQuickViewFile = (file) => {

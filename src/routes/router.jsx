@@ -3,6 +3,7 @@ import Login from "../pages/Login.jsx";
 import Register from "../pages/Register.jsx";
 import ProjectsHub from "../pages/ProjectsHub.jsx";
 import ProjectDashboard from "../pages/ProjectDashboard.jsx";
+import ProjectDocuments from "../pages/ProjectDocuments.jsx";
 
 const router = createBrowserRouter([
     {
@@ -32,6 +33,14 @@ const router = createBrowserRouter([
     {
         path: "/projects/:id/dashboard",
         element: <ProjectDashboard />
+    },
+    {
+        path: "/documents",
+        element: <ProjectDocuments />
+    },
+    {
+        path: "/projects/:id/documents",
+        element: <ProjectDocuments />
     }
 ]);
 
