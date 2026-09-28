@@ -1,8 +1,6 @@
 import React from 'react';
 
-/**
- * Banner giới thiệu KBase bên trái trang đăng nhập
- */
+
 export const LoginBanner = () => {
   return (
     <div className="w-full lg:w-[640px] shrink-0 min-h-[600px] lg:min-h-[900px] flex flex-col justify-between p-8 sm:p-12 bg-dark-sidebar text-white select-none">
