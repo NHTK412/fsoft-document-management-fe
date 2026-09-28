@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   HubTopbar,
   ProjectCard,
@@ -77,6 +78,7 @@ const INITIAL_PROJECTS = [
 ];
 
 export default function ProjectsHub() {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState(INITIAL_PROJECTS);
   const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -105,8 +107,7 @@ export default function ProjectsHub() {
   });
 
   const handleSelectProject = (project) => {
-    console.log('Truy cập dự án:', project.title);
-    // TODO: Chuyển hướng vào workspace dự án
+    navigate(`/projects/${project.id}/dashboard`, { state: { project } });
   };
 
   const handleCreateProjectSubmit = (newProjectData) => {
