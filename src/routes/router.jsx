@@ -4,6 +4,7 @@ import Register from "../pages/Register.jsx";
 import ProjectsHub from "../pages/ProjectsHub.jsx";
 import ProjectDashboard from "../pages/ProjectDashboard.jsx";
 import ProjectDocuments from "../pages/ProjectDocuments.jsx";
+import ProjectChat from "../pages/ProjectChat.jsx";
 
 const router = createBrowserRouter([
     {
@@ -41,6 +42,14 @@ const router = createBrowserRouter([
     {
         path: "/projects/:id/documents",
         element: <ProjectDocuments />
+    },
+    {
+        path: "/chat",
+        element: <ProjectChat />
+    },
+    {
+        path: "/projects/:id/chat",
+        element: <ProjectChat />
     }
 ]);
 

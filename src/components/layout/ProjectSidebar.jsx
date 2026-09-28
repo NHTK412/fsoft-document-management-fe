@@ -43,7 +43,7 @@ export default function ProjectSidebar({ activeMenu = "dashboard" }) {
           <path d="M9 13v2" />
         </svg>
       ),
-      path: "#",
+      path: "/chat",
     },
     {
       id: "members",
