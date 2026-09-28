@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 export default function WorkspaceTopbar({
   projectName = "AI Knowledge Core",
@@ -101,7 +102,10 @@ export default function WorkspaceTopbar({
         </button>
 
         {/* User Pill */}
-        <div className="flex items-center gap-[8px] p-[4px_10px_4px_4px] bg-[#F8FAFC] border border-[#E2E8F0] rounded-[20px] cursor-pointer hover:bg-[#F1F5F9] transition-colors">
+        <Link
+          to="/profile"
+          className="flex items-center gap-[8px] p-[4px_10px_4px_4px] bg-[#F8FAFC] border border-[#E2E8F0] rounded-[20px] cursor-pointer hover:bg-[#F1F5F9] transition-colors"
+        >
           <div className="w-[26px] h-[26px] flex items-center justify-center bg-[#4F46E5] text-white rounded-full text-[10px] font-bold">
             {user.initials}
           </div>
@@ -116,7 +120,7 @@ export default function WorkspaceTopbar({
           <svg className="w-[12px] h-[12px] text-[#94A3B8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="m6 9 6 6 6-6" />
           </svg>
-        </div>
+        </Link>
       </div>
     </header>
   );

@@ -7,6 +7,7 @@ import ProjectDocuments from "../pages/ProjectDocuments.jsx";
 import ProjectChat from "../pages/ProjectChat.jsx";
 import ProjectMembers from "../pages/ProjectMembers.jsx";
 import ProjectSettings from "../pages/ProjectSettings.jsx";
+import UserProfile from "../pages/UserProfile.jsx";
 
 const router = createBrowserRouter([
     {
@@ -68,6 +69,10 @@ const router = createBrowserRouter([
     {
         path: "/projects/:id/settings",
         element: <ProjectSettings />
+    },
+    {
+        path: "/profile",
+        element: <UserProfile />
     }
 ]);
 
