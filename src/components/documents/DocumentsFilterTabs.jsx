@@ -30,7 +30,7 @@ export default function DocumentsFilterTabs({
             key={tab.id}
             type="button"
             onClick={() => onFilterChange && onFilterChange(tab.id)}
-            className={`h-[32px] flex items-center gap-[6px] px-[12px] rounded-[20px] text-[12px] whitespace-nowrap transition-all cursor-pointer ${
+            className={`h-[36px] flex items-center gap-[8px] px-[14px] rounded-[20px] text-[13px] whitespace-nowrap transition-all cursor-pointer ${
               isActive
                 ? "bg-[#4F46E5] text-white font-semibold border border-[#4F46E5] shadow-xs"
                 : "bg-white text-[#475569] font-medium border border-[#E2E8F0] hover:bg-[#F8FAFC]"
@@ -38,7 +38,7 @@ export default function DocumentsFilterTabs({
           >
             <span>{tab.label}</span>
             <span
-              className={`text-[10px] font-semibold px-[6px] py-[1px] rounded-[10px] ${
+              className={`text-[11px] font-semibold px-[7px] py-[2px] rounded-[10px] ${
                 isActive
                   ? "bg-[#3730A3] text-[#E0E7FF]"
                   : "bg-[#F1F5F9] text-[#64748B]"

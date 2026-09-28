@@ -50,12 +50,10 @@ export default function ProjectDashboard() {
           projectName={projectName}
           role={projectRole}
           user={{ name: "Nguyễn Văn A", role: "Admin", initials: "NV" }}
-          onUploadClick={handleUploadClick}
-          onAskAIClick={handleAskAIClick}
         />
 
         {/* Dashboard Body */}
-        <main className="flex-1 p-[24px_28px_28px_28px] flex flex-col gap-[20px] max-w-[1400px] w-full mx-auto">
+        <main className="flex-1 p-6 sm:p-8 lg:p-9 xl:p-10 flex flex-col gap-6 max-w-[1600px] w-full mx-auto">
           {/* View Header */}
           <DashboardHeader
             title={`Tổng quan Dự án: ${projectName}`}

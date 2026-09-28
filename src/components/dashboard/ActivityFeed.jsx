@@ -78,42 +78,36 @@ export default function ActivityFeed({ activities }) {
   const list = activities || defaultActivities;
 
   return (
-    <div className="w-full flex flex-col gap-[16px] p-[20px] bg-white border border-[#E2E8F0] rounded-[12px]">
+    <div className="w-full flex flex-col gap-[18px] p-6 lg:p-[24px] bg-white border border-[#E2E8F0] rounded-[12px] shadow-xs">
       {/* Header */}
       <div className="w-full flex items-center justify-between">
-        <div className="flex items-center gap-[8px]">
-          <svg className="w-[16px] h-[16px] text-[#4F46E5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <div className="flex items-center gap-[10px]">
+          <svg className="w-[18px] h-[18px] text-[#4F46E5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
           </svg>
-          <h2 className="text-[14px] font-bold text-[#0F172A]">
+          <h2 className="text-[15px] font-bold text-[#0F172A]">
             Dòng thời gian hoạt động
           </h2>
-        </div>
-        <div className="flex items-center gap-[4px]">
-          <span className="w-[6px] h-[6px] bg-[#10B981] rounded-full animate-ping" />
-          <span className="text-[11px] font-medium text-[#059669]">
-            Realtime
-          </span>
         </div>
       </div>
 
       {/* Feed Items */}
-      <div className="w-full flex flex-col gap-[14px]">
+      <div className="w-full flex flex-col gap-[16px]">
         {list.map((item) => (
-          <div key={item.id} className="w-full flex items-start gap-[10px]">
+          <div key={item.id} className="w-full flex items-start gap-[12px]">
             <div
-              className={`w-[32px] h-[32px] shrink-0 flex items-center justify-center rounded-full ${item.avatarBg}`}
+              className={`w-[36px] h-[36px] shrink-0 flex items-center justify-center rounded-full ${item.avatarBg} shadow-xs`}
             >
               {item.icon}
             </div>
             <div className="flex-1 flex flex-col gap-[2px] min-w-0">
-              <span className="text-[12px] font-semibold text-[#1E293B]">
+              <span className="text-[13px] font-semibold text-[#1E293B]">
                 {item.userAction}
               </span>
-              <span className="text-[12px] font-medium text-[#4F46E5] truncate">
+              <span className="text-[13px] font-medium text-[#4F46E5] truncate">
                 {item.target}
               </span>
-              <span className="text-[11px] text-[#94A3B8]">
+              <span className="text-[12px] text-[#94A3B8]">
                 {item.time}
               </span>
             </div>

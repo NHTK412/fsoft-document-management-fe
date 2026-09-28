@@ -74,34 +74,33 @@ export default function DashboardMetrics({ metrics }) {
   const data = metrics || defaultMetrics;
 
   return (
-    <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[16px]">
+    <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[18px]">
       {data.map((item) => (
         <div
           key={item.id}
-          className="flex flex-col gap-[12px] p-[18px] bg-white border border-[#E2E8F0] rounded-[12px] hover:shadow-sm transition-shadow"
+          className="flex flex-col gap-[14px] p-[22px] bg-white border border-[#E2E8F0] rounded-[12px] hover:shadow-sm transition-shadow"
         >
           {/* Top Row */}
           <div className="w-full flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-[#64748B] tracking-wider uppercase">
+            <span className="text-[12px] font-semibold text-[#64748B] tracking-wider uppercase">
               {item.title}
             </span>
             <div
-              className={`w-[32px] h-[32px] shrink-0 flex items-center justify-center rounded-[8px] ${item.iconBg} ${item.iconColor}`}
+              className={`w-[36px] h-[36px] shrink-0 flex items-center justify-center rounded-[8px] ${item.iconBg} ${item.iconColor}`}
             >
               {item.icon}
             </div>
           </div>
 
           {/* Value Stack */}
-          <div className="flex flex-col gap-[2px]">
-            <span className="text-[24px] font-bold text-[#0F172A] leading-tight tracking-tight">
+          <div className="flex flex-col gap-[3px]">
+            <span className="text-[28px] font-bold text-[#0F172A] leading-tight tracking-tight">
               {item.value}
             </span>
-            <span className="text-[12px] text-[#94A3B8]">
+            <span className="text-[13px] text-[#94A3B8]">
               {item.unit}
             </span>
           </div>
-
         </div>
       ))}
     </div>

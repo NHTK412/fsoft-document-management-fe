@@ -12,14 +12,11 @@ export default function DocumentsHeader({
       {/* Title Stack */}
       <div className="flex flex-col gap-[4px]">
         <div className="flex items-center gap-[12px] flex-wrap">
-          <h1 className="text-[22px] font-bold text-[#0F172A] tracking-tight">
+          <h1 className="text-[24px] font-bold text-[#0F172A] tracking-tight">
             {title}
           </h1>
-          <span className="text-[12px] font-semibold text-[#4F46E5] bg-[#EEF2FF] px-[10px] py-[4px] rounded-[20px] whitespace-nowrap">
-            Tổng cộng {totalFiles} tệp • {totalSize}
-          </span>
         </div>
-        <p className="text-[13px] text-[#64748B]">
+        <p className="text-[14px] text-[#64748B]">
           Toàn bộ tài liệu kỹ thuật, dữ liệu vector AI và tệp tin trong dự án {projectName}.
         </p>
       </div>
@@ -28,14 +25,14 @@ export default function DocumentsHeader({
       <button
         type="button"
         onClick={onUpload}
-        className="h-[40px] flex items-center gap-[8px] px-[18px] bg-[#4F46E5] hover:bg-[#4338CA] text-white rounded-[8px] font-semibold text-[13px] transition-colors cursor-pointer shrink-0 shadow-sm"
+        className="h-[42px] flex items-center gap-[8px] px-[20px] bg-[#4F46E5] hover:bg-[#4338CA] text-white rounded-[8px] font-semibold text-[14px] transition-colors cursor-pointer shrink-0 shadow-xs hover:shadow-sm"
       >
-        <svg className="w-[16px] h-[16px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg className="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
           <path d="M12 12v9" />
           <path d="m16 16-4-4-4 4" />
         </svg>
-        <span className="whitespace-nowrap">+ Tải lên tệp</span>
+        <span className="whitespace-nowrap">Tải lên tệp</span>
       </button>
     </div>
   );

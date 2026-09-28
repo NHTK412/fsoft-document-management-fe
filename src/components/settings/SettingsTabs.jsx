@@ -20,13 +20,13 @@ export default function SettingsTabs({ activeTab = "general", onTabChange }) {
   ];
 
   return (
-    <div className="w-full h-[38px] shrink-0 flex items-center gap-[24px] border-b border-[#E2E8F0] select-none">
+    <div className="w-full h-[44px] shrink-0 flex items-center gap-[24px] border-b border-[#E2E8F0] select-none">
       {tabs.map((tab) => (
         <button
           key={tab.id}
           type="button"
           onClick={() => onTabChange(tab.id)}
-          className={`h-full flex items-center transition-colors cursor-pointer text-[13px] relative -mb-[1px] ${tab.colorClass}`}
+          className={`h-full flex items-center transition-colors cursor-pointer text-[14px] relative -mb-[1px] ${tab.colorClass}`}
         >
           <span>{tab.label}</span>
         </button>

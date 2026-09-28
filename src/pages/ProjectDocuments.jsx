@@ -181,7 +181,7 @@ export default function ProjectDocuments() {
 
   return (
     <div className="w-full min-h-screen flex flex-row bg-[#F8FAFC] text-[#0F172A] font-[Inter,system-ui,sans-serif]">
-      {/* 1. Left Project Sidebar */}
+      {/* 1. Left Project Sidebar */} 
       <ProjectSidebar activeMenu="documents" />
 
       {/* 2. Main Content Area */}
@@ -194,7 +194,7 @@ export default function ProjectDocuments() {
         />
 
         {/* Explorer Body Container */}
-        <main className="flex-1 p-[24px_28px_28px_28px] flex flex-col gap-[18px] max-w-[1400px] w-full mx-auto pb-24">
+        <main className="flex-1 p-6 sm:p-8 lg:p-9 xl:p-10 flex flex-col gap-6 max-w-[1600px] w-full mx-auto pb-24">
           {/* Page Info Header */}
           <DocumentsHeader
             title="Tài liệu dự án"
@@ -234,6 +234,12 @@ export default function ProjectDocuments() {
             onToggleSelectAll={handleToggleSelectAll}
             onPreview={(file) => console.log("Preview file:", file)}
             onDownload={(file) => console.log("Download file:", file)}
+            onDelete={(file) => {
+              if (confirm(`Bạn có chắc muốn xóa tệp "${file.name}"?`)) {
+                setFiles((prev) => prev.filter((f) => f.id !== file.id));
+                setSelectedIds((prev) => prev.filter((id) => id !== file.id));
+              }
+            }}
             onMoreOptions={(file) => console.log("More options for file:", file)}
           />
 
@@ -242,7 +248,6 @@ export default function ProjectDocuments() {
             selectedCount={selectedIds.length}
             totalSize={selectedTotalSize}
             onDownloadZip={handleDownloadZip}
-            onReindexAI={handleReindexAI}
             onBulkDelete={handleBulkDelete}
           />
         </main>

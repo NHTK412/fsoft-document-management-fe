@@ -5,7 +5,6 @@ export default function AiPersonaCard({
   setTemperature,
   systemPrompt,
   setSystemPrompt,
-  aiModel = "Gemini 1.5 Pro",
 }) {
   const getTempDescription = (val) => {
     if (val <= 0.2) return `${val} (Chính xác cao / RAG)`;
@@ -15,31 +14,27 @@ export default function AiPersonaCard({
   };
 
   return (
-    <div className="w-full lg:w-[532px] shrink-0 bg-white border border-[#E2E8F0] rounded-[12px] p-[20px] flex flex-col gap-[14px] shadow-xs">
+    <div className="w-full bg-white border border-[#E2E8F0] rounded-[12px] p-6 lg:p-[24px] flex flex-col gap-[18px] shadow-xs">
       {/* Header */}
       <div className="w-full flex items-center justify-between">
-        <div className="flex items-center gap-[8px]">
-          <div className="w-[28px] h-[28px] shrink-0 flex items-center justify-center bg-[#F3E8FF] rounded-[6px] text-[#9333EA]">
-            <svg className="w-[15px] h-[15px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <div className="flex items-center gap-[10px]">
+          <div className="w-[32px] h-[32px] shrink-0 flex items-center justify-center bg-[#F3E8FF] rounded-[8px] text-[#9333EA]">
+            <svg className="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 8V4H8" />
               <rect width="16" height="12" x="4" y="8" rx="2" />
               <path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" />
             </svg>
           </div>
-          <span className="text-[14px] font-semibold text-[#0F172A]">
+          <span className="text-[15px] font-bold text-[#0F172A]">
             Chỉ Thị AI Chatbot (Persona)
           </span>
         </div>
 
-        {/* Model Pill */}
-        <span className="px-[8px] py-[3px] bg-[#FAF5FF] border border-[#E9D5FF] rounded-[6px] text-[11px] font-semibold text-[#9333EA]">
-          {aiModel}
-        </span>
       </div>
 
       {/* Temperature Slider Block */}
-      <div className="w-full flex flex-col gap-[6px]">
-        <div className="w-full flex items-center justify-between text-[12px]">
+      <div className="w-full flex flex-col gap-[8px]">
+        <div className="w-full flex items-center justify-between text-[13px]">
           <span className="font-semibold text-[#334155]">
             Độ sáng tạo (Temperature)
           </span>
@@ -61,7 +56,7 @@ export default function AiPersonaCard({
           />
         </div>
 
-        <div className="w-full flex items-center justify-between text-[10px] text-[#94A3B8]">
+        <div className="w-full flex items-center justify-between text-[11px] text-[#94A3B8]">
           <span>0.0 (Chính xác tuyệt đối)</span>
           <span>1.0 (Sáng tạo)</span>
         </div>
@@ -69,7 +64,7 @@ export default function AiPersonaCard({
 
       {/* System Prompt Block */}
       <div className="w-full flex flex-col gap-[6px]">
-        <label className="text-[12px] font-semibold text-[#334155]">
+        <label className="text-[13px] font-semibold text-[#334155]">
           Chỉ thị hệ thống (System Prompt)
         </label>
         <textarea
@@ -77,7 +72,7 @@ export default function AiPersonaCard({
           value={systemPrompt}
           onChange={(e) => setSystemPrompt(e.target.value)}
           placeholder="Nhập hướng dẫn và phong cách ứng xử của trợ lý AI..."
-          className="w-full p-[8px_12px] bg-[#F8FAFC] border border-[#CBD5E1] rounded-[8px] text-[11px] text-[#334155] focus:bg-white focus:outline-none focus:border-[#4F46E5] focus:ring-2 focus:ring-[#4F46E5]/20 transition-all resize-none leading-relaxed"
+          className="w-full p-[10px_14px] bg-[#F8FAFC] border border-[#CBD5E1] rounded-[8px] text-[13px] text-[#334155] focus:bg-white focus:outline-none focus:border-[#4F46E5] focus:ring-2 focus:ring-[#4F46E5]/20 transition-all resize-none leading-relaxed"
         />
       </div>
     </div>

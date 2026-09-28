@@ -119,10 +119,6 @@ export default function UserProfile() {
           projectName={projectName}
           role={projectRole}
           user={{ name: fullName, role: "Admin", initials: INITIAL_PROFILE.initials }}
-          showSearch={true}
-          searchPlaceholder="Tìm kiếm tệp, hỏi AI..."
-          onUploadClick={() => navigate("/documents")}
-          onAskAIClick={() => navigate("/chat")}
         />
 
         {/* Profile Body Content */}

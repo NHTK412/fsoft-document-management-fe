@@ -118,14 +118,10 @@ export default function ProjectSettings() {
           projectName={projectName}
           role={projectRole}
           user={{ name: "Nguyễn Văn A", role: "Admin", initials: "NV" }}
-          showSearch={true}
-          searchPlaceholder="Tìm kiếm tệp, hỏi AI..."
-          onUploadClick={() => navigate("/documents")}
-          onAskAIClick={() => navigate("/chat")}
         />
 
         {/* Settings Body Content */}
-        <main className="flex-1 p-[24px_28px_28px_28px] flex flex-col gap-[16px] max-w-[1400px] w-full mx-auto relative">
+        <main className="flex-1 p-6 sm:p-8 lg:p-9 xl:p-10 flex flex-col gap-6 max-w-[1600px] w-full mx-auto relative">
           {/* Toast Notification */}
           {saveToast && (
             <div className="fixed top-20 right-8 z-50 bg-[#064E3B] text-[#ECFDF5] border border-[#059669] px-4 py-3 rounded-lg shadow-xl flex items-center gap-2.5 animate-in fade-in slide-in-from-top-4 duration-200">
@@ -147,46 +143,39 @@ export default function ProjectSettings() {
           />
 
           {/* Tabs */}
-          <SettingsTabs activeTab={activeTab} onTabChange={setActiveTab} />
+          {/* <SettingsTabs activeTab={activeTab} onTabChange={setActiveTab} /> */}
 
           {/* Cards Content */}
-          <div className="w-full flex flex-col gap-[16px]">
+          <div className="w-full flex flex-col gap-6">
             {/* 1. General & Storage Card */}
-            {(activeTab === "general" || activeTab === "all") && (
-              <GeneralStorageCard
-                projectName={projectName}
-                setProjectName={setProjectName}
-                projectDesc={projectDesc}
-                setProjectDesc={setProjectDesc}
-                maxFileSize={maxFileSize}
-                setMaxFileSize={setMaxFileSize}
-                allowedFormats={allowedFormats}
-                onToggleFormat={handleToggleFormat}
-              />
-            )}
-
+            <GeneralStorageCard
+              projectName={projectName}
+              setProjectName={setProjectName}
+              projectDesc={projectDesc}
+              setProjectDesc={setProjectDesc}
+              maxFileSize={maxFileSize}
+              setMaxFileSize={setMaxFileSize}
+              allowedFormats={allowedFormats}
+              onToggleFormat={handleToggleFormat}
+            />
             {/* 2. Bottom Row: AI Persona & Danger Zone */}
-            <div className="w-full flex flex-col lg:flex-row gap-[20px] items-start">
-              {(activeTab === "general" || activeTab === "ai") && (
-                <div className={activeTab === "ai" ? "w-full" : "w-full lg:w-[532px]"}>
-                  <AiPersonaCard
-                    temperature={temperature}
-                    setTemperature={setTemperature}
-                    systemPrompt={systemPrompt}
-                    setSystemPrompt={setSystemPrompt}
-                  />
-                </div>
-              )}
+            <div className="w-full flex flex-col lg:flex-row gap-6 items-stretch">
 
-              {(activeTab === "general" || activeTab === "danger") && (
-                <div className={activeTab === "danger" ? "w-full" : "w-full lg:w-[532px]"}>
-                  <DangerZoneCard
-                    onTransferOwnership={handleTransferOwnership}
-                    onArchiveProject={handleArchiveProject}
-                    onDeleteProject={handleDeleteProject}
-                  />
-                </div>
-              )}
+              <div className={activeTab === "ai" ? "w-full" : "flex-1 w-full min-w-0 flex"}>
+                <AiPersonaCard
+                  temperature={temperature}
+                  setTemperature={setTemperature}
+                  systemPrompt={systemPrompt}
+                  setSystemPrompt={setSystemPrompt}
+                />
+              </div>
+              <div className={activeTab === "danger" ? "w-full" : "flex-1 w-full min-w-0 flex"}>
+                <DangerZoneCard
+                  onTransferOwnership={handleTransferOwnership}
+                  onArchiveProject={handleArchiveProject}
+                  onDeleteProject={handleDeleteProject}
+                />
+              </div>
             </div>
           </div>
         </main>

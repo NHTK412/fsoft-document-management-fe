@@ -10,25 +10,25 @@ export default function FormatDistribution({ totalFiles = "1,428" }) {
   ];
 
   return (
-    <div className="w-full flex flex-col gap-[16px] p-[20px] bg-white border border-[#E2E8F0] rounded-[12px]">
+    <div className="w-full flex flex-col gap-[18px] p-6 lg:p-[24px] bg-white border border-[#E2E8F0] rounded-[12px] shadow-xs">
       {/* Chart Header */}
       <div className="w-full flex items-center justify-between">
-        <div className="flex items-center gap-[8px]">
-          <svg className="w-[16px] h-[16px] text-[#4F46E5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <div className="flex items-center gap-[10px]">
+          <svg className="w-[18px] h-[18px] text-[#4F46E5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
             <path d="M22 12A10 10 0 0 0 12 2v10z" />
           </svg>
-          <h2 className="text-[14px] font-bold text-[#0F172A]">
+          <h2 className="text-[15px] font-bold text-[#0F172A]">
             Phân loại định dạng tài liệu (Format Distribution)
           </h2>
         </div>
-        <span className="text-[12px] font-semibold text-[#64748B]">
+        <span className="text-[13px] font-semibold text-[#64748B]">
           Tổng: {totalFiles} tệp
         </span>
       </div>
 
       {/* Stacked Progress Bar */}
-      <div className="w-full h-[10px] flex rounded-[5px] overflow-hidden bg-[#F1F5F9]">
+      <div className="w-full h-[12px] flex rounded-[6px] overflow-hidden bg-[#F1F5F9]">
         {formats.map((fmt) => (
           <div
             key={fmt.label}
@@ -40,11 +40,11 @@ export default function FormatDistribution({ totalFiles = "1,428" }) {
       </div>
 
       {/* Format Legend */}
-      <div className="w-full flex flex-wrap gap-[16px] items-center">
+      <div className="w-full flex flex-wrap gap-[18px] items-center">
         {formats.map((fmt) => (
-          <div key={fmt.label} className="flex items-center gap-[6px]">
-            <span className={`w-[8px] h-[8px] rounded-full shrink-0 ${fmt.color}`} />
-            <span className="text-[11px] font-medium text-[#475569] whitespace-nowrap">
+          <div key={fmt.label} className="flex items-center gap-[8px]">
+            <span className={`w-[9px] h-[9px] rounded-full shrink-0 ${fmt.color}`} />
+            <span className="text-[12px] font-medium text-[#475569] whitespace-nowrap">
               {fmt.label} ({fmt.percent}%)
             </span>
           </div>

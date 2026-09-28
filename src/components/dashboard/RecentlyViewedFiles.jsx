@@ -9,7 +9,6 @@ export default function RecentlyViewedFiles({ files, onViewAll, onQuickView }) {
       type: "pdf",
       iconBg: "bg-[#FEF2F2]",
       iconColor: "text-[#EF4444]",
-      status: "Đã index 100%",
       statusColor: "bg-[#ECFDF5] text-[#059669]",
     },
     {
@@ -19,7 +18,6 @@ export default function RecentlyViewedFiles({ files, onViewAll, onQuickView }) {
       type: "doc",
       iconBg: "bg-[#EFF6FF]",
       iconColor: "text-[#3B82F6]",
-      status: "Đã index 100%",
       statusColor: "bg-[#ECFDF5] text-[#059669]",
     },
     {
@@ -29,7 +27,6 @@ export default function RecentlyViewedFiles({ files, onViewAll, onQuickView }) {
       type: "md",
       iconBg: "bg-[#F5F3FF]",
       iconColor: "text-[#8B5CF6]",
-      status: "Đã index 100%",
       statusColor: "bg-[#ECFDF5] text-[#059669]",
     },
     {
@@ -39,7 +36,6 @@ export default function RecentlyViewedFiles({ files, onViewAll, onQuickView }) {
       type: "table",
       iconBg: "bg-[#ECFDF5]",
       iconColor: "text-[#10B981]",
-      status: "Đang index (80%)",
       statusColor: "bg-[#FEF3C7] text-[#D97706]",
     },
   ];
@@ -96,64 +92,59 @@ export default function RecentlyViewedFiles({ files, onViewAll, onQuickView }) {
   };
 
   return (
-    <div className="w-full flex flex-col gap-[16px] p-[20px] bg-white border border-[#E2E8F0] rounded-[12px]">
+    <div className="w-full flex flex-col gap-[18px] p-6 lg:p-[24px] bg-white border border-[#E2E8F0] rounded-[12px] shadow-xs">
       {/* Header */}
       <div className="w-full flex items-center justify-between">
-        <div className="flex items-center gap-[8px]">
-          <svg className="w-[16px] h-[16px] text-[#4F46E5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <div className="flex items-center gap-[10px]">
+          <svg className="w-[18px] h-[18px] text-[#4F46E5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" />
             <polyline points="12 6 12 12 16 14" />
           </svg>
-          <h2 className="text-[14px] font-bold text-[#0F172A]">
+          <h2 className="text-[15px] font-bold text-[#0F172A]">
             Tài liệu truy cập gần đây (Recently Viewed)
           </h2>
         </div>
         <button
           type="button"
           onClick={onViewAll}
-          className="text-[12px] font-semibold text-[#4F46E5] hover:text-[#4338CA] transition-colors cursor-pointer"
+          className="text-[13px] font-semibold text-[#4F46E5] hover:text-[#4338CA] transition-colors cursor-pointer"
         >
           Xem tất cả trong Explorer →
         </button>
       </div>
 
       {/* Files List */}
-      <div className="w-full flex flex-col gap-[8px]">
+      <div className="w-full flex flex-col gap-[10px]">
         {fileList.map((file) => (
           <div
             key={file.id}
-            className="w-full h-[52px] flex items-center justify-between px-[12px] bg-[#F8FAFC] border border-[#F1F5F9] rounded-[8px] hover:bg-[#F1F5F9]/70 transition-colors"
+            className="w-full h-[60px] flex items-center justify-between px-[16px] bg-[#F8FAFC] border border-[#F1F5F9] rounded-[10px] hover:bg-[#F1F5F9]/80 transition-colors"
           >
             {/* File info left */}
-            <div className="flex items-center gap-[12px] min-w-0">
+            <div className="flex items-center gap-[14px] min-w-0">
               <div
-                className={`w-[32px] h-[32px] shrink-0 flex items-center justify-center rounded-[6px] ${file.iconBg} ${file.iconColor}`}
+                className={`w-[38px] h-[38px] shrink-0 flex items-center justify-center rounded-[8px] ${file.iconBg} ${file.iconColor}`}
               >
                 {renderIcon(file.type)}
               </div>
-              <div className="flex flex-col min-w-0">
-                <span className="text-[13px] font-semibold text-[#0F172A] truncate">
+              <div className="flex flex-col min-w-0 gap-[1px]">
+                <span className="text-[14px] font-semibold text-[#0F172A] truncate">
                   {file.name}
                 </span>
-                <span className="text-[11px] text-[#94A3B8]">
+                <span className="text-[12px] text-[#64748B]">
                   {file.meta}
                 </span>
               </div>
             </div>
 
             {/* Actions right */}
-            <div className="flex items-center gap-[10px] shrink-0">
-              <span
-                className={`text-[10px] font-semibold px-[8px] py-[3px] rounded-[4px] whitespace-nowrap ${file.statusColor}`}
-              >
-                {file.status}
-              </span>
+            <div className="flex items-center gap-[12px] shrink-0">
               <button
                 type="button"
                 onClick={() => onQuickView && onQuickView(file)}
-                className="h-[28px] flex items-center gap-[4px] px-[10px] bg-white border border-[#CBD5E1] hover:bg-[#F8FAFC] rounded-[6px] text-[11px] font-medium text-[#475569] transition-colors cursor-pointer"
+                className="h-[32px] flex items-center gap-[6px] px-[12px] bg-white border border-[#CBD5E1] hover:bg-[#F8FAFC] rounded-[6px] text-[12px] font-medium text-[#475569] transition-colors cursor-pointer"
               >
-                <svg className="w-[12px] h-[12px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg className="w-[13px] h-[13px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
                   <circle cx="12" cy="12" r="3" />
                 </svg>

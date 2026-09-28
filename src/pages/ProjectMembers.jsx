@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import ProjectSidebar from "../components/layout/ProjectSidebar.jsx";
 import WorkspaceTopbar from "../components/layout/WorkspaceTopbar.jsx";
@@ -8,6 +8,7 @@ import {
   MembersTable,
   InviteMemberModal,
   ChangeRoleModal,
+  MemberSearch,
 } from "../components/members";
 
 const INITIAL_MEMBERS = [
@@ -91,6 +92,29 @@ export default function ProjectMembers() {
   const [members, setMembers] = useState(INITIAL_MEMBERS);
   const [pendingInvites, setPendingInvites] = useState(INITIAL_PENDING_INVITES);
   const [activeTab, setActiveTab] = useState("current"); // "current" | "pending"
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Filter members & pending invites based on searchQuery
+  const filteredMembers = useMemo(() => {
+    if (!searchQuery.trim()) return members;
+    const q = searchQuery.toLowerCase().trim();
+    return members.filter(
+      (m) =>
+        m.name.toLowerCase().includes(q) ||
+        m.email.toLowerCase().includes(q) ||
+        m.role.toLowerCase().includes(q)
+    );
+  }, [members, searchQuery]);
+
+  const filteredPendingInvites = useMemo(() => {
+    if (!searchQuery.trim()) return pendingInvites;
+    const q = searchQuery.toLowerCase().trim();
+    return pendingInvites.filter(
+      (i) =>
+        i.email.toLowerCase().includes(q) ||
+        i.role.toLowerCase().includes(q)
+    );
+  }, [pendingInvites, searchQuery]);
 
   // Modals state
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
@@ -146,30 +170,33 @@ export default function ProjectMembers() {
           projectName={projectName}
           role={projectRole}
           user={{ name: "Nguyễn Văn A", role: "Admin", initials: "NV" }}
-          showSearch={true}
-          searchPlaceholder="Tìm kiếm tệp, hỏi AI..."
-          onUploadClick={() => navigate("/documents")}
-          onAskAIClick={() => navigate("/chat")}
         />
 
         {/* Members Body Content */}
-        <main className="flex-1 p-[24px_28px_28px_28px] flex flex-col gap-[20px] max-w-[1400px] w-full mx-auto">
+        <main className="flex-1 p-6 sm:p-8 lg:p-9 xl:p-10 flex flex-col gap-6 max-w-[1600px] w-full mx-auto">
           {/* Header */}
           <MembersHeader onInviteClick={handleOpenInviteModal} />
+
+          {/* Search Toolbar (Reusing document search component) */}
+          <MemberSearch
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            placeholder="Tìm theo tên thành viên, email hoặc vai trò trong dự án..."
+          />
 
           {/* Tabs Row */}
           <MembersTabs
             activeTab={activeTab}
             onTabChange={setActiveTab}
-            currentCount={members.length}
-            pendingCount={pendingInvites.length}
+            currentCount={filteredMembers.length}
+            pendingCount={filteredPendingInvites.length}
           />
 
           {/* Members Table */}
           <MembersTable
             activeTab={activeTab}
-            members={members}
-            pendingInvites={pendingInvites}
+            members={filteredMembers}
+            pendingInvites={filteredPendingInvites}
             onChangeRole={handleOpenChangeRole}
             onRemoveMember={handleRemoveMember}
             onResendInvite={handleResendInvite}

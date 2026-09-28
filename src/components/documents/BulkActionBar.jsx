@@ -10,62 +10,64 @@ export default function BulkActionBar({
   if (selectedCount === 0) return null;
 
   return (
-    <div className="w-full h-[48px] flex items-center justify-between px-[18px] bg-[#0F172A] border border-[#334155] rounded-[10px] shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-200">
-      {/* Left: Count and Size */}
-      <div className="flex items-center gap-[10px]">
-        <div className="flex items-center px-[8px] py-[3px] bg-[#4F46E5] rounded-[4px]">
-          <span className="text-[11px] font-bold text-white whitespace-nowrap">
-            Đã chọn {selectedCount} tệp
-          </span>
+    <div
+      class="box-border w-full h-[48px] shrink-0 flex flex-row gap-0 p-[0px_18px] justify-between items-center bg-[#FFFFFF] [outline:1px_solid_#E2E8F0] [outline-offset:-0.5px] rounded-[10px]"
+    >
+      <div
+        class="box-border w-fit shrink-0 h-fit flex flex-row gap-[10px] justify-start items-center"
+      >
+        <div
+          class="box-border w-fit shrink-0 h-fit flex flex-row gap-0 p-[3px_8px] justify-start items-start bg-[#EEF2FF] [outline:1px_solid_#C7D2FE] [outline-offset:-0.5px] rounded-[4px]"
+        >
+          <div
+            class="text-[11px]/[normal] box-border text-[#4F46E5] font-[Inter,system-ui,sans-serif] font-bold text-left [white-space:nowrap]"
+          >
+            Đã chọn 2 tệp
+          </div>
         </div>
-        <span className="text-[12px] text-[#94A3B8] whitespace-nowrap">
-          Tổng dung lượng: {totalSize}
-        </span>
+        <div
+          class="text-[12px]/[normal] box-border text-[#64748B] font-[Inter,system-ui,sans-serif] font-normal text-left [white-space:nowrap]"
+        >
+          Tổng dung lượng: 6.0 MB
+        </div>
       </div>
-
-      {/* Right: Actions */}
-      <div className="flex items-center gap-[10px]">
-        {/* Download Zip */}
-        <button
-          type="button"
-          onClick={onDownloadZip}
-          className="h-[32px] flex items-center gap-[6px] px-[12px] bg-[#1E293B] border border-[#334155] hover:bg-[#334155] text-[#E2E8F0] rounded-[6px] text-[11px] font-semibold transition-colors cursor-pointer"
+      <div
+        class="box-border w-fit shrink-0 h-fit flex flex-row gap-[10px] justify-start items-center"
+      >
+        <div
+          class="box-border w-fit shrink-0 h-[32px] flex flex-row gap-[6px] p-[0px_12px] justify-start items-center bg-[#F8FAFC] [outline:1px_solid_#CBD5E1] [outline-offset:-0.5px] rounded-[6px]"
         >
-          <svg className="w-[13px] h-[13px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="7 10 12 15 17 10" />
-            <line x1="12" x2="12" y1="15" y2="3" />
+          <svg
+            class="box-border w-[13px] shrink-0 h-[13px]"
+          >
+            <path
+              d="M6.84619 1.18945q-0.25293 0.08545-0.37939 0.30762l-0.04102 0.08545 0 5.75244-0.99463-0.99463q-0.62891-0.62891-0.83398-0.81689-0.20166-0.18799-0.25635-0.21875-0.19824-0.08203-0.3999-0.02393-0.20166 0.05469-0.32813 0.21533-0.12646 0.16064-0.11279 0.36914l0 0.02735q0.01367 0.11279 0.06836 0.19824 0.07178 0.11279 0.36572 0.42041l1.20313 1.20313q1.52783 1.52441 1.59619 1.56884 0.05811 0.02734 0.10596 0.03418 0.04785 0.00684 0.16064 0.00684 0.11279 0 0.16064-0.00684 0.04785-0.00684 0.10596-0.03418 0.06836-0.04443 1.59619-1.56884 1.03564-1.03564 1.28516-1.30225 0.25293-0.2666 0.29736-0.33496 0.0957-0.22559 0.01026-0.44776-0.08203-0.22559-0.32129-0.33837-0.08203-0.02734-0.22217-0.02735l-0.02734 0q-0.12646 0-0.19825 0.02735-0.0957 0.05811-0.30761 0.25293-0.15381 0.15381-0.69727 0.70068l-1.10742 1.09033 0-5.75244-0.04102-0.08545q-0.09912-0.18115-0.28027-0.2666-0.08545-0.04102-0.22559-0.04785-0.14014-0.00684-0.18115 0.00683z m-5.25 7q-0.25293 0.08545-0.37939 0.30762l-0.04102 0.08545 0.01367 2.60449q0 0.23584 0.02735 0.30762 0.14014 0.48877 0.46826 0.82031 0.33154 0.32813 0.82031 0.46826 0.08545 0.02734 0.71436 0.02735l3.78027 0.01367 3.78027-0.01367q0.62891 0 0.71436-0.02735 0.48877-0.14014 0.81689-0.46826 0.33154-0.33154 0.47168-0.82031 0.02734-0.07178 0.02735-0.30762l0.01367-2.60449-0.04102-0.08545q-0.09912-0.16748-0.28027-0.2666-0.05811-0.02734-0.09912-0.04102-0.04102-0.01367-0.15381-0.01367-0.11279 0-0.15381 0.01367-0.04101 0.01367-0.09912 0.04102-0.18115 0.09912-0.28027 0.2666l-0.04102 0.08545-0.01367 2.63183-0.04102 0.09913q-0.14014 0.27685-0.43408 0.33496-0.09912 0.02734-4.18701 0.02734-4.08789 0-4.18701-0.02734-0.29395-0.05811-0.43408-0.33496l-0.04102-0.09913-0.01367-2.63183-0.04102-0.08545q-0.09912-0.18115-0.28027-0.2666-0.08545-0.04102-0.22559-0.04785-0.14014-0.00684-0.18115 0.00683z"
+              fill="#475569"
+            ></path>
           </svg>
-          <span className="whitespace-nowrap">Tải xuống (.zip)</span>
-        </button>
-
-        {/* Reindex AI */}
-        <button
-          type="button"
-          onClick={onReindexAI}
-          className="h-[32px] flex items-center gap-[6px] px-[12px] bg-[#4F46E5] hover:bg-[#4338CA] text-white rounded-[6px] text-[11px] font-semibold transition-colors cursor-pointer shadow-xs"
+          <div
+            class="text-[11px]/[normal] box-border text-[#334155] font-[Inter,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+          >
+            Tải xuống (.zip)
+          </div>
+        </div>
+        <div
+          class="box-border w-fit shrink-0 h-[32px] flex flex-row gap-[6px] p-[0px_12px] justify-start items-center bg-[#FEE2E2] [outline:1px_solid_#FCA5A5] [outline-offset:-0.5px] rounded-[6px]"
         >
-          <svg className="w-[13px] h-[13px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z" />
+          <svg
+            class="box-border w-[13px] shrink-0 h-[13px]"
+          >
+            <path
+              d="M5.65674 0.60156q-0.44775 0.04102-0.84766 0.32129-0.3999 0.28027-0.58105 0.70069-0.08545 0.21191-0.1128 0.37939-0.02734 0.16748-0.02734 0.50244l-0.01367 0.42041-2.4917 0-0.08545 0.05469q-0.18115 0.09912-0.28027 0.2666-0.04102 0.08545-0.04102 0.25293 0 0.16748 0.04102 0.24609 0.04443 0.0752 0.12646 0.16065 0.08545 0.08203 0.14697 0.11963 0.06494 0.03418 0.13331 0.04101 0.07178 0.00684 0.33496 0.00684l0.36572 0 0.01367 7.84082 0.04102 0.16748q0.07178 0.25293 0.18115 0.44092 0.11279 0.18799 0.29394 0.37256 0.18457 0.18115 0.37256 0.29394 0.18799 0.10938 0.44092 0.18115l0.16748 0.04102 6.33008 0 0.16748-0.04102q0.25293-0.07178 0.44092-0.18115 0.18799-0.11279 0.36914-0.29394 0.18457-0.18457 0.29394-0.37256 0.11279-0.18799 0.18457-0.44092l0.04102-0.16748 0.01367-7.84082 0.36572 0q0.26318 0 0.33155-0.00684 0.07178-0.00684 0.1333-0.04101 0.06494-0.0376 0.14697-0.11963 0.08545-0.08545 0.12647-0.16065 0.04443-0.07861 0.04443-0.24609 0-0.16748-0.04102-0.25293-0.09912-0.16748-0.28027-0.2666l-0.08545-0.05469-2.4917 0-0.01367-0.42041q0-0.28027-0.00684-0.37598-0.00684-0.09912-0.03418-0.21191-0.15381-0.56055-0.57422-0.91602-0.42041-0.35889-0.99462-0.41357-0.16748-0.01367-1.31592-0.00684-1.14844 0.00684-1.32959 0.02051z m2.74463 1.20313q0.19482 0.09912 0.29394 0.29394 0.02734 0.07178 0.03418 0.13672 0.00684 0.06152 0.02051 0.32813l0 0.3623-3.5 0 0-0.3623q0.01367-0.2666 0.02051-0.32813 0.00684-0.06494 0.03418-0.13672 0.08545-0.18115 0.22558-0.24951l0-0.01367q0.08203-0.04443 0.16748-0.05811 0.08545-0.01367 0.36573-0.02734l2.23877 0.01367 0.09912 0.04102z m2.09863 6.13183l-0.01367 3.86573-0.02735 0.08545q-0.12646 0.26318-0.37939 0.33496-0.08203 0.02734-3.07959 0.02734-2.99756 0-3.07959-0.02734-0.25293-0.07178-0.37939-0.33496l-0.02735-0.08545-0.01367-7.72803 7 0 0 3.8623z m-4.7749-2.08496q-0.12646 0.01367-0.2461 0.10596-0.11621 0.08887-0.17431 0.21533l-0.04102 0.09912-0.01367 3.33252q0.01367 0.3623 0.02734 0.4751 0.01367 0.08545 0.07178 0.15381l0.01367 0.02734q0.15381 0.21191 0.417 0.23242 0.2666 0.02051 0.46484-0.17431 0.12646-0.12646 0.15381-0.29395 0.02734-0.11279 0.02734-1.86279 0-1.75-0.02734-1.84912-0.04102-0.23584-0.23242-0.36914-0.18799-0.1333-0.44092-0.09229z m2.35156 0q-0.18115 0.01367-0.31445 0.14698-0.1333 0.1333-0.16065 0.31445-0.02734 0.09912-0.02734 1.86279 0 1.76367 0.02734 1.86279 0.02734 0.16748 0.15381 0.28028 0.19824 0.19482 0.46143 0.17431 0.2666-0.02051 0.42041-0.24609l0.01367-0.01367q0.05811-0.08203 0.07178-0.15381 0.01367-0.12646 0.02734-0.4751l0-3.2915-0.04102-0.0957q-0.08545-0.21191-0.25293-0.30762-0.16748-0.09912-0.37939-0.05811z"
+              fill="#DC2626"
+            ></path>
           </svg>
-          <span className="whitespace-nowrap">AI index lại các tệp</span>
-        </button>
-
-        {/* Bulk Delete */}
-        <button
-          type="button"
-          onClick={onBulkDelete}
-          className="h-[32px] flex items-center gap-[6px] px-[12px] bg-[#7F1D1D] hover:bg-[#991B1B] text-[#FCA5A5] rounded-[6px] text-[11px] font-semibold transition-colors cursor-pointer"
-        >
-          <svg className="w-[13px] h-[13px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 6h18" />
-            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-            <line x1="10" x2="10" y1="11" y2="17" />
-            <line x1="14" x2="14" y1="11" y2="17" />
-          </svg>
-          <span className="whitespace-nowrap">Xóa hàng loạt</span>
-        </button>
+          <div
+            class="text-[11px]/[normal] box-border text-[#DC2626] font-[Inter,system-ui,sans-serif] font-semibold text-left [white-space:nowrap]"
+          >
+            Xóa hàng loạt
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -18,8 +18,7 @@ export default function ProjectSidebar({ activeMenu = "dashboard" }) {
     },
     {
       id: "documents",
-      label: "Tài liệu (Documents)",
-      badge: "1.4k",
+      label: "Tài liệu",
       badgeColor: "bg-[#1E293B] text-[#818CF8]",
       icon: (
         <svg className="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -30,8 +29,7 @@ export default function ProjectSidebar({ activeMenu = "dashboard" }) {
     },
     {
       id: "ai-assistant",
-      label: "AI Assistant (Chatbot)",
-      badge: "LIVE",
+      label: "AI Assistant",
       badgeColor: "bg-[#064E3B] text-[#34D399]",
       icon: (
         <svg className="w-[18px] h-[18px] shrink-0 text-[#818CF8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -47,7 +45,7 @@ export default function ProjectSidebar({ activeMenu = "dashboard" }) {
     },
     {
       id: "members",
-      label: "Thành viên (Members)",
+      label: "Thành viên",
       icon: (
         <svg className="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
@@ -60,7 +58,7 @@ export default function ProjectSidebar({ activeMenu = "dashboard" }) {
     },
     {
       id: "settings",
-      label: "Cài đặt Dự án (Settings)",
+      label: "Cài đặt Dự án",
       icon: (
         <svg className="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
@@ -110,15 +108,6 @@ export default function ProjectSidebar({ activeMenu = "dashboard" }) {
                   {item.icon}
                   <span className="whitespace-nowrap">{item.label}</span>
                 </div>
-                {item.badge && (
-                  <span
-                    className={`text-[10px] font-semibold px-[6px] py-[2px] rounded-[10px] whitespace-nowrap ${
-                      item.badgeColor || "bg-[#1E293B] text-[#818CF8]"
-                    }`}
-                  >
-                    {item.badge}
-                  </span>
-                )}
               </a>
             );
           })}
@@ -156,26 +145,7 @@ export default function ProjectSidebar({ activeMenu = "dashboard" }) {
           </span>
         </div>
 
-        {/* Admin Portal Button */}
-        <button
-          type="button"
-          className="w-full h-[38px] flex items-center justify-between px-[12px] bg-[#0F172A] border border-[#334155] rounded-[8px] hover:bg-[#1E293B] transition-colors cursor-pointer"
-        >
-          <div className="flex items-center gap-[8px]">
-            <svg className="w-[14px] h-[14px] text-[#F59E0B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
-              <path d="M12 8v4" />
-              <path d="M12 16h.01" />
-            </svg>
-            <span className="text-[12px] font-semibold text-[#E2E8F0] whitespace-nowrap">
-              Admin Portal
-            </span>
-          </div>
-          <svg className="w-[14px] h-[14px] text-[#64748B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M7 7h10v10" />
-            <path d="M7 17 17 7" />
-          </svg>
-        </button>
+        
       </div>
     </aside>
   );

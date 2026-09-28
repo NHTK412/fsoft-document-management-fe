@@ -22,30 +22,25 @@ export default function GeneralStorageCard({
   ];
 
   return (
-    <div className="w-full bg-white border border-[#E2E8F0] rounded-[12px] p-[20px] flex flex-col gap-[20px] shadow-xs">
+    <div className="w-full bg-white border border-[#E2E8F0] rounded-[12px] p-6 lg:p-[26px] flex flex-col gap-6 shadow-xs">
       {/* Card Header */}
-      <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#F1F5F9]">
-        <div className="flex items-center gap-[10px]">
-          <div className="w-[32px] h-[32px] shrink-0 flex items-center justify-center bg-[#EEF2FF] rounded-[8px] text-[#4F46E5]">
-            <svg className="w-[16px] h-[16px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#F1F5F9]">
+        <div className="flex items-center gap-[12px]">
+          <div className="w-[36px] h-[36px] shrink-0 flex items-center justify-center bg-[#EEF2FF] rounded-[8px] text-[#4F46E5]">
+            <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" />
               <circle cx="12" cy="13" r="2" />
               <path d="M12 10v1" /><path d="M12 15v1" /><path d="m14.6 11.5-.9.5" /><path d="m10.3 14-.9.5" /><path d="m14.6 14.5-.9-.5" /><path d="m10.3 12-.9-.5" />
             </svg>
           </div>
           <div>
-            <h2 className="text-[15px] font-semibold text-[#0F172A]">
-              Thông Tin Chung &amp; Thông Số Lưu Trữ MinIO
+            <h2 className="text-[16px] font-bold text-[#0F172A]">
+              Thông Tin Chung
             </h2>
-            <p className="text-[12px] text-[#64748B]">
+            <p className="text-[13px] text-[#64748B]">
               Tên định danh dự án, biểu tượng đại diện, hạn mức tệp và định dạng cho phép
             </p>
           </div>
-        </div>
-
-        {/* Bucket Tag */}
-        <div className="shrink-0 px-[10px] py-[4px] bg-[#F1F5F9] border border-[#E2E8F0] rounded-[6px] text-[11px] font-semibold text-[#475569] self-start sm:self-auto">
-          MinIO Bucket: <span className="font-mono text-[#0F172A]">kbase-alpha-storage</span>
         </div>
       </div>
 
@@ -91,48 +86,48 @@ export default function GeneralStorageCard({
           </div>
 
           {/* Project Name Field */}
-          <div className="flex flex-col gap-[4px]">
-            <label className="text-[12px] font-semibold text-[#334155]">
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[13px] font-semibold text-[#334155]">
               Tên Dự Án <span className="text-[#EF4444]">*</span>
             </label>
             <input
               type="text"
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
-              className="w-full h-[38px] px-[12px] bg-white border border-[#CBD5E1] rounded-[8px] text-[13px] font-semibold text-[#0F172A] focus:outline-none focus:border-[#4F46E5] focus:ring-2 focus:ring-[#4F46E5]/20 transition-all"
+              className="w-full h-[42px] px-[14px] bg-white border border-[#CBD5E1] rounded-[8px] text-[14px] font-semibold text-[#0F172A] focus:outline-none focus:border-[#4F46E5] focus:ring-2 focus:ring-[#4F46E5]/20 transition-all"
             />
           </div>
 
           {/* Project Description Field */}
-          <div className="flex flex-col gap-[4px]">
-            <label className="text-[12px] font-semibold text-[#334155]">
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[13px] font-semibold text-[#334155]">
               Mô Tả Dự Án
             </label>
             <textarea
               rows={3}
               value={projectDesc}
               onChange={(e) => setProjectDesc(e.target.value)}
-              className="w-full p-[10px_12px] bg-white border border-[#CBD5E1] rounded-[8px] text-[12px] text-[#334155] focus:outline-none focus:border-[#4F46E5] focus:ring-2 focus:ring-[#4F46E5]/20 transition-all resize-none leading-relaxed"
+              className="w-full p-[12px_14px] bg-white border border-[#CBD5E1] rounded-[8px] text-[13px] text-[#334155] focus:outline-none focus:border-[#4F46E5] focus:ring-2 focus:ring-[#4F46E5]/20 transition-all resize-none leading-relaxed"
             />
           </div>
         </div>
 
         {/* Right Column: Storage Limits */}
-        <div className="flex flex-col gap-[14px]">
+        <div className="flex flex-col gap-[16px]">
           {/* Max Size Selector */}
           <div className="flex items-center justify-between gap-3">
             <div>
-              <div className="text-[12px] font-semibold text-[#334155]">
+              <div className="text-[13px] font-semibold text-[#334155]">
                 Dung lượng tệp tải lên tối đa
               </div>
-              <div className="text-[11px] text-[#94A3B8]">
+              <div className="text-[12px] text-[#94A3B8]">
                 Tệp vượt quá ngưỡng sẽ bị từ chối upload
               </div>
             </div>
             <select
               value={maxFileSize}
               onChange={(e) => setMaxFileSize(e.target.value)}
-              className="h-[36px] px-[12px] bg-[#F8FAFC] border border-[#CBD5E1] rounded-[8px] text-[12px] font-semibold text-[#1E293B] focus:outline-none focus:border-[#4F46E5] cursor-pointer"
+              className="h-[40px] px-[12px] bg-[#F8FAFC] border border-[#CBD5E1] rounded-[8px] text-[13px] font-semibold text-[#1E293B] focus:outline-none focus:border-[#4F46E5] cursor-pointer"
             >
               <option value="10 MB">10 MB / tệp</option>
               <option value="25 MB">25 MB / tệp</option>
@@ -143,18 +138,18 @@ export default function GeneralStorageCard({
           </div>
 
           {/* Allowed Formats Block */}
-          <div className="flex flex-col gap-[8px]">
+          <div className="flex flex-col gap-[10px]">
             <div className="flex items-center justify-between">
-              <span className="text-[12px] font-semibold text-[#334155]">
+              <span className="text-[13px] font-semibold text-[#334155]">
                 Định Dạng Tệp Cho Phép (Allowed Formats)
               </span>
-              <span className="text-[11px] font-medium text-[#059669]">
+              <span className="text-[12px] font-medium text-[#059669]">
                 {allowedFormats.length} / {allFormats.length} định dạng bật
               </span>
             </div>
 
             {/* Format Pills */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               {allFormats.map((fmt) => {
                 const isChecked = allowedFormats.includes(fmt.id);
                 return (
@@ -162,14 +157,14 @@ export default function GeneralStorageCard({
                     key={fmt.id}
                     type="button"
                     onClick={() => onToggleFormat(fmt.id)}
-                    className={`h-[32px] px-[8px] flex items-center gap-[6px] rounded-[6px] border text-[11px] font-semibold transition-all cursor-pointer ${
+                    className={`h-[36px] px-[10px] flex items-center gap-[8px] rounded-[8px] border text-[12px] font-semibold transition-all cursor-pointer ${
                       isChecked
                         ? "bg-[#EEF2FF] border-[#C7D2FE] text-[#3730A3]"
                         : "bg-[#F8FAFC] border-[#E2E8F0] text-[#94A3B8] hover:bg-[#F1F5F9]"
                     }`}
                   >
                     <svg
-                      className={`w-[12px] h-[12px] shrink-0 ${isChecked ? "text-[#4F46E5]" : "text-[#CBD5E1]"}`}
+                      className={`w-[13px] h-[13px] shrink-0 ${isChecked ? "text-[#4F46E5]" : "text-[#CBD5E1]"}`}
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -187,22 +182,22 @@ export default function GeneralStorageCard({
           </div>
 
           {/* Storage Summary Bar */}
-          <div className="w-full flex items-center justify-between p-[10px] bg-[#F8FAFC] border border-[#E2E8F0] rounded-[8px]">
-            <div className="flex items-center gap-[8px]">
-              <svg className="w-[14px] h-[14px] text-[#0284C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <div className="w-full flex items-center justify-between p-[12px_14px] bg-[#F8FAFC] border border-[#E2E8F0] rounded-[8px]">
+            <div className="flex items-center gap-[10px]">
+              <svg className="w-[16px] h-[16px] text-[#0284C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="22" x2="2" y1="12" y2="12" />
                 <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
                 <line x1="6" x2="6.01" y1="16" y2="16" />
                 <line x1="10" x2="10.01" y1="16" y2="16" />
               </svg>
-              <span className="text-[12px] text-[#475569]">
+              <span className="text-[13px] text-[#475569]">
                 Dung lượng MinIO hiện tại:
               </span>
-              <span className="text-[12px] font-semibold text-[#0284C7]">
+              <span className="text-[13px] font-semibold text-[#0284C7]">
                 1.2 GB / 10 GB (12% đã dùng)
               </span>
             </div>
-            <div className="px-[6px] py-[2px] bg-[#ECFDF5] rounded-[4px] text-[10px] font-semibold text-[#059669]">
+            <div className="px-[8px] py-[3px] bg-[#ECFDF5] rounded-[4px] text-[11px] font-semibold text-[#059669]">
               🟢 Bình thường
             </div>
           </div>
