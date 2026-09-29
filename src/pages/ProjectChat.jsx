@@ -224,6 +224,22 @@ export default function ProjectChat() {
     setActiveSessionId(sessionId);
   };
 
+  const handleCitationClick = async (citation) => {
+    if (!citation) return;
+    if (citation.documentId) {
+      try {
+        const res = await documentService.getPreviewUrl(projectId, citation.documentId);
+        const url = res?.data?.previewUrl || res?.data?.url || res?.data;
+        if (typeof url === "string" && url.startsWith("http")) {
+          window.open(url, "_blank");
+          return;
+        }
+      } catch (err) {
+        console.warn("Lỗi mở tài liệu trích dẫn:", err.message);
+      }
+    }
+  };
+
   const projectName = project?.title || project?.name || "AI Knowledge Core";
   const projectRole = project?.role || "Owner";
   const userInitials = user?.initials || (user?.fullName ? user.fullName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'NV');
@@ -277,9 +293,7 @@ export default function ProjectChat() {
                 messages={messages}
                 userInitials={userInitials}
                 sending={sending}
-                onCitationClick={(citation) => {
-                  console.log("Citation clicked:", citation);
-                }}
+                onCitationClick={handleCitationClick}
               />
             )}
 
