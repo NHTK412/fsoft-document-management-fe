@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { formatRole } from "@/utils/formatRole";
 
 export default function MembersTable({
   activeTab = "current",
@@ -65,14 +66,14 @@ export default function MembersTable({
                       <div className="w-[180px] shrink-0 flex items-center">
                         <span
                           className={`inline-flex items-center px-[10px] py-[4px] rounded-full text-[12px] font-bold ${
-                            member.role === "Project Owner"
+                            (member.role || '').toUpperCase().includes('OWNER')
                               ? "bg-[#ECFDF5] text-[#059669]"
-                              : member.role === "Admin"
+                              : (member.role || '').toUpperCase().includes('ADMIN')
                               ? "bg-[#FEF3C7] text-[#D97706]"
                               : "bg-[#EEF2FF] text-[#4F46E5]"
                           }`}
                         >
-                          {member.role}
+                          {formatRole(member.role)}
                         </span>
                       </div>
 
@@ -138,7 +139,7 @@ export default function MembersTable({
                                 >
                                   Xem lịch sử đóng góp
                                 </button>
-                                {member.role !== "Project Owner" && (
+                                {!((member.role || '').toUpperCase().includes('OWNER')) && (
                                   <button
                                     type="button"
                                     onClick={() => {
@@ -207,7 +208,7 @@ export default function MembersTable({
                       {/* Column 2: Role */}
                       <div className="w-[180px] shrink-0 flex items-center">
                         <span className="inline-flex items-center px-[10px] py-[4px] rounded-full text-[12px] font-bold bg-[#EEF2FF] text-[#4F46E5]">
-                          {invite.role}
+                          {formatRole(invite.role)}
                         </span>
                       </div>
 

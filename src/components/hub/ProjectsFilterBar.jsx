@@ -5,12 +5,13 @@ export const ProjectsFilterBar = ({
   onTabChange,
   searchQuery,
   onSearchChange,
-  counts = { all: 5, owner: 3, shared: 2 },
+  counts = { all: 0, owner: 0, shared: 0, invites: 0 },
 }) => {
   const tabs = [
-    { id: 'all', label: `Tất cả dự án (${counts.all})` },
-    { id: 'owner', label: `Tôi làm chủ (${counts.owner})` },
-    { id: 'shared', label: `Được chia sẻ (${counts.shared})` },
+    { id: 'all', label: `Tất cả dự án (${counts.all || 0})` },
+    { id: 'owner', label: `Tôi làm chủ (${counts.owner || 0})` },
+    { id: 'shared', label: `Được chia sẻ (${counts.shared || 0})` },
+    { id: 'invites', label: `Lời mời dự án`, count: counts.invites || 0 },
   ];
 
   return (
@@ -24,13 +25,24 @@ export const ProjectsFilterBar = ({
             <button
               key={tab.id}
               onClick={() => onTabChange?.(tab.id)}
-              className={`px-3.5 py-1.5 rounded-md text-[13px] font-medium transition-colors cursor-pointer shrink-0 ${
+              className={`px-3.5 py-1.5 rounded-md text-[13px] font-medium transition-colors cursor-pointer shrink-0 flex items-center gap-1.5 ${
                 isActive
                   ? 'bg-primary-50 text-primary-600 font-semibold'
                   : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'
               }`}
             >
-              {tab.label}
+              <span>{tab.label}</span>
+              {tab.id === 'invites' && (
+                tab.count > 0 ? (
+                  <span className="px-1.5 py-0.2 bg-red-500 text-white text-[10px] font-bold rounded-full animate-pulse shadow-xs">
+                    {tab.count}
+                  </span>
+                ) : (
+                  <span className="text-[12px] text-slate-400 font-normal">
+                    (0)
+                  </span>
+                )
+              )}
             </button>
           );
         })}

@@ -49,14 +49,16 @@ export default function ProjectDocuments() {
 
   // Load project details if not passed via route state
   useEffect(() => {
-    if (!project && projectId) {
+    if (location.state?.project && String(location.state.project.id) === String(projectId)) {
+      setProject(location.state.project);
+    } else if (projectId) {
       projectService.getProjectById(projectId)
         .then((res) => {
           if (res?.data) setProject(res.data);
         })
         .catch((e) => console.warn("Lỗi tải thông tin dự án:", e.message));
     }
-  }, [projectId, project]);
+  }, [projectId, location.state]);
 
   // Fetch documents from API
   const fetchDocuments = useCallback(async () => {
@@ -168,6 +170,7 @@ export default function ProjectDocuments() {
       <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-x-hidden">
         {/* Workspace Topbar */}
         <WorkspaceTopbar
+          currentProjectId={projectId}
           projectName={projectName}
           role={projectRole}
           user={{

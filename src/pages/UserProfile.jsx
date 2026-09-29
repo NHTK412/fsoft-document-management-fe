@@ -91,6 +91,7 @@ export default function UserProfile() {
       <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-x-hidden">
         {/* Topbar */}
         <WorkspaceTopbar
+          currentProjectId={currentProject?.id}
           projectName={projectName}
           role={projectRole}
           user={{ name: fullName || "Nguyễn Văn A", role, initials }}

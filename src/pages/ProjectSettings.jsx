@@ -31,6 +31,19 @@ export default function ProjectSettings() {
     }
   }, [projectId, navigate]);
 
+  // Sync project when projectId changes
+  useEffect(() => {
+    if (location.state?.project && String(location.state.project.id) === String(projectId)) {
+      setProject(location.state.project);
+    } else if (projectId) {
+      projectService.getProjectById(projectId)
+        .then((res) => {
+          if (res?.data) setProject(res.data);
+        })
+        .catch((e) => console.warn("Lỗi tải thông tin dự án:", e.message));
+    }
+  }, [projectId, location.state]);
+
   // Form State
   const [projectName, setProjectName] = useState("");
   const [projectDesc, setProjectDesc] = useState("");
@@ -163,6 +176,7 @@ export default function ProjectSettings() {
       <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-x-hidden">
         {/* Topbar */}
         <WorkspaceTopbar
+          currentProjectId={projectId}
           projectName={currentTitle}
           role={projectRole}
           user={{

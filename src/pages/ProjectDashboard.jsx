@@ -36,6 +36,19 @@ export default function ProjectDashboard() {
     }
   }, [projectId, navigate]);
 
+  // Sync project when projectId changes
+  useEffect(() => {
+    if (location.state?.project && String(location.state.project.id) === String(projectId)) {
+      setProject(location.state.project);
+    } else if (projectId) {
+      projectService.getProjectById(projectId)
+        .then((res) => {
+          if (res?.data) setProject(res.data);
+        })
+        .catch((e) => console.warn("Không thể tải thông tin dự án:", e.message));
+    }
+  }, [projectId, location.state]);
+
   const loadDashboardData = useCallback(async () => {
     if (!projectId) return;
     try {
@@ -55,22 +68,12 @@ export default function ProjectDashboard() {
       if (actsRes.status === "fulfilled" && actsRes.value?.data) {
         setActivities(actsRes.value.data);
       }
-
-      // If project details are not yet in state, fetch project
-      if (!project) {
-        try {
-          const pRes = await projectService.getProjectById(projectId);
-          if (pRes?.data) setProject(pRes.data);
-        } catch (e) {
-          console.warn("Không thể tải thông tin dự án:", e.message);
-        }
-      }
     } catch (err) {
       console.error("Lỗi khi tải dữ liệu dashboard:", err);
     } finally {
       setLoading(false);
     }
-  }, [projectId, project]);
+  }, [projectId]);
 
   useEffect(() => {
     loadDashboardData();
@@ -100,6 +103,7 @@ export default function ProjectDashboard() {
       <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-x-hidden">
         {/* Topbar */}
         <WorkspaceTopbar
+          currentProjectId={projectId}
           projectName={projectName}
           role={projectRole}
           user={{
@@ -130,10 +134,10 @@ export default function ProjectDashboard() {
                 onViewAll={handleViewAllFiles}
                 onQuickView={handleQuickViewFile}
               />
-              <FormatDistribution
+              {/* <FormatDistribution
                 totalFiles={stats?.formatDistribution?.totalFiles || "0"}
                 formats={stats?.formatDistribution?.formats}
-              />
+              /> */}
             </div>
 
             {/* Right 4-col: Realtime Activity Feed */}

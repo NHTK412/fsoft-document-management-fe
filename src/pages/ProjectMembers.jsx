@@ -42,14 +42,16 @@ export default function ProjectMembers() {
 
   // Load project details if needed
   useEffect(() => {
-    if (!project && projectId) {
+    if (location.state?.project && String(location.state.project.id) === String(projectId)) {
+      setProject(location.state.project);
+    } else if (projectId) {
       projectService.getProjectById(projectId)
         .then((res) => {
           if (res?.data) setProject(res.data);
         })
         .catch((e) => console.warn("Lỗi tải thông tin dự án:", e.message));
     }
-  }, [projectId, project]);
+  }, [projectId, location.state]);
 
   // Load members and pending invites
   const fetchData = useCallback(async () => {
@@ -148,6 +150,7 @@ export default function ProjectMembers() {
       <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-x-hidden">
         {/* Topbar */}
         <WorkspaceTopbar
+          currentProjectId={projectId}
           projectName={projectName}
           role={projectRole}
           user={{
