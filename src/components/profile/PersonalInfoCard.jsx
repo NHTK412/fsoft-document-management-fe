@@ -1,4 +1,5 @@
 import React from "react";
+import { formatRole } from "@/utils/formatRole";
 
 export default function PersonalInfoCard({
   fullName,
@@ -30,10 +31,7 @@ export default function PersonalInfoCard({
                 {fullName}
               </span>
               <span className="px-[8px] py-[2px] bg-[#EEF2FF] border border-[#C7D2FE] rounded-[6px] text-[11px] font-semibold text-[#4F46E5]">
-                {role}
-              </span>
-              <span className="px-[8px] py-[2px] bg-[#ECFDF5] rounded-[6px] text-[11px] font-semibold text-[#059669]">
-                Đã xác thực ✅
+                {formatRole(role)}
               </span>
             </div>
             <span className="text-[12px] text-[#64748B]">

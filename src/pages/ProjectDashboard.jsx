@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import ProjectSidebar from "../components/layout/ProjectSidebar.jsx";
 import WorkspaceTopbar from "../components/layout/WorkspaceTopbar.jsx";
@@ -7,49 +7,110 @@ import {
   DashboardMetrics,
   RecentlyViewedFiles,
   FormatDistribution,
-  ActivityFeed
+  ActivityFeed,
 } from "../components/dashboard";
+import { dashboardService, projectService } from "@/services";
+import { useAuth } from "@/contexts";
 
 export default function ProjectDashboard() {
   const navigate = useNavigate();
   const location = useLocation();
   const params = useParams();
-  const currentProject = location.state?.project;
+  const { user } = useAuth();
 
-  const projectName = currentProject?.title || "AI Knowledge Core";
-  const projectRole = currentProject?.role || "Owner";
-  const handleUploadClick = () => {
-    console.log("Upload File clicked");
-  };
+  const [project, setProject] = useState(location.state?.project || null);
+  const [stats, setStats] = useState(null);
+  const [recentFiles, setRecentFiles] = useState([]);
+  const [activities, setActivities] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleAskAIClick = () => {
-    console.log("Ask AI clicked");
-  };
+  const storedProjectId = localStorage.getItem("kbase_current_project_id");
+  const rawId = params.id || project?.id || storedProjectId;
+  const projectId = rawId && !isNaN(Number(rawId)) ? Number(rawId) : null;
+
+  useEffect(() => {
+    if (!projectId) {
+      navigate("/projects", { replace: true });
+    } else {
+      localStorage.setItem("kbase_current_project_id", String(projectId));
+    }
+  }, [projectId, navigate]);
+
+  // Sync project when projectId changes
+  useEffect(() => {
+    if (location.state?.project && String(location.state.project.id) === String(projectId)) {
+      setProject(location.state.project);
+    } else if (projectId) {
+      projectService.getProjectById(projectId)
+        .then((res) => {
+          if (res?.data) setProject(res.data);
+        })
+        .catch((e) => console.warn("Không thể tải thông tin dự án:", e.message));
+    }
+  }, [projectId, location.state]);
+
+  const loadDashboardData = useCallback(async () => {
+    if (!projectId) return;
+    try {
+      setLoading(true);
+      const [statsRes, filesRes, actsRes] = await Promise.allSettled([
+        dashboardService.getStats(projectId),
+        dashboardService.getRecentlyViewed(projectId, 5),
+        dashboardService.getActivities(projectId, 10),
+      ]);
+
+      if (statsRes.status === "fulfilled" && statsRes.value?.data) {
+        setStats(statsRes.value.data);
+      }
+      if (filesRes.status === "fulfilled" && filesRes.value?.data) {
+        setRecentFiles(filesRes.value.data);
+      }
+      if (actsRes.status === "fulfilled" && actsRes.value?.data) {
+        setActivities(actsRes.value.data);
+      }
+    } catch (err) {
+      console.error("Lỗi khi tải dữ liệu dashboard:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [projectId]);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
+
+  const projectName = project?.title || project?.name || "AI Knowledge Core";
+  const projectRole = project?.role || "Owner";
 
   const handleRefresh = () => {
-    console.log("Sync refreshed");
+    loadDashboardData();
   };
 
   const handleViewAllFiles = () => {
-    navigate("/documents", { state: { project: currentProject } });
+    navigate(`/projects/${projectId}/documents`, { state: { project } });
   };
 
   const handleQuickViewFile = (file) => {
-    console.log("Quick view file:", file);
+    navigate(`/projects/${projectId}/documents`, { state: { project, selectedFileId: file.id } });
   };
 
   return (
     <div className="w-full min-h-screen flex flex-row bg-[#F8FAFC] text-[#0F172A] font-[Inter,system-ui,sans-serif]">
       {/* 1. Left Sidebar */}
-      <ProjectSidebar activeMenu="dashboard" />
+      <ProjectSidebar activeMenu="dashboard" projectId={projectId} />
 
       {/* 2. Main Workspace Content Area */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-x-hidden">
         {/* Topbar */}
         <WorkspaceTopbar
+          currentProjectId={projectId}
           projectName={projectName}
           role={projectRole}
-          user={{ name: "Nguyễn Văn A", role: "Admin", initials: "NV" }}
+          user={{
+            name: user?.fullName || "Nguyễn Văn A",
+            role: user?.role || "Admin",
+            initials: user?.initials || "NV",
+          }}
         />
 
         {/* Dashboard Body */}
@@ -62,22 +123,26 @@ export default function ProjectDashboard() {
           />
 
           {/* 4 Metric Cards */}
-          <DashboardMetrics />
+          <DashboardMetrics metrics={stats?.metrics} />
 
           {/* Middle 2-Column Content */}
           <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-[20px] items-start">
             {/* Left 8-col: Recent Files & Format Distribution */}
             <div className="lg:col-span-8 flex flex-col gap-[20px]">
               <RecentlyViewedFiles
+                files={recentFiles.length > 0 ? recentFiles : undefined}
                 onViewAll={handleViewAllFiles}
                 onQuickView={handleQuickViewFile}
               />
-              <FormatDistribution totalFiles="1,428" />
+              {/* <FormatDistribution
+                totalFiles={stats?.formatDistribution?.totalFiles || "0"}
+                formats={stats?.formatDistribution?.formats}
+              /> */}
             </div>
 
             {/* Right 4-col: Realtime Activity Feed */}
             <div className="lg:col-span-4 flex flex-col gap-[20px]">
-              <ActivityFeed />
+              <ActivityFeed activities={activities.length > 0 ? activities : undefined} />
             </div>
           </div>
         </main>

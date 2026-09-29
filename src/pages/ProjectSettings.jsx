@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ProjectSidebar from "../components/layout/ProjectSidebar.jsx";
 import WorkspaceTopbar from "../components/layout/WorkspaceTopbar.jsx";
@@ -9,43 +9,82 @@ import {
   AiPersonaCard,
   DangerZoneCard,
 } from "../components/settings";
-
-const INITIAL_SETTINGS = {
-  projectName: "AI Knowledge Core",
-  projectDesc:
-    "Kho lưu trữ tài liệu kỹ thuật, kiến trúc hệ thống và quy chuẩn mã nguồn dành cho đội ngũ kỹ sư và nhà phát triển của dự án AI Knowledge Core.",
-  maxFileSize: "50 MB",
-  allowedFormats: ["pdf", "docx", "xlsx", "pptx", "md", "txt", "images", "video"],
-  temperature: 0.2,
-  systemPrompt: `Bạn là trợ lý AI chuyên gia kỹ thuật cho dự án AI Knowledge Core.
-Hãy trả lời súc tích, dựa trên các tài liệu đã được cung cấp trong dự án.
-Luôn kèm nhãn trích dẫn nguồn [File - Trang/Dòng] chính xác và định dạng code chuẩn.`,
-};
+import { projectService } from "@/services";
+import { useAuth } from "@/contexts";
 
 export default function ProjectSettings() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { id } = useParams();
+  const params = useParams();
+  const { user } = useAuth();
 
-  // Project state
-  const currentProject = location.state?.project;
-  const initialName = currentProject?.title || INITIAL_SETTINGS.projectName;
-  const projectRole = currentProject?.role || "Owner";
+  const [project, setProject] = useState(location.state?.project || null);
+  const storedProjectId = localStorage.getItem("kbase_current_project_id");
+  const rawId = params.id || project?.id || storedProjectId;
+  const projectId = rawId && !isNaN(Number(rawId)) ? Number(rawId) : null;
+
+  useEffect(() => {
+    if (!projectId) {
+      navigate("/projects", { replace: true });
+    } else {
+      localStorage.setItem("kbase_current_project_id", String(projectId));
+    }
+  }, [projectId, navigate]);
+
+  // Sync project when projectId changes
+  useEffect(() => {
+    if (location.state?.project && String(location.state.project.id) === String(projectId)) {
+      setProject(location.state.project);
+    } else if (projectId) {
+      projectService.getProjectById(projectId)
+        .then((res) => {
+          if (res?.data) setProject(res.data);
+        })
+        .catch((e) => console.warn("Lỗi tải thông tin dự án:", e.message));
+    }
+  }, [projectId, location.state]);
 
   // Form State
-  const [projectName, setProjectName] = useState(initialName);
-  const [projectDesc, setProjectDesc] = useState(INITIAL_SETTINGS.projectDesc);
-  const [maxFileSize, setMaxFileSize] = useState(INITIAL_SETTINGS.maxFileSize);
-  const [allowedFormats, setAllowedFormats] = useState(INITIAL_SETTINGS.allowedFormats);
-  const [temperature, setTemperature] = useState(INITIAL_SETTINGS.temperature);
-  const [systemPrompt, setSystemPrompt] = useState(INITIAL_SETTINGS.systemPrompt);
+  const [projectName, setProjectName] = useState("");
+  const [projectDesc, setProjectDesc] = useState("");
+  const [maxFileSize, setMaxFileSize] = useState("50 MB");
+  const [allowedFormats, setAllowedFormats] = useState(["pdf", "docx", "xlsx"]);
+  const [temperature, setTemperature] = useState(0.2);
+  const [systemPrompt, setSystemPrompt] = useState("");
 
-  // Tabs State
-  const [activeTab, setActiveTab] = useState("general"); // "general" | "ai" | "danger"
+  const [activeTab, setActiveTab] = useState("general");
+  const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [saveToast, setSaveToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("Cài đặt dự án đã được lưu thành công!");
 
-  // Format toggle handler
+  const fetchSettings = useCallback(async () => {
+    if (!projectId) return;
+    try {
+      setLoading(true);
+      const res = await projectService.getProjectSettings(projectId);
+      if (res?.data) {
+        const d = res.data;
+        setProjectName(d.projectName || "");
+        setProjectDesc(d.projectDesc || "");
+        setMaxFileSize(d.maxFileSize || "50 MB");
+        setAllowedFormats(d.allowedFormats || ["pdf", "docx", "xlsx"]);
+        if (d.aiPersona) {
+          setTemperature(d.aiPersona.temperature ?? 0.2);
+          setSystemPrompt(d.aiPersona.systemPrompt || "");
+        }
+      }
+    } catch (err) {
+      console.warn("Lỗi tải cài đặt dự án:", err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [projectId]);
+
+  useEffect(() => {
+    fetchSettings();
+  }, [fetchSettings]);
+
   const handleToggleFormat = (formatId) => {
     setAllowedFormats((prev) =>
       prev.includes(formatId)
@@ -54,130 +93,161 @@ export default function ProjectSettings() {
     );
   };
 
-  // Discard handler
   const handleDiscard = () => {
     if (confirm("Bạn có chắc chắn muốn hủy bỏ các thay đổi chưa lưu?")) {
-      setProjectName(initialName);
-      setProjectDesc(INITIAL_SETTINGS.projectDesc);
-      setMaxFileSize(INITIAL_SETTINGS.maxFileSize);
-      setAllowedFormats(INITIAL_SETTINGS.allowedFormats);
-      setTemperature(INITIAL_SETTINGS.temperature);
-      setSystemPrompt(INITIAL_SETTINGS.systemPrompt);
+      fetchSettings();
     }
   };
 
-  // Save handler
-  const handleSave = () => {
+  const handleSave = async () => {
     setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
+    try {
+      const payload = {
+        projectName,
+        projectDesc,
+        maxFileSize,
+        allowedFormats,
+        aiPersona: {
+          temperature,
+          systemPrompt,
+        },
+      };
+      await projectService.updateProjectSettings(projectId, payload);
+      setToastMessage("Cài đặt dự án đã được lưu thành công!");
       setSaveToast(true);
       setTimeout(() => setSaveToast(false), 3000);
-    }, 600);
-  };
-
-  // Danger actions
-  const handleTransferOwnership = () => {
-    const newOwner = prompt("Nhập địa chỉ email thành viên nhận quyền Project Owner:");
-    if (newOwner) {
-      alert(`Đã gửi yêu cầu chuyển nhượng dự án cho ${newOwner}.`);
+    } catch (err) {
+      alert("Lưu cài đặt thất bại: " + (err.message || "Lỗi không xác định"));
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const handleArchiveProject = () => {
-    if (
-      confirm(
-        "Bạn có chắc muốn lưu trữ dự án này? Dự án sẽ chuyển sang chế độ chỉ đọc."
-      )
-    ) {
-      alert("Dự án đã được chuyển sang chế độ lưu trữ.");
-    }
-  };
-
-  const handleDeleteProject = () => {
-    const confirmation = prompt(
-      `Hành động này không thể hoàn tác! Vui lòng gõ "${projectName}" để xác nhận xóa vĩnh viễn dự án:`
-    );
-    if (confirmation === projectName) {
-      alert("Dự án đã được xóa thành công.");
+  const handleTransferOwnership = async () => {
+    const newOwnerEmail = prompt("Nhập địa chỉ email thành viên nhận quyền Project Owner:");
+    if (!newOwnerEmail) return;
+    try {
+      await projectService.transferOwnership(projectId, newOwnerEmail.trim());
+      alert(`Đã chuyển nhượng quyền Project Owner thành công sang ${newOwnerEmail}.`);
       navigate("/projects");
-    } else if (confirmation !== null) {
-      alert("Tên dự án không khớp. Thao tác xóa đã bị hủy.");
+    } catch (err) {
+      alert("Chuyển nhượng thất bại: " + (err.message || "Lỗi không xác định"));
     }
   };
+
+  const handleArchiveProject = async () => {
+    if (!confirm("Bạn có chắc muốn lưu trữ dự án này? Dự án sẽ chuyển sang chế độ chỉ đọc.")) return;
+    try {
+      await projectService.archiveProject(projectId);
+      alert("Dự án đã được chuyển sang chế độ lưu trữ.");
+      navigate("/projects");
+    } catch (err) {
+      alert("Lưu trữ thất bại: " + (err.message || "Lỗi không xác định"));
+    }
+  };
+
+  const handleDeleteProject = async () => {
+    const confirmation = prompt(
+      `Hành động này không thể hoàn tác! Vui lòng gõ chính xác "${projectName}" để xác nhận xóa vĩnh viễn dự án:`
+    );
+    if (confirmation !== projectName) {
+      if (confirmation !== null) alert("Tên dự án xác nhận không trùng khớp!");
+      return;
+    }
+
+    try {
+      await projectService.deleteProject(projectId, confirmation);
+      alert("Dự án và toàn bộ dữ liệu MinIO, vector đã bị xóa vĩnh viễn!");
+      navigate("/projects");
+    } catch (err) {
+      alert("Xóa dự án thất bại: " + (err.message || "Lỗi không xác định"));
+    }
+  };
+
+  const currentTitle = projectName || project?.title || "AI Knowledge Core";
+  const projectRole = project?.role || "Owner";
 
   return (
     <div className="w-full min-h-screen flex flex-row bg-[#F8FAFC] text-[#0F172A] font-[Inter,system-ui,sans-serif]">
       {/* 1. Left Sidebar */}
-      <ProjectSidebar activeMenu="settings" />
+      <ProjectSidebar activeMenu="settings" projectId={projectId} />
 
       {/* 2. Main Workspace Content Area */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-x-hidden">
         {/* Topbar */}
         <WorkspaceTopbar
-          projectName={projectName}
+          currentProjectId={projectId}
+          projectName={currentTitle}
           role={projectRole}
-          user={{ name: "Nguyễn Văn A", role: "Admin", initials: "NV" }}
+          user={{
+            name: user?.fullName || "Nguyễn Văn A",
+            role: user?.role || "Admin",
+            initials: user?.initials || "NV",
+          }}
         />
 
         {/* Settings Body Content */}
-        <main className="flex-1 p-6 sm:p-8 lg:p-9 xl:p-10 flex flex-col gap-6 max-w-[1600px] w-full mx-auto relative">
-          {/* Toast Notification */}
-          {saveToast && (
-            <div className="fixed top-20 right-8 z-50 bg-[#064E3B] text-[#ECFDF5] border border-[#059669] px-4 py-3 rounded-lg shadow-xl flex items-center gap-2.5 animate-in fade-in slide-in-from-top-4 duration-200">
-              <svg className="w-5 h-5 text-[#34D399]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              <span className="text-[13px] font-semibold">
-                Cài đặt dự án đã được lưu thành công!
-              </span>
-            </div>
-          )}
-
+        <main className="flex-1 p-6 sm:p-8 lg:p-9 xl:p-10 flex flex-col gap-6 max-w-[1600px] w-full mx-auto pb-24">
           {/* Header */}
           <SettingsHeader
-            projectName={projectName}
             onDiscard={handleDiscard}
             onSave={handleSave}
             isSaving={isSaving}
           />
 
-          {/* Tabs */}
-          {/* <SettingsTabs activeTab={activeTab} onTabChange={setActiveTab} /> */}
+          {/* Success Toast */}
+          {saveToast && (
+            <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 p-3.5 bg-emerald-600 text-white rounded-lg shadow-lg text-[13px] font-semibold animate-in slide-in-from-bottom duration-200">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              <span>{toastMessage}</span>
+            </div>
+          )}
 
-          {/* Cards Content */}
-          <div className="w-full flex flex-col gap-6">
-            {/* 1. General & Storage Card */}
-            <GeneralStorageCard
-              projectName={projectName}
-              setProjectName={setProjectName}
-              projectDesc={projectDesc}
-              setProjectDesc={setProjectDesc}
-              maxFileSize={maxFileSize}
-              setMaxFileSize={setMaxFileSize}
-              allowedFormats={allowedFormats}
-              onToggleFormat={handleToggleFormat}
-            />
-            {/* 2. Bottom Row: AI Persona & Danger Zone */}
-            <div className="w-full flex flex-col lg:flex-row gap-6 items-stretch">
+          {/* Settings Tabs */}
+          <SettingsTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-              <div className={activeTab === "ai" ? "w-full" : "flex-1 w-full min-w-0 flex"}>
+          {loading ? (
+            <div className="w-full py-16 flex items-center justify-center text-slate-400">
+              <div className="w-6 h-6 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : (
+            <div className="w-full flex flex-col gap-6">
+              {/* Tab 1: General & Storage */}
+              {(activeTab === "general" || activeTab === "all") && (
+                <GeneralStorageCard
+                  projectName={projectName}
+                  onProjectNameChange={setProjectName}
+                  projectDesc={projectDesc}
+                  onProjectDescChange={setProjectDesc}
+                  maxFileSize={maxFileSize}
+                  onMaxFileSizeChange={setMaxFileSize}
+                  allowedFormats={allowedFormats}
+                  onToggleFormat={handleToggleFormat}
+                />
+              )}
+
+              {/* Tab 2: AI Persona */}
+              {(activeTab === "ai" || activeTab === "all") && (
                 <AiPersonaCard
                   temperature={temperature}
-                  setTemperature={setTemperature}
+                  onTemperatureChange={setTemperature}
                   systemPrompt={systemPrompt}
-                  setSystemPrompt={setSystemPrompt}
+                  onSystemPromptChange={setSystemPrompt}
                 />
-              </div>
-              <div className={activeTab === "danger" ? "w-full" : "flex-1 w-full min-w-0 flex"}>
+              )}
+
+              {/* Tab 3: Danger Zone */}
+              {(activeTab === "danger" || activeTab === "all") && (
                 <DangerZoneCard
                   onTransferOwnership={handleTransferOwnership}
                   onArchiveProject={handleArchiveProject}
                   onDeleteProject={handleDeleteProject}
                 />
-              </div>
+              )}
             </div>
-          </div>
+          )}
         </main>
       </div>
     </div>

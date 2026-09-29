@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatRole } from '@/utils/formatRole';
 
 export const ProjectCard = ({ project, onClick }) => {
   const {
@@ -14,7 +15,7 @@ export const ProjectCard = ({ project, onClick }) => {
     extraMembers = 0,
   } = project;
 
-  const isOwner = role?.toLowerCase() === 'owner';
+  const isOwner = (role || '').toUpperCase().includes('OWNER');
 
   return (
     <div
@@ -46,7 +47,7 @@ export const ProjectCard = ({ project, onClick }) => {
             : 'bg-blue-50 text-blue-700 border border-blue-200/60'
             }`}
         >
-          {role}
+          {formatRole(role)}
         </span>
       </div>
 

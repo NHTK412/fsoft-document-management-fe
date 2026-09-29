@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from "react";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import ProjectSidebar from "../components/layout/ProjectSidebar.jsx";
 import WorkspaceTopbar from "../components/layout/WorkspaceTopbar.jsx";
 import {
@@ -8,88 +8,173 @@ import {
   ChatMessageThread,
   ChatInputBox,
 } from "../components/chat";
+import { chatService, projectService } from "@/services";
+import { useAuth } from "@/contexts";
 
 export default function ProjectChat() {
+  const navigate = useNavigate();
   const location = useLocation();
   const params = useParams();
-  const currentProject = location.state?.project;
+  const { user } = useAuth();
 
-  const projectName = currentProject?.title || "AI Knowledge Core";
-  const projectRole = currentProject?.role || "Owner";
+  const [project, setProject] = useState(location.state?.project || null);
+  const storedProjectId = localStorage.getItem("kbase_current_project_id");
+  const rawId = params.id || project?.id || storedProjectId;
+  const projectId = rawId && !isNaN(Number(rawId)) ? Number(rawId) : null;
 
-  const [activeSessionId, setActiveSessionId] = useState("s1");
-  const [messages, setMessages] = useState([
-    {
-      id: "m1",
-      sender: "user",
-      text: "Quy trình triển khai microservices lên Kubernetes cụm Alpha như thế nào?",
-    },
-    {
-      id: "m2",
-      sender: "ai",
-      intro:
-        "Dựa trên tài liệu kiến trúc dự án, quy trình triển khai lên cụm Kubernetes Alpha bao gồm 3 bước chính:",
-      steps: [
-        "1. Đóng gói container image và gắn thẻ phiên bản (Semantic Tagging).",
-        "2. Đẩy Docker image lên Harbor Registry bảo mật nội bộ.",
-        "3. Áp dụng Helm chart cấu hình `kbase-prod` với Secret tự động phân bổ.",
-      ],
-      citation: {
-        fileName: "Architecture-v2.pdf",
-        page: 14,
-        confidence: "98.5%",
-      },
-    },
-  ]);
+  useEffect(() => {
+    if (!projectId) {
+      navigate("/projects", { replace: true });
+    } else {
+      localStorage.setItem("kbase_current_project_id", String(projectId));
+    }
+  }, [projectId, navigate]);
 
-  const handleSendMessage = (text) => {
-    const userMsg = {
+  const [sessions, setSessions] = useState([]);
+  const [activeSessionId, setActiveSessionId] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [sending, setSending] = useState(false);
+
+  // Load project details if needed
+  useEffect(() => {
+    if (location.state?.project && String(location.state.project.id) === String(projectId)) {
+      setProject(location.state.project);
+    } else if (projectId) {
+      projectService.getProjectById(projectId)
+        .then((res) => {
+          if (res?.data) setProject(res.data);
+        })
+        .catch((e) => console.warn("Lỗi tải thông tin dự án:", e.message));
+    }
+  }, [projectId, location.state]);
+
+  // Load sessions from API
+  const fetchSessions = useCallback(async () => {
+    if (!projectId) return;
+    try {
+      const res = await chatService.getSessions(projectId);
+      if (res?.data) {
+        setSessions(res.data);
+        if (res.data.length > 0 && !activeSessionId) {
+          setActiveSessionId(res.data[0].id);
+        }
+      }
+    } catch (err) {
+      console.warn("Lỗi tải danh sách phiên chat:", err.message);
+    }
+  }, [projectId, activeSessionId]);
+
+  useEffect(() => {
+    fetchSessions();
+  }, [fetchSessions]);
+
+  // Load messages for active session
+  useEffect(() => {
+    if (!projectId || !activeSessionId) {
+      setMessages([]);
+      return;
+    }
+
+    let isMounted = true;
+    const fetchMessages = async () => {
+      try {
+        setLoadingMessages(true);
+        const res = await chatService.getSessionMessages(projectId, activeSessionId);
+        if (isMounted && res?.data) {
+          setMessages(res.data);
+        }
+      } catch (err) {
+        console.warn("Lỗi tải tin nhắn phiên chat:", err.message);
+      } finally {
+        if (isMounted) setLoadingMessages(false);
+      }
+    };
+
+    fetchMessages();
+    return () => {
+      isMounted = false;
+    };
+  }, [projectId, activeSessionId]);
+
+  const handleSendMessage = async (text) => {
+    if (!text.trim() || sending) return;
+
+    let targetSessionId = activeSessionId;
+    const optimisticUserMsg = {
       id: `usr-${Date.now()}`,
       sender: "user",
       text,
+      createdAt: new Date().toISOString(),
     };
 
-    setMessages((prev) => [...prev, userMsg]);
+    setMessages((prev) => [...prev, optimisticUserMsg]);
+    setSending(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiReply = {
-        id: `ai-${Date.now()}`,
+    try {
+      // If no active session, create a new session first
+      if (!targetSessionId) {
+        const createRes = await chatService.createSession(projectId, text);
+        if (createRes?.data?.id) {
+          targetSessionId = createRes.data.id;
+          setActiveSessionId(targetSessionId);
+          await fetchSessions();
+        }
+      }
+
+      // Send message to AI RAG
+      const replyRes = await chatService.sendMessage(projectId, targetSessionId, text);
+      if (replyRes?.data) {
+        setMessages((prev) => [...prev, replyRes.data]);
+      }
+    } catch (err) {
+      console.error("Lỗi khi gửi tin nhắn AI:", err);
+      const errorAiMsg = {
+        id: `ai-err-${Date.now()}`,
         sender: "ai",
-        intro: `Đã truy xuất từ cơ sở tri thức "${projectName}":`,
-        text: `Hệ thống đã phân tích các tài liệu liên quan đến yêu cầu "${text}". Bạn có thể xem chi tiết trích dẫn ngữ cảnh từ các tài liệu đã lập chỉ mục vector.`,
-        citation: {
-          fileName: "Architecture-v2.pdf",
-          page: 1,
-          confidence: "97.2%",
-        },
+        intro: "Thông báo phản hồi từ hệ thống:",
+        text: "Xin lỗi, đã xảy ra sự cố khi truy vấn cơ sở tri thức RAG: " + err.message,
+        createdAt: new Date().toISOString(),
       };
-      setMessages((prev) => [...prev, aiReply]);
-    }, 600);
+      setMessages((prev) => [...prev, errorAiMsg]);
+    } finally {
+      setSending(false);
+    }
   };
 
   const handleNewChat = () => {
+    setActiveSessionId(null);
     setMessages([]);
   };
+
+  const projectName = project?.title || project?.name || "AI Knowledge Core";
+  const projectRole = project?.role || "Owner";
+  const userInitials = user?.initials || (user?.fullName ? user.fullName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'NV');
 
   return (
     <div className="w-full min-h-screen flex flex-row bg-[#F8FAFC] text-[#0F172A] font-[Inter,system-ui,sans-serif]">
       {/* 1. Left Project Sidebar */}
-      <ProjectSidebar activeMenu="ai-assistant" />
+      <ProjectSidebar activeMenu="ai-assistant" projectId={projectId} />
 
       {/* 2. Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-x-hidden">
         {/* Workspace Topbar */}
         <WorkspaceTopbar
+          currentProjectId={projectId}
           projectName={projectName}
           role={projectRole}
-          user={{ name: "Nguyễn Văn A", role: "Admin", initials: "NV" }}
+          user={{
+            name: user?.fullName || "Nguyễn Văn A",
+            role: user?.role || "Admin",
+            initials: userInitials,
+          }}
         />
 
         {/* Chat Main View (History Sidebar + Main Chat Pane) */}
         <div className="w-full flex-1 flex flex-row min-h-0 bg-white overflow-hidden">
           {/* Left Chat History Column */}
           <ChatHistorySidebar
+            sessions={sessions}
             activeSessionId={activeSessionId}
             onSelectSession={setActiveSessionId}
             onNewChat={handleNewChat}
@@ -99,23 +184,30 @@ export default function ProjectChat() {
           <div className="flex-1 h-full flex flex-col justify-between bg-white min-w-0">
             {/* Context Scope Bar */}
             <ContextScopeBar
-              scope="Toàn bộ tài liệu dự án (38 tệp • 1.2 GB)"
-              modelName="KBase RAG Engine v2"
+              scope={`Toàn bộ tài liệu dự án ${projectName}`}
+              modelName="Gemini RAG PGVector Engine"
               onScopeChange={() => console.log("Scope change clicked")}
             />
 
             {/* Message Thread */}
-            <ChatMessageThread
-              messages={messages}
-              userInitials="NV"
-              onCitationClick={(citation) =>
-                console.log("Citation clicked:", citation)
-              }
-            />
+            {loadingMessages ? (
+              <div className="w-full flex-1 flex items-center justify-center text-slate-400">
+                <div className="w-6 h-6 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : (
+              <ChatMessageThread
+                messages={messages}
+                userInitials={userInitials}
+                onCitationClick={(citation) => {
+                  console.log("Citation clicked:", citation);
+                }}
+              />
+            )}
 
             {/* Chat Input Section */}
             <ChatInputBox
               onSendMessage={handleSendMessage}
+              disabled={sending}
               onAttachFile={() => console.log("Attach file clicked")}
             />
           </div>

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import ProjectSidebar from "../components/layout/ProjectSidebar.jsx";
 import WorkspaceTopbar from "../components/layout/WorkspaceTopbar.jsx";
@@ -10,166 +10,154 @@ import {
   ChangeRoleModal,
   MemberSearch,
 } from "../components/members";
-
-const INITIAL_MEMBERS = [
-  {
-    id: 1,
-    name: "Nguyễn Văn A",
-    email: "alex@kbase.ai",
-    initial: "N",
-    avatarBg: "#4F46E5",
-    role: "Project Owner",
-    joinedDate: "12/01/2026",
-    contributions: "14 tệp",
-  },
-  {
-    id: 2,
-    name: "Trần Minh Tâm",
-    email: "tam.tran@kbase.ai",
-    initial: "T",
-    avatarBg: "#2563EB",
-    role: "Project Owner",
-    joinedDate: "15/01/2026",
-    contributions: "12 tệp",
-  },
-  {
-    id: 3,
-    name: "Lê Hoàng Nam",
-    email: "nam.le@kbase.ai",
-    initial: "L",
-    avatarBg: "#D97706",
-    role: "Member",
-    joinedDate: "02/02/2026",
-    contributions: "8 tệp",
-  },
-  {
-    id: 4,
-    name: "Hoàng Yến",
-    email: "yen.hoang@kbase.ai",
-    initial: "H",
-    avatarBg: "#EC4899",
-    role: "Member",
-    joinedDate: "10/02/2026",
-    contributions: "4 tệp",
-  },
-];
-
-const INITIAL_PENDING_INVITES = [
-  {
-    id: 101,
-    email: "ha.nguyen@fpt.com",
-    role: "Member",
-    sentDate: "24/02/2026",
-    expiresIn: "5 ngày",
-  },
-  {
-    id: 102,
-    email: "quang.le@ai-research.org",
-    role: "Member",
-    sentDate: "26/02/2026",
-    expiresIn: "6 ngày",
-  },
-  {
-    id: 103,
-    email: "thuy.duong@partner.io",
-    role: "Viewer",
-    sentDate: "27/02/2026",
-    expiresIn: "7 ngày",
-  },
-];
+import { memberService, projectService } from "@/services";
+import { useAuth } from "@/contexts";
 
 export default function ProjectMembers() {
-  const location = useLocation();
   const navigate = useNavigate();
-  const { id } = useParams();
+  const location = useLocation();
+  const params = useParams();
+  const { user } = useAuth();
 
-  // Project state
-  const currentProject = location.state?.project;
-  const projectName = currentProject?.title || "AI Knowledge Core";
-  const projectRole = currentProject?.role || "Owner";
+  const [project, setProject] = useState(location.state?.project || null);
+  const storedProjectId = localStorage.getItem("kbase_current_project_id");
+  const rawId = params.id || project?.id || storedProjectId;
+  const projectId = rawId && !isNaN(Number(rawId)) ? Number(rawId) : null;
 
-  // Members & Invitations State
-  const [members, setMembers] = useState(INITIAL_MEMBERS);
-  const [pendingInvites, setPendingInvites] = useState(INITIAL_PENDING_INVITES);
+  useEffect(() => {
+    if (!projectId) {
+      navigate("/projects", { replace: true });
+    } else {
+      localStorage.setItem("kbase_current_project_id", String(projectId));
+    }
+  }, [projectId, navigate]);
+
+  const [members, setMembers] = useState([]);
+  const [pendingInvites, setPendingInvites] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("current"); // "current" | "pending"
   const [searchQuery, setSearchQuery] = useState("");
-
-  // Filter members & pending invites based on searchQuery
-  const filteredMembers = useMemo(() => {
-    if (!searchQuery.trim()) return members;
-    const q = searchQuery.toLowerCase().trim();
-    return members.filter(
-      (m) =>
-        m.name.toLowerCase().includes(q) ||
-        m.email.toLowerCase().includes(q) ||
-        m.role.toLowerCase().includes(q)
-    );
-  }, [members, searchQuery]);
-
-  const filteredPendingInvites = useMemo(() => {
-    if (!searchQuery.trim()) return pendingInvites;
-    const q = searchQuery.toLowerCase().trim();
-    return pendingInvites.filter(
-      (i) =>
-        i.email.toLowerCase().includes(q) ||
-        i.role.toLowerCase().includes(q)
-    );
-  }, [pendingInvites, searchQuery]);
-
-  // Modals state
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [selectedMemberForRole, setSelectedMemberForRole] = useState(null);
 
-  // Handlers
+  // Load project details if needed
+  useEffect(() => {
+    if (location.state?.project && String(location.state.project.id) === String(projectId)) {
+      setProject(location.state.project);
+    } else if (projectId) {
+      projectService.getProjectById(projectId)
+        .then((res) => {
+          if (res?.data) setProject(res.data);
+        })
+        .catch((e) => console.warn("Lỗi tải thông tin dự án:", e.message));
+    }
+  }, [projectId, location.state]);
+
+  // Load members and pending invites
+  const fetchData = useCallback(async () => {
+    if (!projectId) return;
+    try {
+      setLoading(true);
+      const [membersRes, invitesRes] = await Promise.allSettled([
+        memberService.getMembers(projectId, searchQuery.trim() || undefined),
+        memberService.getPendingInvites(projectId),
+      ]);
+
+      if (membersRes.status === "fulfilled" && membersRes.value?.data) {
+        setMembers(membersRes.value.data);
+      }
+      if (invitesRes.status === "fulfilled" && invitesRes.value?.data) {
+        setPendingInvites(invitesRes.value.data);
+      }
+    } catch (err) {
+      console.warn("Lỗi khi tải dữ liệu thành viên:", err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [projectId, searchQuery]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
   const handleOpenInviteModal = () => {
     setIsInviteModalOpen(true);
   };
 
-  const handleSendInvite = ({ email, role }) => {
-    const newInvite = {
-      id: Date.now(),
-      email,
-      role,
-      sentDate: new Date().toLocaleDateString("vi-VN"),
-      expiresIn: "7 ngày",
-    };
-    setPendingInvites((prev) => [newInvite, ...prev]);
+  const handleSendInvite = async ({ email, role }) => {
+    try {
+      await memberService.inviteMember(projectId, email, role);
+      setIsInviteModalOpen(false);
+      await fetchData();
+      alert("Đã gửi lời mời tham gia thành công!");
+    } catch (err) {
+      alert("Gửi lời mời thất bại: " + (err.message || "Lỗi không xác định"));
+    }
   };
 
   const handleOpenChangeRole = (member) => {
     setSelectedMemberForRole(member);
   };
 
-  const handleSaveRole = (memberId, newRole) => {
-    setMembers((prev) =>
-      prev.map((m) => (m.id === memberId ? { ...m, role: newRole } : m))
-    );
+  const handleSaveRole = async (memberId, newRole) => {
+    try {
+      await memberService.updateMemberRole(projectId, memberId, newRole);
+      setSelectedMemberForRole(null);
+      await fetchData();
+    } catch (err) {
+      alert("Cập nhật vai trò thất bại: " + (err.message || "Lỗi không xác định"));
+    }
   };
 
-  const handleRemoveMember = (memberId) => {
-    setMembers((prev) => prev.filter((m) => m.id !== memberId));
+  const handleRemoveMember = async (memberId) => {
+    if (!confirm("Bạn có chắc chắn muốn xóa thành viên này khỏi dự án?")) return;
+    try {
+      await memberService.removeMember(projectId, memberId);
+      await fetchData();
+    } catch (err) {
+      alert("Xóa thành viên thất bại: " + (err.message || "Lỗi không xác định"));
+    }
   };
 
-  const handleResendInvite = (inviteId) => {
-    alert("Đã gửi lại email lời mời thành công!");
+  const handleResendInvite = async (inviteId) => {
+    try {
+      await memberService.resendInvite(projectId, inviteId);
+      alert("Đã gửi lại email lời mời thành công!");
+    } catch (err) {
+      alert("Gửi lại lời mời thất bại: " + (err.message || "Lỗi không xác định"));
+    }
   };
 
-  const handleCancelInvite = (inviteId) => {
-    setPendingInvites((prev) => prev.filter((i) => i.id !== inviteId));
+  const handleCancelInvite = async (inviteId) => {
+    if (!confirm("Bạn có chắc muốn hủy lời mời này?")) return;
+    try {
+      await memberService.cancelInvite(projectId, inviteId);
+      await fetchData();
+    } catch (err) {
+      alert("Hủy lời mời thất bại: " + (err.message || "Lỗi không xác định"));
+    }
   };
+
+  const projectName = project?.title || project?.name || "AI Knowledge Core";
+  const projectRole = project?.role || "Owner";
 
   return (
     <div className="w-full min-h-screen flex flex-row bg-[#F8FAFC] text-[#0F172A] font-[Inter,system-ui,sans-serif]">
       {/* 1. Left Sidebar */}
-      <ProjectSidebar activeMenu="members" />
+      <ProjectSidebar activeMenu="members" projectId={projectId} />
 
       {/* 2. Main Workspace Content Area */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-x-hidden">
         {/* Topbar */}
         <WorkspaceTopbar
+          currentProjectId={projectId}
           projectName={projectName}
           role={projectRole}
-          user={{ name: "Nguyễn Văn A", role: "Admin", initials: "NV" }}
+          user={{
+            name: user?.fullName || "Nguyễn Văn A",
+            role: user?.role || "Admin",
+            initials: user?.initials || "NV",
+          }}
         />
 
         {/* Members Body Content */}
@@ -177,7 +165,7 @@ export default function ProjectMembers() {
           {/* Header */}
           <MembersHeader onInviteClick={handleOpenInviteModal} />
 
-          {/* Search Toolbar (Reusing document search component) */}
+          {/* Search Toolbar */}
           <MemberSearch
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
@@ -188,20 +176,26 @@ export default function ProjectMembers() {
           <MembersTabs
             activeTab={activeTab}
             onTabChange={setActiveTab}
-            currentCount={filteredMembers.length}
-            pendingCount={filteredPendingInvites.length}
+            currentCount={members.length}
+            pendingCount={pendingInvites.length}
           />
 
           {/* Members Table */}
-          <MembersTable
-            activeTab={activeTab}
-            members={filteredMembers}
-            pendingInvites={filteredPendingInvites}
-            onChangeRole={handleOpenChangeRole}
-            onRemoveMember={handleRemoveMember}
-            onResendInvite={handleResendInvite}
-            onCancelInvite={handleCancelInvite}
-          />
+          {loading ? (
+            <div className="w-full py-16 flex items-center justify-center text-slate-400">
+              <div className="w-6 h-6 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : (
+            <MembersTable
+              activeTab={activeTab}
+              members={members}
+              pendingInvites={pendingInvites}
+              onChangeRole={handleOpenChangeRole}
+              onRemoveMember={handleRemoveMember}
+              onResendInvite={handleResendInvite}
+              onCancelInvite={handleCancelInvite}
+            />
+          )}
         </main>
       </div>
 

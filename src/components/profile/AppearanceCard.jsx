@@ -73,24 +73,21 @@ export default function AppearanceCard({
               key={opt.id}
               type="button"
               onClick={() => setTheme(opt.id)}
-              className={`h-[58px] px-[16px] flex items-center justify-between rounded-[8px] transition-all cursor-pointer text-left ${
-                isSelected
+              className={`h-[58px] px-[16px] flex items-center justify-between rounded-[8px] transition-all cursor-pointer text-left ${isSelected
                   ? "bg-[#F5F3FF] border-2 border-[#4F46E5] text-[#4338CA]"
                   : "bg-white border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#1E293B]"
-              }`}
+                }`}
             >
               <div className="flex items-center gap-[12px]">
                 <div
-                  className={`w-[32px] h-[32px] shrink-0 flex items-center justify-center rounded-[6px] ${
-                    isSelected ? "bg-[#4F46E5]" : "bg-[#F1F5F9]"
-                  }`}
+                  className={`w-[32px] h-[32px] shrink-0 flex items-center justify-center rounded-[6px] ${isSelected ? "bg-[#4F46E5]" : "bg-[#F1F5F9]"
+                    }`}
                 >
                   {opt.icon}
                 </div>
                 <span
-                  className={`text-[13px] ${
-                    isSelected ? "font-semibold" : "font-medium"
-                  }`}
+                  className={`text-[13px] ${isSelected ? "font-semibold" : "font-medium"
+                    }`}
                 >
                   {opt.label}
                 </span>
