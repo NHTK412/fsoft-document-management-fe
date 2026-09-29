@@ -26,7 +26,7 @@ export default function AiPersonaCard({
             </svg>
           </div>
           <span className="text-[15px] font-bold text-[#0F172A]">
-            Chỉ Thị AI Chatbot (Persona)
+            Chỉ Thị AI Chatbot
           </span>
         </div>
 
@@ -36,7 +36,7 @@ export default function AiPersonaCard({
       <div className="w-full flex flex-col gap-[8px]">
         <div className="w-full flex items-center justify-between text-[13px]">
           <span className="font-semibold text-[#334155]">
-            Độ sáng tạo (Temperature)
+            Độ sáng tạo 
           </span>
           <span className="font-semibold text-[#4F46E5]">
             {getTempDescription(temperature)}
@@ -65,7 +65,7 @@ export default function AiPersonaCard({
       {/* System Prompt Block */}
       <div className="w-full flex flex-col gap-[6px]">
         <label className="text-[13px] font-semibold text-[#334155]">
-          Chỉ thị hệ thống (System Prompt)
+          Chỉ thị hệ thống 
         </label>
         <textarea
           rows={4}

@@ -18,7 +18,7 @@ export default function DangerZoneCard({
         </div>
         <div className="flex flex-col">
           <span className="text-[15px] font-bold text-[#991B1B]">
-            Vùng Nguy Hiểm (Danger Zone)
+            Vùng Nguy Hiểm
           </span>
           <span className="text-[12px] text-[#B91C1C]">
             Thao tác không thể hoàn tác, vui lòng thận trọng!
@@ -30,7 +30,7 @@ export default function DangerZoneCard({
       <div className="w-full flex items-center justify-between gap-3 pt-1">
         <div className="flex flex-col gap-[2px]">
           <span className="text-[13px] font-semibold text-[#7F1D1D]">
-            Chuyển nhượng quyền sở hữu (Transfer)
+            Chuyển nhượng quyền sở hữu  
           </span>
           <span className="text-[12px] text-[#991B1B]">
             Bàn giao quyền Project Owner cho thành viên khác.
@@ -39,7 +39,7 @@ export default function DangerZoneCard({
         <button
           type="button"
           onClick={onTransferOwnership}
-          className="shrink-0 h-[34px] px-[14px] bg-white border border-[#FCA5A5] hover:bg-[#FEF2F2] text-[#B91C1C] text-[12px] font-semibold rounded-[6px] transition-colors cursor-pointer"
+          className="shrink-0 h-[34px] px-[14px] bg-white border border-[#FCA5A5] hover:bg-[#FEF2F2] text-[#B91C1C] text-[12px] font-semibold rounded-[6px] transition-colors cursor-pointer w-[130px]"
         >
           Chuyển nhượng
         </button>
@@ -49,7 +49,7 @@ export default function DangerZoneCard({
       <div className="w-full flex items-center justify-between gap-3 pt-1">
         <div className="flex flex-col gap-[2px]">
           <span className="text-[13px] font-semibold text-[#7F1D1D]">
-            Lưu trữ dự án (Archive Project)
+            Lưu trữ dự án 
           </span>
           <span className="text-[12px] text-[#991B1B]">
             Chuyển sang chế độ chỉ đọc. Đóng băng dữ liệu.
@@ -58,7 +58,7 @@ export default function DangerZoneCard({
         <button
           type="button"
           onClick={onArchiveProject}
-          className="shrink-0 h-[34px] px-[14px] bg-white border border-[#FCA5A5] hover:bg-[#FEF2F2] text-[#B91C1C] text-[12px] font-semibold rounded-[6px] transition-colors cursor-pointer"
+          className="shrink-0 h-[34px] px-[14px] bg-white border border-[#FCA5A5] hover:bg-[#FEF2F2] text-[#B91C1C] text-[12px] font-semibold rounded-[6px] transition-colors cursor-pointer w-[130px]"
         >
           Lưu trữ
         </button>
@@ -68,7 +68,7 @@ export default function DangerZoneCard({
       <div className="w-full flex items-center justify-between gap-3 pt-1">
         <div className="flex flex-col gap-[2px]">
           <span className="text-[13px] font-bold text-[#991B1B]">
-            Xóa vĩnh viễn dự án (Delete Project)
+            Xóa vĩnh viễn dự án 
           </span>
           <span className="text-[12px] text-[#B91C1C]">
             Xóa sạch toàn bộ tệp MinIO và vector. Không thể khôi phục.
@@ -77,7 +77,7 @@ export default function DangerZoneCard({
         <button
           type="button"
           onClick={onDeleteProject}
-          className="shrink-0 h-[34px] px-[14px] bg-[#EF4444] hover:bg-[#DC2626] text-white text-[12px] font-bold rounded-[6px] transition-colors cursor-pointer shadow-xs"
+          className="shrink-0 h-[34px] px-[14px] bg-[#EF4444] hover:bg-[#DC2626] text-white text-[12px] font-bold rounded-[6px] transition-colors cursor-pointer shadow-xs w-[130px]"
         >
           Xóa Dự Án
         </button>

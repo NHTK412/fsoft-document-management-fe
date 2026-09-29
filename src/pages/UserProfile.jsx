@@ -98,7 +98,7 @@ export default function UserProfile() {
         />
 
         {/* Profile Body Content */}
-        <main className="flex-1 p-[24px_28px_28px_28px] flex flex-col gap-[16px] max-w-[1400px] w-full mx-auto relative">
+        <main className="flex-1 p-6 sm:p-8 lg:p-9 xl:p-10 flex flex-col gap-6 max-w-[1600px] w-full mx-auto pb-24 relative">
           {saveToast && (
             <div className="fixed top-20 right-8 z-50 bg-[#064E3B] text-[#ECFDF5] border border-[#059669] px-4 py-3 rounded-lg shadow-xl flex items-center gap-2.5 animate-in fade-in slide-in-from-top-4 duration-200">
               <svg className="w-5 h-5 text-[#34D399]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -124,7 +124,7 @@ export default function UserProfile() {
               <div className="w-6 h-6 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
             </div>
           ) : (
-            <div className="w-full max-w-[960px]">
+            <div className="w-full">
               <PersonalInfoCard
                 fullName={fullName}
                 title={title}

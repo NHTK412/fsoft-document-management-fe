@@ -137,7 +137,7 @@ export default function GeneralStorageCard({
           <div className="flex flex-col gap-[10px]">
             <div className="flex items-center justify-between">
               <span className="text-[13px] font-semibold text-[#334155]">
-                Định Dạng Tệp Cho Phép (Allowed Formats)
+                Định Dạng Tệp Cho Phép
               </span>
               <span className="text-[12px] font-medium text-[#059669]">
                 {allowedFormats.length} / {allFormats.length} định dạng bật
