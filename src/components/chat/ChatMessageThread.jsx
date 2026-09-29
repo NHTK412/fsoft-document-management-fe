@@ -5,31 +5,30 @@ export default function ChatMessageThread({
   userInitials = "NV",
   onCitationClick,
 }) {
-  const defaultMessages = [
-    {
-      id: "m1",
-      sender: "user",
-      text: "Quy trình triển khai microservices lên Kubernetes cụm Alpha như thế nào?",
-    },
-    {
-      id: "m2",
-      sender: "ai",
-      intro:
-        "Dựa trên tài liệu kiến trúc dự án, quy trình triển khai lên cụm Kubernetes Alpha bao gồm 3 bước chính:",
-      steps: [
-        "1. Đóng gói container image và gắn thẻ phiên bản (Semantic Tagging).",
-        "2. Đẩy Docker image lên Harbor Registry bảo mật nội bộ.",
-        "3. Áp dụng Helm chart cấu hình `kbase-prod` với Secret tự động phân bổ.",
-      ],
-      citation: {
-        fileName: "Architecture-v2.pdf",
-        page: 14,
-        confidence: "98.5%",
-      },
-    },
-  ];
+  const thread = Array.isArray(messages) ? messages : [];
 
-  const thread = messages || defaultMessages;
+  if (thread.length === 0) {
+    return (
+      <div className="w-full flex-1 flex flex-col items-center justify-center p-8 text-center my-auto">
+        <div className="w-14 h-14 rounded-2xl bg-[#EEF2FF] flex items-center justify-center text-[#4F46E5] mb-3 shadow-xs">
+          <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 8V4H8" />
+            <rect width="16" height="12" x="4" y="8" rx="2" />
+            <path d="M2 14h2" />
+            <path d="M20 14h2" />
+            <path d="M15 13v2" />
+            <path d="M9 13v2" />
+          </svg>
+        </div>
+        <h3 className="text-[15px] font-semibold text-[#0F172A] mb-1">
+          Chưa có tin nhắn nào trong phiên này
+        </h3>
+        <p className="text-[13px] text-[#64748B] max-w-md">
+          Hãy nhập câu hỏi bên dưới để bắt đầu tra cứu và trao đổi thông tin với AI từ kho tài liệu dự án của bạn.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full flex-1 flex flex-col gap-[20px] p-[24px_32px] overflow-y-auto">

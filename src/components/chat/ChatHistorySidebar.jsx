@@ -2,39 +2,10 @@ import React from "react";
 
 export default function ChatHistorySidebar({
   sessions,
-  activeSessionId = "s1",
+  activeSessionId,
   onSelectSession,
   onNewChat,
 }) {
-  const defaultHistoryGroups = [
-    {
-      group: "HÔM NAY",
-      sessions: [
-        {
-          id: "s1",
-          title: "Quy trình triển khai K8s Alpha...",
-        },
-        {
-          id: "s2",
-          title: "Cấu hình MinIO S3 bucket...",
-        },
-      ],
-    },
-    {
-      group: "7 NGÀY QUA",
-      sessions: [
-        {
-          id: "s3",
-          title: "Vector chunks embedding spec...",
-        },
-        {
-          id: "s4",
-          title: "Kiến trúc JWT & RBAC 2.0...",
-        },
-      ],
-    },
-  ];
-
   const hasRealSessions = Array.isArray(sessions) && sessions.length > 0;
 
   return (
@@ -91,43 +62,19 @@ export default function ChatHistorySidebar({
             })}
           </div>
         ) : (
-          defaultHistoryGroups.map((group) => (
-            <div key={group.group} className="w-full flex flex-col gap-[6px]">
-              <span className="text-[10px] font-bold text-[#94A3B8] tracking-wider uppercase px-[10px]">
-                {group.group}
-              </span>
-              {group.sessions.map((session) => {
-                const isActive = activeSessionId === session.id;
-                return (
-                  <button
-                    key={session.id}
-                    type="button"
-                    onClick={() => onSelectSession && onSelectSession(session.id)}
-                    className={`w-full h-[36px] flex items-center gap-[8px] px-[10px] rounded-[6px] text-[12px] text-left transition-colors cursor-pointer truncate ${
-                      isActive
-                        ? "bg-[#EEF2FF] text-[#4F46E5] font-semibold"
-                        : "text-[#334155] font-normal hover:bg-[#F8FAFC]"
-                    }`}
-                  >
-                    <svg
-                      className={`w-[14px] h-[14px] shrink-0 ${
-                        isActive ? "text-[#4F46E5]" : "text-[#64748B]"
-                      }`}
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                    </svg>
-                    <span className="truncate">{session.title}</span>
-                  </button>
-                );
-              })}
+          <div className="w-full h-full flex flex-col items-center justify-center text-center p-4 gap-2 my-auto">
+            <div className="w-10 h-10 rounded-full bg-[#F1F5F9] flex items-center justify-center text-[#94A3B8]">
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
             </div>
-          ))
+            <p className="text-[13px] font-semibold text-[#64748B]">
+              Chưa có lịch sử trò chuyện
+            </p>
+            <p className="text-[11px] text-[#94A3B8]">
+              Bấm &ldquo;Cuộc trò chuyện mới&rdquo; để bắt đầu đặt câu hỏi với AI
+            </p>
+          </div>
         )}
       </div>
     </div>

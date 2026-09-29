@@ -185,7 +185,7 @@ export default function ProjectChat() {
             {/* Context Scope Bar */}
             <ContextScopeBar
               scope={`Toàn bộ tài liệu dự án ${projectName}`}
-              modelName="Gemini RAG PGVector Engine"
+              modelName=""
               onScopeChange={() => console.log("Scope change clicked")}
             />
 

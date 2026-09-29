@@ -28,14 +28,6 @@ export default function ContextScopeBar({
           </svg>
         </button>
       </div>
-
-      {/* Model Badge */}
-      <div className="flex items-center gap-[6px] px-[8px] py-[3px] bg-[#ECFDF5] rounded-[4px]">
-        <span className="w-[6px] h-[6px] bg-[#10B981] rounded-full animate-pulse" />
-        <span className="text-[11px] font-semibold text-[#059669] whitespace-nowrap">
-          {modelName}
-        </span>
-      </div>
     </div>
   );
 }
