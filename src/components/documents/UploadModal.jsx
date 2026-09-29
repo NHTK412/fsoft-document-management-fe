@@ -14,10 +14,32 @@ export default function UploadModal({
 
   if (!isOpen) return null;
 
+  const ALLOWED_EXTENSIONS = ['pdf', 'docx', 'doc', 'md', 'txt'];
+
   const handleFiles = async (files) => {
     if (!files || files.length === 0) return;
 
-    const newItems = Array.from(files).map((file, idx) => ({
+    const validFiles = [];
+    const invalidNames = [];
+
+    Array.from(files).forEach((file) => {
+      const ext = file.name.split('.').pop()?.toLowerCase() || '';
+      if (ALLOWED_EXTENSIONS.includes(ext)) {
+        validFiles.push(file);
+      } else {
+        invalidNames.push(file.name);
+      }
+    });
+
+    if (invalidNames.length > 0) {
+      alert(
+        `Các tệp sau không được hỗ trợ:\n- ${invalidNames.join('\n- ')}\n\nHệ thống chỉ cho phép tải lên các định dạng: PDF (.pdf), Word (.docx, .doc), Markdown (.md) và Text (.txt).`
+      );
+    }
+
+    if (validFiles.length === 0) return;
+
+    const newItems = validFiles.map((file, idx) => ({
       id: `upload-${Date.now()}-${idx}`,
       file,
       name: file.name,
@@ -40,11 +62,10 @@ export default function UploadModal({
 
         // Determine category from extension
         const ext = item.type;
-        let category = 'docs';
-        if (['xlsx', 'xls', 'csv'].includes(ext)) category = 'sheets';
-        else if (['mp4', 'mov', 'avi', 'mkv'].includes(ext)) category = 'media';
-        else if (['jpg', 'jpeg', 'png', 'svg', 'webp'].includes(ext)) category = 'images';
-        else if (['py', 'java', 'js', 'jsx', 'ts', 'tsx', 'html', 'css', 'json'].includes(ext)) category = 'code';
+        let category = 'pdf';
+        if (['docx', 'doc'].includes(ext)) category = 'word';
+        else if (ext === 'md') category = 'md';
+        else if (ext === 'txt') category = 'txt';
 
         await documentService.uploadDocument(projectId, item.file, category);
 
@@ -94,34 +115,38 @@ export default function UploadModal({
             </svg>
           </div>
         );
-      case "mp4":
-      case "mov":
-        return (
-          <div className="w-[30px] h-[30px] shrink-0 flex items-center justify-center bg-[#F3E8FF] rounded-[6px]">
-            <svg className="w-[15px] h-[15px] text-[#9333EA]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect width="18" height="14" x="2" y="5" rx="2" />
-              <path d="m22 9-5 3 5 3V9Z" />
-            </svg>
-          </div>
-        );
-      case "xlsx":
-      case "csv":
-        return (
-          <div className="w-[30px] h-[30px] shrink-0 flex items-center justify-center bg-[#ECFDF5] rounded-[6px]">
-            <svg className="w-[15px] h-[15px] text-[#059669]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect width="18" height="18" x="3" y="3" rx="2" />
-              <path d="M3 9h18" />
-              <path d="M3 15h18" />
-              <path d="M12 3v18" />
-            </svg>
-          </div>
-        );
-      default:
+      case "docx":
+      case "doc":
         return (
           <div className="w-[30px] h-[30px] shrink-0 flex items-center justify-center bg-[#EFF6FF] rounded-[6px]">
-            <svg className="w-[15px] h-[15px] text-[#3B82F6]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg className="w-[15px] h-[15px] text-[#2563EB]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
               <polyline points="14 2 14 8 20 8" />
+              <line x1="8" y1="13" x2="16" y2="13" />
+              <line x1="8" y1="17" x2="14" y2="17" />
+            </svg>
+          </div>
+        );
+      case "md":
+        return (
+          <div className="w-[30px] h-[30px] shrink-0 flex items-center justify-center bg-[#F3E8FF] rounded-[6px]">
+            <svg className="w-[15px] h-[15px] text-[#7C3AED]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect width="18" height="14" x="3" y="5" rx="2" />
+              <path d="M7 15V9l3 3 3-3v6" />
+              <path d="m17 13 2 2 2-2" />
+              <path d="M19 9v6" />
+            </svg>
+          </div>
+        );
+      case "txt":
+      default:
+        return (
+          <div className="w-[30px] h-[30px] shrink-0 flex items-center justify-center bg-[#F8FAFC] border border-[#E2E8F0] rounded-[6px]">
+            <svg className="w-[15px] h-[15px] text-[#64748B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="9" y1="12" x2="15" y2="12" />
+              <line x1="9" y1="16" x2="13" y2="16" />
             </svg>
           </div>
         );
@@ -180,6 +205,7 @@ export default function UploadModal({
               type="file"
               ref={fileInputRef}
               multiple
+              accept=".pdf,.docx,.doc,.md,.txt"
               onChange={(e) => handleFiles(e.target.files)}
               className="hidden"
             />
@@ -193,7 +219,7 @@ export default function UploadModal({
 
             <div className="flex items-center gap-[6px] flex-wrap justify-center text-center">
               <span className="text-[13px] font-semibold text-[#1E293B]">
-                Kéo và thả tệp tài liệu, video, hình ảnh vào đây hoặc
+                Kéo và thả tệp tài liệu vào đây hoặc
               </span>
               <span className="text-[13px] font-bold text-[#4F46E5] hover:underline">
                 Duyệt từ máy tính
@@ -202,7 +228,7 @@ export default function UploadModal({
 
             <div className="px-[12px] py-[4px] bg-white border border-[#E2E8F0] rounded-[20px]">
               <span className="text-[11px] text-[#64748B]">
-                Hỗ trợ: PDF, DOCX, XLSX, PPTX, MD, TXT, JPG, PNG, MP4 (Tối đa 100 MB/tệp)
+                Chỉ hỗ trợ: PDF, Word (.docx, .doc), Markdown (.md), Text (.txt) (Tối đa 100 MB/tệp)
               </span>
             </div>
           </div>

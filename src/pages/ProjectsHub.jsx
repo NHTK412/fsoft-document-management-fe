@@ -145,7 +145,7 @@ export default function ProjectsHub() {
         title: newProjectData.name,
         description: newProjectData.description || 'Không gian tài liệu dự án mới tạo.',
         maxFileSize: newProjectData.maxFileSize || '50 MB',
-        allowedFormats: newProjectData.allowedFormats || ['pdf', 'docx', 'xlsx'],
+        allowedFormats: newProjectData.allowedFormats || ['pdf', 'docx', 'doc', 'md', 'txt'],
         inviteEmails: inviteEmailsStr || null,
       };
       await projectService.createProject(payload);

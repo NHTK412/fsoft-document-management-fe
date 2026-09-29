@@ -12,13 +12,9 @@ export default function GeneralStorageCard({
 }) {
   const allFormats = [
     { id: "pdf", label: "PDF (.pdf)" },
-    { id: "docx", label: "Word (.docx)" },
-    { id: "xlsx", label: "Excel (.xlsx)" },
-    { id: "pptx", label: "PPT (.pptx)" },
+    { id: "docx", label: "Word (.docx, .doc)" },
     { id: "md", label: "Markdown (.md)" },
     { id: "txt", label: "Văn bản (.txt)" },
-    { id: "images", label: "Ảnh (PNG/JPG)" },
-    { id: "video", label: "Video (MP4)" },
   ];
 
   return (
