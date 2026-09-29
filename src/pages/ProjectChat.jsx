@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import ProjectSidebar from "../components/layout/ProjectSidebar.jsx";
 import WorkspaceTopbar from "../components/layout/WorkspaceTopbar.jsx";
@@ -7,8 +7,9 @@ import {
   ContextScopeBar,
   ChatMessageThread,
   ChatInputBox,
+  ChatDocumentsSidebar,
 } from "../components/chat";
-import { chatService, projectService } from "@/services";
+import { chatService, projectService, documentService } from "@/services";
 import { useAuth } from "@/contexts";
 
 export default function ProjectChat() {
@@ -36,6 +37,17 @@ export default function ProjectChat() {
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [sending, setSending] = useState(false);
 
+  // Control refs to prevent overwriting messages or resetting new chat
+  const hasInitializedSessionRef = useRef(false);
+  const skipFetchMessagesSessionIdRef = useRef(null);
+  const isCreatingNewChatRef = useRef(false);
+
+  // Documents selection state
+  const [documents, setDocuments] = useState([]);
+  const [selectedDocIds, setSelectedDocIds] = useState([]);
+  const [loadingDocs, setLoadingDocs] = useState(false);
+  const [isDocsTabOpen, setIsDocsTabOpen] = useState(true);
+
   // Load project details if needed
   useEffect(() => {
     if (location.state?.project && String(location.state.project.id) === String(projectId)) {
@@ -49,6 +61,46 @@ export default function ProjectChat() {
     }
   }, [projectId, location.state]);
 
+  // Load project documents for questioning
+  useEffect(() => {
+    if (!projectId) return;
+    let isMounted = true;
+    setLoadingDocs(true);
+    documentService.getDocuments(projectId, { limit: 100 })
+      .then((res) => {
+        if (!isMounted) return;
+        const files = res?.data?.files || [];
+        setDocuments(files);
+        // By default, select all documents
+        setSelectedDocIds(files.map((f) => f.id));
+      })
+      .catch((err) => {
+        console.warn("Lỗi tải danh sách tài liệu dự án:", err.message);
+      })
+      .finally(() => {
+        if (isMounted) setLoadingDocs(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [projectId]);
+
+  // Document selection toggling
+  const handleToggleDocument = (docId) => {
+    setSelectedDocIds((prev) =>
+      prev.includes(docId) ? prev.filter((id) => id !== docId) : [...prev, docId]
+    );
+  };
+
+  const handleSelectAllDocs = () => {
+    setSelectedDocIds(documents.map((d) => d.id));
+  };
+
+  const handleDeselectAllDocs = () => {
+    setSelectedDocIds([]);
+  };
+
   // Load sessions from API
   const fetchSessions = useCallback(async () => {
     if (!projectId) return;
@@ -56,14 +108,17 @@ export default function ProjectChat() {
       const res = await chatService.getSessions(projectId);
       if (res?.data) {
         setSessions(res.data);
-        if (res.data.length > 0 && !activeSessionId) {
-          setActiveSessionId(res.data[0].id);
+        if (!hasInitializedSessionRef.current) {
+          hasInitializedSessionRef.current = true;
+          if (res.data.length > 0 && !isCreatingNewChatRef.current) {
+            setActiveSessionId(res.data[0].id);
+          }
         }
       }
     } catch (err) {
       console.warn("Lỗi tải danh sách phiên chat:", err.message);
     }
-  }, [projectId, activeSessionId]);
+  }, [projectId]);
 
   useEffect(() => {
     fetchSessions();
@@ -73,6 +128,11 @@ export default function ProjectChat() {
   useEffect(() => {
     if (!projectId || !activeSessionId) {
       setMessages([]);
+      return;
+    }
+
+    if (skipFetchMessagesSessionIdRef.current === activeSessionId) {
+      skipFetchMessagesSessionIdRef.current = null;
       return;
     }
 
@@ -98,13 +158,14 @@ export default function ProjectChat() {
   }, [projectId, activeSessionId]);
 
   const handleSendMessage = async (text) => {
-    if (!text.trim() || sending) return;
+    const trimmed = text.trim();
+    if (!trimmed || sending) return;
 
     let targetSessionId = activeSessionId;
     const optimisticUserMsg = {
       id: `usr-${Date.now()}`,
       sender: "user",
-      text,
+      text: trimmed,
       createdAt: new Date().toISOString(),
     };
 
@@ -114,19 +175,29 @@ export default function ProjectChat() {
     try {
       // If no active session, create a new session first
       if (!targetSessionId) {
-        const createRes = await chatService.createSession(projectId, text);
+        const createRes = await chatService.createSession(projectId, trimmed);
         if (createRes?.data?.id) {
           targetSessionId = createRes.data.id;
+          skipFetchMessagesSessionIdRef.current = targetSessionId;
+          isCreatingNewChatRef.current = false;
           setActiveSessionId(targetSessionId);
-          await fetchSessions();
         }
       }
 
-      // Send message to AI RAG
-      const replyRes = await chatService.sendMessage(projectId, targetSessionId, text);
+      // Send message to AI RAG with selected documents
+      const replyRes = await chatService.sendMessage(
+        projectId,
+        targetSessionId,
+        trimmed,
+        selectedDocIds
+      );
+
       if (replyRes?.data) {
         setMessages((prev) => [...prev, replyRes.data]);
       }
+
+      // Update sidebar session list
+      fetchSessions();
     } catch (err) {
       console.error("Lỗi khi gửi tin nhắn AI:", err);
       const errorAiMsg = {
@@ -143,8 +214,14 @@ export default function ProjectChat() {
   };
 
   const handleNewChat = () => {
+    isCreatingNewChatRef.current = true;
     setActiveSessionId(null);
     setMessages([]);
+  };
+
+  const handleSelectSession = (sessionId) => {
+    isCreatingNewChatRef.current = false;
+    setActiveSessionId(sessionId);
   };
 
   const projectName = project?.title || project?.name || "AI Knowledge Core";
@@ -170,23 +247,24 @@ export default function ProjectChat() {
           }}
         />
 
-        {/* Chat Main View (History Sidebar + Main Chat Pane) */}
+        {/* Chat Main View (History Sidebar + Main Chat Pane + Documents Sidebar) */}
         <div className="w-full flex-1 flex flex-row min-h-0 bg-white overflow-hidden">
           {/* Left Chat History Column */}
           <ChatHistorySidebar
             sessions={sessions}
             activeSessionId={activeSessionId}
-            onSelectSession={setActiveSessionId}
+            onSelectSession={handleSelectSession}
             onNewChat={handleNewChat}
           />
 
-          {/* Right Main Chat Pane */}
+          {/* Center Main Chat Pane */}
           <div className="flex-1 h-full flex flex-col justify-between bg-white min-w-0">
             {/* Context Scope Bar */}
             <ContextScopeBar
-              scope={`Toàn bộ tài liệu dự án ${projectName}`}
-              modelName=""
-              onScopeChange={() => console.log("Scope change clicked")}
+              selectedCount={selectedDocIds.length}
+              totalCount={documents.length}
+              isDocsTabOpen={isDocsTabOpen}
+              onToggleDocsTab={() => setIsDocsTabOpen((prev) => !prev)}
             />
 
             {/* Message Thread */}
@@ -198,6 +276,7 @@ export default function ProjectChat() {
               <ChatMessageThread
                 messages={messages}
                 userInitials={userInitials}
+                sending={sending}
                 onCitationClick={(citation) => {
                   console.log("Citation clicked:", citation);
                 }}
@@ -211,6 +290,18 @@ export default function ProjectChat() {
               onAttachFile={() => console.log("Attach file clicked")}
             />
           </div>
+
+          {/* Right Documents Scope Column */}
+          <ChatDocumentsSidebar
+            documents={documents}
+            selectedIds={selectedDocIds}
+            onToggleDocument={handleToggleDocument}
+            onSelectAll={handleSelectAllDocs}
+            onDeselectAll={handleDeselectAllDocs}
+            isOpen={isDocsTabOpen}
+            onClose={() => setIsDocsTabOpen(false)}
+            loading={loadingDocs}
+          />
         </div>
       </div>
     </div>

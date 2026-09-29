@@ -1,13 +1,19 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 
 export default function ChatMessageThread({
   messages,
   userInitials = "NV",
+  sending = false,
   onCitationClick,
 }) {
   const thread = Array.isArray(messages) ? messages : [];
+  const messagesEndRef = useRef(null);
 
-  if (thread.length === 0) {
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [thread.length, sending]);
+
+  if (thread.length === 0 && !sending) {
     return (
       <div className="w-full flex-1 flex flex-col items-center justify-center p-8 text-center my-auto">
         <div className="w-14 h-14 rounded-2xl bg-[#EEF2FF] flex items-center justify-center text-[#4F46E5] mb-3 shadow-xs">
@@ -107,14 +113,14 @@ export default function ChatMessageThread({
                     </svg>
 
                     <span className="text-[11px] font-semibold text-[#4F46E5]">
-                      Trích dẫn nguồn: {msg.citation.fileName} (Trang {msg.citation.page} • Độ chính xác {msg.citation.confidence})
+                      Trích dẫn nguồn: {msg.citation.fileName} (Trang {msg.citation.page})
                     </span>
 
-                    <svg className="w-[12px] h-[12px] text-[#4F46E5] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    {/* <svg className="w-[12px] h-[12px] text-[#4F46E5] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
                       <polyline points="15 3 21 3 21 9" />
                       <line x1="10" x2="21" y1="14" y2="3" />
-                    </svg>
+                    </svg> */}
                   </button>
                 )}
               </div>
@@ -124,6 +130,40 @@ export default function ChatMessageThread({
 
         return null;
       })}
+
+      {/* Loading Skeleton / Thinking Indicator when sending */}
+      {sending && (
+        <div className="w-full flex items-start gap-[12px] animate-fadeIn">
+          <div className="w-[32px] h-[32px] shrink-0 flex items-center justify-center bg-[#EEF2FF] rounded-[8px] text-[#4F46E5] ring-2 ring-[#C7D2FE]/60">
+            <svg className="w-[18px] h-[18px] animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 8V4H8" />
+              <rect width="16" height="12" x="4" y="8" rx="2" />
+              <path d="M2 14h2" />
+              <path d="M20 14h2" />
+              <path d="M15 13v2" />
+              <path d="M9 13v2" />
+            </svg>
+          </div>
+
+          <div className="max-w-[720px] w-full sm:w-[480px] flex flex-col gap-[12px] p-[16px_18px] bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] shadow-2xs text-[#1E293B]">
+            <div className="flex items-center gap-[8px]">
+              <div className="w-4 h-4 border-2 border-[#4F46E5] border-t-transparent rounded-full animate-spin shrink-0" />
+              <span className="text-[13px] font-medium text-[#4F46E5]">
+                AI đang tìm kiếm tài liệu và tổng hợp câu trả lời...
+              </span>
+            </div>
+
+            {/* Skeleton lines */}
+            <div className="flex flex-col gap-[8px] pt-1">
+              <div className="h-3 bg-[#E2E8F0] rounded-full animate-pulse w-[92%]" />
+              <div className="h-3 bg-[#E2E8F0] rounded-full animate-pulse w-[75%]" />
+              <div className="h-3 bg-[#E2E8F0] rounded-full animate-pulse w-[45%]" />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div ref={messagesEndRef} />
     </div>
   );
 }
