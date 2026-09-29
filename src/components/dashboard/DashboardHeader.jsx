@@ -1,7 +1,7 @@
 import React from "react";
 
 export default function DashboardHeader({
-  title = "Tổng quan Dự án: AI Knowledge Core",
+  title = "Tổng Quan Dự án: AI Knowledge Core",
   subtitle = "Theo dõi tình trạng tài liệu, lưu trữ MinIO và tương tác hỏi đáp AI thời gian thực.",
   onRefresh
 }) {

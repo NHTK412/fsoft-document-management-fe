@@ -117,7 +117,7 @@ export default function ProjectDashboard() {
         <main className="flex-1 p-6 sm:p-8 lg:p-9 xl:p-10 flex flex-col gap-6 max-w-[1600px] w-full mx-auto">
           {/* View Header */}
           <DashboardHeader
-            title={`Tổng quan Dự án: ${projectName}`}
+            title={`Tổng Quan Dự Án: ${projectName}`}
             subtitle="Theo dõi tình trạng tài liệu, lưu trữ MinIO và tương tác hỏi đáp AI thời gian thực."
             onRefresh={handleRefresh}
           />
@@ -130,7 +130,7 @@ export default function ProjectDashboard() {
             {/* Left 8-col: Recent Files & Format Distribution */}
             <div className="lg:col-span-8 flex flex-col gap-[20px]">
               <RecentlyViewedFiles
-                files={recentFiles.length > 0 ? recentFiles : undefined}
+                files={recentFiles}
                 onViewAll={handleViewAllFiles}
                 onQuickView={handleQuickViewFile}
               />

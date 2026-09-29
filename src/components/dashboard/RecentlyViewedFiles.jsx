@@ -1,46 +1,7 @@
 import React from "react";
 
 export default function RecentlyViewedFiles({ files, onViewAll, onQuickView }) {
-  const defaultFiles = [
-    {
-      id: "f1",
-      name: "Architecture-v2.pdf",
-      meta: "PDF • 4.2 MB • 15 phút trước",
-      type: "pdf",
-      iconBg: "bg-[#FEF2F2]",
-      iconColor: "text-[#EF4444]",
-      statusColor: "bg-[#ECFDF5] text-[#059669]",
-    },
-    {
-      id: "f2",
-      name: "Vector-Pipeline-Spec.docx",
-      meta: "Office Word • 1.8 MB • 1 giờ trước",
-      type: "doc",
-      iconBg: "bg-[#EFF6FF]",
-      iconColor: "text-[#3B82F6]",
-      statusColor: "bg-[#ECFDF5] text-[#059669]",
-    },
-    {
-      id: "f3",
-      name: "Prompt-Engineering-Guide.md",
-      meta: "Markdown • 320 KB • 3 giờ trước",
-      type: "md",
-      iconBg: "bg-[#F5F3FF]",
-      iconColor: "text-[#8B5CF6]",
-      statusColor: "bg-[#ECFDF5] text-[#059669]",
-    },
-    {
-      id: "f4",
-      name: "K8s-Deployment-Log.xlsx",
-      meta: "Excel • 2.4 MB • Hôm qua",
-      type: "table",
-      iconBg: "bg-[#ECFDF5]",
-      iconColor: "text-[#10B981]",
-      statusColor: "bg-[#FEF3C7] text-[#D97706]",
-    },
-  ];
-
-  const fileList = files || defaultFiles;
+  const fileList = files || [];
 
   const renderIcon = (type) => {
     switch (type) {
@@ -113,47 +74,64 @@ export default function RecentlyViewedFiles({ files, onViewAll, onQuickView }) {
         </button>
       </div>
 
-      {/* Files List */}
-      <div className="w-full flex flex-col gap-[10px]">
-        {fileList.map((file) => (
-          <div
-            key={file.id}
-            className="w-full h-[60px] flex items-center justify-between px-[16px] bg-[#F8FAFC] border border-[#F1F5F9] rounded-[10px] hover:bg-[#F1F5F9]/80 transition-colors"
-          >
-            {/* File info left */}
-            <div className="flex items-center gap-[14px] min-w-0">
-              <div
-                className={`w-[38px] h-[38px] shrink-0 flex items-center justify-center rounded-[8px] ${file.iconBg} ${file.iconColor}`}
-              >
-                {renderIcon(file.type)}
-              </div>
-              <div className="flex flex-col min-w-0 gap-[1px]">
-                <span className="text-[14px] font-semibold text-[#0F172A] truncate">
-                  {file.name}
-                </span>
-                <span className="text-[12px] text-[#64748B]">
-                  {file.meta}
-                </span>
-              </div>
-            </div>
-
-            {/* Actions right */}
-            <div className="flex items-center gap-[12px] shrink-0">
-              <button
-                type="button"
-                onClick={() => onQuickView && onQuickView(file)}
-                className="h-[32px] flex items-center gap-[6px] px-[12px] bg-white border border-[#CBD5E1] hover:bg-[#F8FAFC] rounded-[6px] text-[12px] font-medium text-[#475569] transition-colors cursor-pointer"
-              >
-                <svg className="w-[13px] h-[13px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
-                <span>Xem</span>
-              </button>
-            </div>
+      {/* Files List / Empty State */}
+      {fileList.length === 0 ? (
+        <div className="w-full py-10 px-4 flex flex-col items-center justify-center text-center bg-[#F8FAFC] border border-dashed border-[#CBD5E1] rounded-[10px] gap-2">
+          <div className="w-10 h-10 rounded-full bg-[#EEF2FF] flex items-center justify-center text-[#4F46E5]">
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+              <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+            </svg>
           </div>
-        ))}
-      </div>
+          <p className="text-[14px] font-semibold text-[#334155]">
+            Chưa có tài liệu nào gần đây
+          </p>
+          <p className="text-[12px] text-[#64748B] max-w-sm">
+            Tải lên hoặc mở xem tài liệu trong mục Explorer để bắt đầu lưu trữ và tra cứu tri thức AI.
+          </p>
+        </div>
+      ) : (
+        <div className="w-full flex flex-col gap-[10px]">
+          {fileList.map((file) => (
+            <div
+              key={file.id}
+              className="w-full h-[60px] flex items-center justify-between px-[16px] bg-[#F8FAFC] border border-[#F1F5F9] rounded-[10px] hover:bg-[#F1F5F9]/80 transition-colors"
+            >
+              {/* File info left */}
+              <div className="flex items-center gap-[14px] min-w-0">
+                <div
+                  className={`w-[38px] h-[38px] shrink-0 flex items-center justify-center rounded-[8px] ${file.iconBg} ${file.iconColor}`}
+                >
+                  {renderIcon(file.type)}
+                </div>
+                <div className="flex flex-col min-w-0 gap-[1px]">
+                  <span className="text-[14px] font-semibold text-[#0F172A] truncate">
+                    {file.name}
+                  </span>
+                  <span className="text-[12px] text-[#64748B]">
+                    {file.meta}
+                  </span>
+                </div>
+              </div>
+
+              {/* Actions right */}
+              <div className="flex items-center gap-[12px] shrink-0">
+                <button
+                  type="button"
+                  onClick={() => onQuickView && onQuickView(file)}
+                  className="h-[32px] flex items-center gap-[6px] px-[12px] bg-white border border-[#CBD5E1] hover:bg-[#F8FAFC] rounded-[6px] text-[12px] font-medium text-[#475569] transition-colors cursor-pointer"
+                >
+                  <svg className="w-[13px] h-[13px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                  <span>Xem</span>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
