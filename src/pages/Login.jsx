@@ -15,7 +15,11 @@ export default function Login() {
     try {
       const res = await login(credentials);
       if (res?.success || res?.code === 200) {
-        navigate('/projects');
+        if (res?.data?.user?.role === 'ROLE_ADMIN') {
+          navigate('/admin');
+        } else {
+          navigate('/projects');
+        }
       }
     } catch (err) {
       setError(err.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại email hoặc mật khẩu.');

@@ -7,3 +7,4 @@ export { chatService } from './chatService';
 export { memberService } from './memberService';
 export { userService } from './userService';
 export { inviteService } from './inviteService';
+export { adminService } from './adminService';
