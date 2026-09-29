@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { formatRole } from '@/utils/formatRole';
 import { useAuth } from '@/contexts';
+import UserHeaderDropdown from '@/components/common/UserHeaderDropdown';
 
 export const HubTopbar = ({
   userName = 'Nguyễn Văn A',
@@ -268,29 +269,8 @@ export const HubTopbar = ({
           </Link>
         )}
 
-        {/* User Profile Link */}
-        <Link
-          to="/profile"
-          className="flex items-center gap-2.5 p-1 pr-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-full cursor-pointer transition-colors"
-        >
-          <div className="w-[30px] h-[30px] rounded-full bg-primary-600 flex items-center justify-center text-white text-[12px] font-bold">
-            {userInitials}
-          </div>
-          <span className="text-[12px] font-semibold text-slate-800 hidden sm:inline">
-            {userName}
-          </span>
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="w-3.5 h-3.5 text-slate-400"
-          >
-            <path d="m6 9 6 6 6-6" />
-          </svg>
-        </Link>
+        {/* User Profile Dropdown on Hover */}
+        <UserHeaderDropdown />
       </div>
     </header>
   );

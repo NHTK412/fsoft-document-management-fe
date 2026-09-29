@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { projectService, inviteService } from "@/services";
 import { formatRole } from "@/utils/formatRole";
+import UserHeaderDropdown from "@/components/common/UserHeaderDropdown";
 
 export default function WorkspaceTopbar({
   projectName = "AI Knowledge Core",
@@ -466,26 +467,8 @@ export default function WorkspaceTopbar({
           )}
         </div>
 
-        {/* User Pill */}
-        <Link
-          to="/profile"
-          className="flex items-center gap-[8px] p-[4px_10px_4px_4px] bg-[#F8FAFC] border border-[#E2E8F0] rounded-[20px] cursor-pointer hover:bg-[#F1F5F9] transition-colors"
-        >
-          <div className="w-[26px] h-[26px] flex items-center justify-center bg-[#4F46E5] text-white rounded-full text-[10px] font-bold">
-            {user.initials}
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[12px] font-semibold text-[#0F172A] leading-tight whitespace-nowrap">
-              {user.name}
-            </span>
-            <span className="text-[10px] font-medium text-[#10B981] leading-tight whitespace-nowrap">
-              {formatRole(user.role)}
-            </span>
-          </div>
-          <svg className="w-[12px] h-[12px] text-[#94A3B8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="m6 9 6 6 6-6" />
-          </svg>
-        </Link>
+        {/* User Pill Dropdown on Hover */}
+        <UserHeaderDropdown />
       </div>
     </header>
   );

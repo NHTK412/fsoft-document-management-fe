@@ -11,7 +11,7 @@ import UserProfile from "../pages/UserProfile.jsx";
 import AdminOverview from "../pages/admin/AdminOverview.jsx";
 import AdminUsers from "../pages/admin/AdminUsers.jsx";
 import AdminProjects from "../pages/admin/AdminProjects.jsx";
-import { AdminRoute, UserRoute, AuthRoute } from "./guards.jsx";
+import { AdminRoute, UserRoute, AuthRoute, ProtectedRoute } from "./guards.jsx";
 
 const router = createBrowserRouter([
     {
@@ -76,7 +76,7 @@ const router = createBrowserRouter([
     },
     {
         path: "/profile",
-        element: <UserRoute><UserProfile /></UserRoute>
+        element: <ProtectedRoute><UserProfile /></ProtectedRoute>
     },
     {
         path: "/admin",

@@ -66,3 +66,22 @@ export const AuthRoute = ({ children }) => {
 
   return children;
 };
+
+// Route yêu cầu đăng nhập (cả Admin và User đều vào được, ví dụ Hồ sơ cá nhân)
+export const ProtectedRoute = ({ children }) => {
+  const { user, token, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center bg-slate-50 text-slate-700">
+        <div className="w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!token || !user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};

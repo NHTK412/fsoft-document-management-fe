@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AdminSidebar from "@/components/admin/AdminSidebar";
+import UserHeaderDropdown from "@/components/common/UserHeaderDropdown";
 import { useAuth } from "@/contexts";
 
 export default function AdminLayout({ activeTab = "overview", children, title = "Tổng quan Hệ thống", description = "Quản trị hệ thống KBase" }) {
@@ -67,14 +68,7 @@ export default function AdminLayout({ activeTab = "overview", children, title = 
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white text-xs font-bold shadow-xs">
-                {user.fullName?.charAt(0) || user.email?.charAt(0) || "A"}
-              </div>
-              <span className="text-xs font-semibold text-slate-800 hidden md:inline">
-                {user.fullName || user.email}
-              </span>
-            </div>
+            <UserHeaderDropdown />
           </div>
         </header>
 

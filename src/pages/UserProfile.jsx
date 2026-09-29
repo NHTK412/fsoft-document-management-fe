@@ -6,6 +6,7 @@ import {
   ProfileHeader,
   PersonalInfoCard,
 } from "../components/profile";
+import AdminLayout from "@/layouts/AdminLayout";
 import { userService } from "@/services";
 import { useAuth } from "@/contexts";
 
@@ -81,6 +82,55 @@ export default function UserProfile() {
       setIsSaving(false);
     }
   };
+
+  if (user?.role === "ROLE_ADMIN") {
+    return (
+      <AdminLayout
+        activeTab=""
+        title="Thông tin cá nhân"
+        description="Quản lý hồ sơ định danh và cài đặt tài khoản quản trị"
+      >
+        {saveToast && (
+          <div className="fixed top-20 right-8 z-50 bg-[#064E3B] text-[#ECFDF5] border border-[#059669] px-4 py-3 rounded-lg shadow-xl flex items-center gap-2.5 animate-in fade-in slide-in-from-top-4 duration-200">
+            <svg className="w-5 h-5 text-[#34D399]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            <span>{toastMessage}</span>
+          </div>
+        )}
+
+        <ProfileHeader
+          fullName={fullName}
+          title={title}
+          role={role}
+          initials={initials}
+          onDiscard={handleDiscard}
+          onSave={handleSave}
+          isSaving={isSaving}
+        />
+
+        {loading ? (
+          <div className="w-full py-16 flex items-center justify-center text-slate-400">
+            <div className="w-6 h-6 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : (
+          <div className="w-full mt-6">
+            <PersonalInfoCard
+              fullName={fullName}
+              title={title}
+              email={email}
+              phone={phone}
+              role={role}
+              initials={initials}
+              onFullNameChange={setFullName}
+              onTitleChange={setTitle}
+              onPhoneChange={setPhone}
+            />
+          </div>
+        )}
+      </AdminLayout>
+    );
+  }
 
   return (
     <div className="w-full min-h-screen flex flex-row bg-[#F8FAFC] text-[#0F172A] font-[Inter,system-ui,sans-serif]">
