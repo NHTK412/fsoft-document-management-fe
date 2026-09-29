@@ -1,11 +1,12 @@
 import React from "react";
 
 export default function ChatHistorySidebar({
+  sessions,
   activeSessionId = "s1",
   onSelectSession,
   onNewChat,
 }) {
-  const historyGroups = [
+  const defaultHistoryGroups = [
     {
       group: "HÔM NAY",
       sessions: [
@@ -34,6 +35,8 @@ export default function ChatHistorySidebar({
     },
   ];
 
+  const hasRealSessions = Array.isArray(sessions) && sessions.length > 0;
+
   return (
     <div className="w-[260px] shrink-0 h-full flex flex-col gap-[16px] p-[16px] bg-white border-r border-[#E2E8F0] select-none">
       {/* New Chat Button */}
@@ -51,14 +54,13 @@ export default function ChatHistorySidebar({
 
       {/* History Groups */}
       <div className="w-full flex-1 flex flex-col gap-[14px] overflow-y-auto">
-        {historyGroups.map((group) => (
-          <div key={group.group} className="w-full flex flex-col gap-[6px]">
+        {hasRealSessions ? (
+          <div className="w-full flex flex-col gap-[6px]">
             <span className="text-[10px] font-bold text-[#94A3B8] tracking-wider uppercase px-[10px]">
-              {group.group}
+              TẤT CẢ PHIÊN CHAT ({sessions.length})
             </span>
-
-            {group.sessions.map((session) => {
-              const isActive = activeSessionId === session.id;
+            {sessions.map((session) => {
+              const isActive = String(activeSessionId) === String(session.id);
               return (
                 <button
                   key={session.id}
@@ -88,7 +90,45 @@ export default function ChatHistorySidebar({
               );
             })}
           </div>
-        ))}
+        ) : (
+          defaultHistoryGroups.map((group) => (
+            <div key={group.group} className="w-full flex flex-col gap-[6px]">
+              <span className="text-[10px] font-bold text-[#94A3B8] tracking-wider uppercase px-[10px]">
+                {group.group}
+              </span>
+              {group.sessions.map((session) => {
+                const isActive = activeSessionId === session.id;
+                return (
+                  <button
+                    key={session.id}
+                    type="button"
+                    onClick={() => onSelectSession && onSelectSession(session.id)}
+                    className={`w-full h-[36px] flex items-center gap-[8px] px-[10px] rounded-[6px] text-[12px] text-left transition-colors cursor-pointer truncate ${
+                      isActive
+                        ? "bg-[#EEF2FF] text-[#4F46E5] font-semibold"
+                        : "text-[#334155] font-normal hover:bg-[#F8FAFC]"
+                    }`}
+                  >
+                    <svg
+                      className={`w-[14px] h-[14px] shrink-0 ${
+                        isActive ? "text-[#4F46E5]" : "text-[#64748B]"
+                      }`}
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
+                    <span className="truncate">{session.title}</span>
+                  </button>
+                );
+              })}
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

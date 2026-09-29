@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   HubTopbar,
@@ -7,101 +7,58 @@ import {
   ProjectsFilterBar,
   CreateProjectModal,
 } from '@/components/hub';
-
-// Danh sách dữ liệu dự án mẫu theo đúng bản thiết kế
-const INITIAL_PROJECTS = [
-  {
-    id: 'kb-ai-core',
-    title: 'AI Knowledge Core & LLM Pipeline',
-    desc: 'Cơ sở tri thức kiến trúc AI, pipeline chunking vector embeddings, cấu hình Milvus DB và prompt templates.',
-    role: 'Owner',
-    iconBg: '#EEF2FF',
-    iconColor: '#4F46E5',
-    updatedAt: '10 phút trước',
-    docsCount: '248 tệp',
-    membersCount: '12 thành viên',
-    avatars: ['#4F46E5', '#059669', '#D97706', '#7C3AED'],
-    extraMembers: 8,
-  },
-  {
-    id: 'kb-devops',
-    title: 'Kiến trúc Cloud & Cụm Kubernetes',
-    desc: 'Tài liệu hạ tầng K8s cụm Alpha, quy trình CI/CD GitHub Actions, cấu hình cụm lưu trữ MinIO S3 bảo mật cao.',
-    role: 'Owner',
-    iconBg: '#E0F2FE',
-    iconColor: '#0284C7',
-    updatedAt: '2 giờ trước',
-    docsCount: '135 tệp',
-    membersCount: '8 thành viên',
-    avatars: ['#0284C7', '#4F46E5', '#DC2626'],
-    extraMembers: 5,
-  },
-  {
-    id: 'kb-mobile-app',
-    title: 'KBase Mobile App (iOS & Android)',
-    desc: 'Đặc tả kỹ thuật ứng dụng di động React Native, thiết kế UI hệ thống trên Figma và tài liệu API đồng bộ offline.',
-    role: 'Member',
-    iconBg: '#F3E8FF',
-    iconColor: '#9333EA',
-    updatedAt: 'Hôm qua',
-    docsCount: '94 tệp',
-    membersCount: '15 thành viên',
-    avatars: ['#9333EA', '#059669', '#2563EB', '#D97706'],
-    extraMembers: 11,
-  },
-  {
-    id: 'kb-backend',
-    title: 'Backend Microservices Go & NestJS',
-    desc: 'Đặc tả kỹ thuật API Gateway, luồng xác thực JWT/OAuth2, cơ sở dữ liệu PostgreSQL và cơ chế hàng đợi Kafka.',
-    role: 'Member',
-    iconBg: '#FEF3C7',
-    iconColor: '#D97706',
-    updatedAt: '3 ngày trước',
-    docsCount: '312 tệp',
-    membersCount: '20 thành viên',
-    avatars: ['#D97706', '#4F46E5', '#0284C7', '#059669'],
-    extraMembers: 16,
-  },
-  {
-    id: 'kb-design',
-    title: 'Thiết kế UI/UX & Design System v2',
-    desc: 'Quy chuẩn thiết kế giao diện KBase, bộ thư viện UI components, tokens màu sắc, kiểu chữ và quy trình handover.',
-    role: 'Owner',
-    iconBg: '#FCE7F3',
-    iconColor: '#DB2777',
-    updatedAt: '5 ngày trước',
-    docsCount: '68 tệp',
-    membersCount: '6 thành viên',
-    avatars: ['#DB2777', '#4F46E5', '#059669'],
-    extraMembers: 3,
-  },
-];
+import { projectService } from '@/services';
+import { useAuth } from '@/contexts';
 
 export default function ProjectsHub() {
   const navigate = useNavigate();
-  const [projects, setProjects] = useState(INITIAL_PROJECTS);
+  const { user } = useAuth();
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [error, setError] = useState('');
+
+  // Fetch projects from Backend API
+  const fetchProjects = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const res = await projectService.getAllProjects();
+      if (res?.data) {
+        setProjects(res.data);
+      }
+    } catch (err) {
+      console.error('Lỗi khi tải danh sách dự án:', err);
+      setError(err.message || 'Không thể tải danh sách dự án!');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
 
   // Đếm số lượng theo quyền
   const counts = {
     all: projects.length,
-    owner: projects.filter((p) => p.role.toLowerCase() === 'owner').length,
-    shared: projects.filter((p) => p.role.toLowerCase() === 'member').length,
+    owner: projects.filter((p) => (p.role || '').toLowerCase() === 'owner').length,
+    shared: projects.filter((p) => (p.role || '').toLowerCase() !== 'owner').length,
   };
 
   // Lọc theo tab & ô tìm kiếm
   const filteredProjects = projects.filter((p) => {
-    if (activeTab === 'owner' && p.role.toLowerCase() !== 'owner') return false;
-    if (activeTab === 'shared' && p.role.toLowerCase() !== 'member') return false;
+    const roleLower = (p.role || '').toLowerCase();
+    if (activeTab === 'owner' && roleLower !== 'owner') return false;
+    if (activeTab === 'shared' && roleLower === 'owner') return false;
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      return (
-        p.title.toLowerCase().includes(q) ||
-        p.desc.toLowerCase().includes(q)
-      );
+      const title = (p.title || p.name || '').toLowerCase();
+      const desc = (p.desc || p.description || '').toLowerCase();
+      return title.includes(q) || desc.includes(q);
     }
     return true;
   });
@@ -110,32 +67,39 @@ export default function ProjectsHub() {
     navigate(`/projects/${project.id}/dashboard`, { state: { project } });
   };
 
-  const handleCreateProjectSubmit = (newProjectData) => {
-    const newProject = {
-      id: `kb-${Date.now()}`,
-      title: newProjectData.name,
-      desc: newProjectData.description || 'Không gian tài liệu dự án mới tạo.',
-      role: 'Owner',
-      iconBg: '#EEF2FF',
-      iconColor: '#4F46E5',
-      updatedAt: 'Vừa xong',
-      docsCount: '0 tệp',
-      membersCount: `${(newProjectData.inviteEmails?.length || 0) + 1} thành viên`,
-      avatars: ['#4F46E5'],
-      extraMembers: 0,
-    };
+  const handleCreateProjectSubmit = async (newProjectData) => {
+    try {
+      const inviteEmailsStr = Array.isArray(newProjectData.inviteEmails)
+        ? newProjectData.inviteEmails.map((e) => (typeof e === 'string' ? e.trim() : '')).filter(Boolean).join(',')
+        : (newProjectData.inviteEmails?.trim() || '');
 
-    setProjects([newProject, ...projects]);
+      const payload = {
+        name: newProjectData.name,
+        title: newProjectData.name,
+        description: newProjectData.description || 'Không gian tài liệu dự án mới tạo.',
+        maxFileSize: newProjectData.maxFileSize || '50 MB',
+        allowedFormats: newProjectData.allowedFormats || ['pdf', 'docx', 'xlsx'],
+        inviteEmails: inviteEmailsStr || null,
+      };
+      await projectService.createProject(payload);
+      setIsModalOpen(false);
+      await fetchProjects();
+    } catch (err) {
+      alert('Tạo dự án thất bại: ' + (err.message || 'Lỗi không xác định'));
+    }
   };
+
+  const userFullName = user?.fullName || 'Người dùng';
+  const userInitials = user?.initials || (user?.fullName ? user.fullName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'KB');
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-slate-50 font-sans">
       {/* 1. Global Topbar */}
-      <HubTopbar userName="Nguyễn Văn A" userInitials="NV" />
+      <HubTopbar userName={userFullName} userInitials={userInitials} />
 
       {/* 2. Main Body Container */}
       <main className="flex-1 w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 py-8 flex flex-col gap-6">
-        
+
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="space-y-1">
@@ -168,6 +132,16 @@ export default function ProjectsHub() {
           </button>
         </div>
 
+        {/* Error Alert */}
+        {error && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-[14px] flex items-center justify-between">
+            <span>{error}</span>
+            <button onClick={fetchProjects} className="font-semibold underline hover:text-red-800">
+              Thử lại
+            </button>
+          </div>
+        )}
+
         {/* Filter & Search Toolbar */}
         <ProjectsFilterBar
           activeTab={activeTab}
@@ -178,18 +152,25 @@ export default function ProjectsHub() {
         />
 
         {/* Projects Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filteredProjects.map((project) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              onClick={() => handleSelectProject(project)}
-            />
-          ))}
+        {loading ? (
+          <div className="w-full py-20 flex flex-col items-center justify-center gap-3 text-slate-400">
+            <div className="w-8 h-8 border-3 border-primary-600 border-t-transparent rounded-full animate-spin" />
+            <p className="text-[14px]">Đang tải danh sách dự án...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filteredProjects.map((project) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                onClick={() => handleSelectProject(project)}
+              />
+            ))}
 
-          {/* Quick Add Project Card */}
-          <CreateProjectCard onClick={() => setIsModalOpen(true)} />
-        </div>
+            {/* Quick Add Project Card */}
+            <CreateProjectCard onClick={() => setIsModalOpen(true)} />
+          </div>
+        )}
 
       </main>
 

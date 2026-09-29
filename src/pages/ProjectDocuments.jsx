@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import ProjectSidebar from "../components/layout/ProjectSidebar.jsx";
 import WorkspaceTopbar from "../components/layout/WorkspaceTopbar.jsx";
 import {
@@ -10,143 +10,86 @@ import {
   BulkActionBar,
   UploadModal,
 } from "../components/documents";
-
-const INITIAL_FILES = [
-  {
-    id: 1,
-    name: "Architecture-v2.pdf",
-    type: "pdf",
-    format: "PDF",
-    size: "4.2 MB",
-    sizeBytes: 4.2 * 1024 * 1024,
-    category: "docs",
-    author: "Trần Minh Tâm",
-    authorInitials: "T",
-    authorColor: "#4F46E5",
-    updatedAt: "15 phút trước",
-  },
-  {
-    id: 2,
-    name: "Vector-Pipeline-Spec.docx",
-    type: "docx",
-    format: "DOCX",
-    size: "1.8 MB",
-    sizeBytes: 1.8 * 1024 * 1024,
-    category: "docs",
-    author: "Nguyễn Văn A",
-    authorInitials: "N",
-    authorColor: "#059669",
-    updatedAt: "1 giờ trước",
-  },
-  {
-    id: 3,
-    name: "K8s-Deployment-Log.xlsx",
-    type: "xlsx",
-    format: "XLSX",
-    size: "2.4 MB",
-    sizeBytes: 2.4 * 1024 * 1024,
-    category: "sheets",
-    author: "Lê Hoàng Nam",
-    authorInitials: "L",
-    authorColor: "#D97706",
-    updatedAt: "Hôm qua",
-  },
-  {
-    id: 4,
-    name: "System-Demo-Walkthrough.mp4",
-    type: "mp4",
-    format: "MP4",
-    size: "48.5 MB",
-    sizeBytes: 48.5 * 1024 * 1024,
-    category: "media",
-    author: "Trần Minh Tâm",
-    authorInitials: "T",
-    authorColor: "#4F46E5",
-    updatedAt: "2 ngày trước",
-  },
-  {
-    id: 5,
-    name: "Milvus-Cluster-Topology.png",
-    type: "png",
-    format: "PNG",
-    size: "3.1 MB",
-    sizeBytes: 3.1 * 1024 * 1024,
-    category: "images",
-    author: "Trần Minh Tâm",
-    authorInitials: "T",
-    authorColor: "#4F46E5",
-    updatedAt: "3 ngày trước",
-  },
-  {
-    id: 6,
-    name: "Raw-Logs-Dump-2026.txt",
-    type: "txt",
-    format: "TXT",
-    size: "850 KB",
-    sizeBytes: 850 * 1024,
-    category: "code",
-    author: "Hoàng Yến",
-    authorInitials: "H",
-    authorColor: "#EC4899",
-    updatedAt: "3 ngày trước",
-  },
-  {
-    id: 7,
-    name: "Prompt-Engineering-Guide.md",
-    type: "md",
-    format: "MARKDOWN",
-    size: "320 KB",
-    sizeBytes: 320 * 1024,
-    category: "code",
-    author: "Nguyễn Văn A",
-    authorInitials: "N",
-    authorColor: "#059669",
-    updatedAt: "4 ngày trước",
-  },
-];
+import { documentService, projectService } from "@/services";
+import { useAuth } from "@/contexts";
 
 export default function ProjectDocuments() {
+  const navigate = useNavigate();
   const location = useLocation();
   const params = useParams();
-  const currentProject = location.state?.project;
+  const { user } = useAuth();
 
-  const projectName = currentProject?.title || "AI Knowledge Core";
-  const projectRole = currentProject?.role || "Owner";
+  const [project, setProject] = useState(location.state?.project || null);
+  const storedProjectId = localStorage.getItem("kbase_current_project_id");
+  const rawId = params.id || project?.id || storedProjectId;
+  const projectId = rawId && !isNaN(Number(rawId)) ? Number(rawId) : null;
 
-  const [files, setFiles] = useState(INITIAL_FILES);
-  const [selectedIds, setSelectedIds] = useState([1, 2]); // default selected 2 files like mockup
-  const [searchQuery, setSearchQuery] = useState("");
+  useEffect(() => {
+    if (!projectId) {
+      navigate("/projects", { replace: true });
+    } else {
+      localStorage.setItem("kbase_current_project_id", String(projectId));
+    }
+  }, [projectId, navigate]);
+
+  const [files, setFiles] = useState([]);
+  const [summary, setSummary] = useState({
+    totalFiles: 0,
+    totalSize: "0 B",
+    counts: { all: 0, docs: 0, sheets: 0, media: 0, images: 0, code: 0 },
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
   const [activeFilter, setActiveFilter] = useState("all");
-  const [viewMode, setViewMode] = useState("table");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [viewMode, setViewMode] = useState("list");
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
-  // Filter files by tab category and search term
-  const filteredFiles = useMemo(() => {
-    return files.filter((file) => {
-      if (activeFilter !== "all" && file.category !== activeFilter) {
-        return false;
-      }
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase();
-        return (
-          file.name.toLowerCase().includes(q) ||
-          file.author.toLowerCase().includes(q) ||
-          file.format.toLowerCase().includes(q)
-        );
-      }
-      return true;
-    });
-  }, [files, activeFilter, searchQuery]);
-
-  // Compute selected total size
-  const selectedTotalSize = useMemo(() => {
-    const selectedFiles = files.filter((f) => selectedIds.includes(f.id));
-    const totalBytes = selectedFiles.reduce((sum, f) => sum + (f.sizeBytes || 0), 0);
-    if (totalBytes >= 1024 * 1024 * 1024) {
-      return `${(totalBytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+  // Load project details if not passed via route state
+  useEffect(() => {
+    if (!project && projectId) {
+      projectService.getProjectById(projectId)
+        .then((res) => {
+          if (res?.data) setProject(res.data);
+        })
+        .catch((e) => console.warn("Lỗi tải thông tin dự án:", e.message));
     }
-    return `${(totalBytes / (1024 * 1024)).toFixed(1)} MB`;
-  }, [files, selectedIds]);
+  }, [projectId, project]);
+
+  // Fetch documents from API
+  const fetchDocuments = useCallback(async () => {
+    if (!projectId) return;
+    try {
+      setLoading(true);
+      setError("");
+      const res = await documentService.getDocuments(projectId, {
+        category: activeFilter !== "all" ? activeFilter : undefined,
+        search: searchQuery.trim() || undefined,
+        limit: 100,
+      });
+
+      if (res?.data) {
+        setFiles(res.data.files || []);
+        if (res.data.summary) {
+          setSummary(res.data.summary);
+        }
+      }
+    } catch (err) {
+      console.error("Lỗi khi tải danh sách tài liệu:", err);
+      setError(err.message || "Không thể tải danh sách tài liệu!");
+    } finally {
+      setLoading(false);
+    }
+  }, [projectId, activeFilter, searchQuery]);
+
+  useEffect(() => {
+    fetchDocuments();
+  }, [fetchDocuments]);
+
+  const projectName = project?.title || project?.name || "AI Knowledge Core";
+  const projectRole = project?.role || "Owner";
 
   const handleToggleSelect = (fileId) => {
     setSelectedIds((prev) =>
@@ -155,34 +98,71 @@ export default function ProjectDocuments() {
   };
 
   const handleToggleSelectAll = () => {
-    if (selectedIds.length === filteredFiles.length) {
+    if (selectedIds.length === files.length) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(filteredFiles.map((f) => f.id));
+      setSelectedIds(files.map((f) => f.id));
     }
   };
 
-  const handleUpload = () => {
-    setIsUploadModalOpen(true);
+  const handlePreview = async (file) => {
+    try {
+      const res = await documentService.getPreviewUrl(projectId, file.id);
+      if (res?.data?.previewUrl) {
+        window.open(res.data.previewUrl, "_blank");
+      }
+    } catch (err) {
+      alert("Lỗi xem trước: " + (err.message || "Không thể tạo liên kết xem trước!"));
+    }
   };
 
-  const handleDownloadZip = () => {
-    console.log("Download zip for ids:", selectedIds);
+  const handleDownload = async (file) => {
+    try {
+      const res = await documentService.getDownloadUrl(projectId, file.id);
+      if (res?.data?.downloadUrl) {
+        window.open(res.data.downloadUrl, "_blank");
+      }
+    } catch (err) {
+      alert("Lỗi tải xuống: " + (err.message || "Không thể tạo liên kết tải về!"));
+    }
   };
 
-  const handleReindexAI = () => {
-    console.log("Reindex AI for ids:", selectedIds);
+  const handleDelete = async (file) => {
+    if (!confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn tệp "${file.name}"?`)) return;
+    try {
+      await documentService.deleteDocument(projectId, file.id);
+      setSelectedIds((prev) => prev.filter((id) => id !== file.id));
+      await fetchDocuments();
+    } catch (err) {
+      alert("Xóa tệp thất bại: " + (err.message || "Lỗi không xác định"));
+    }
   };
 
-  const handleBulkDelete = () => {
-    setFiles((prev) => prev.filter((f) => !selectedIds.includes(f.id)));
-    setSelectedIds([]);
+  const handleBulkDelete = async () => {
+    if (!confirm(`Bạn có chắc muốn xóa ${selectedIds.length} tệp tin đã chọn?`)) return;
+    try {
+      await documentService.bulkDeleteDocuments(projectId, selectedIds);
+      setSelectedIds([]);
+      await fetchDocuments();
+    } catch (err) {
+      alert("Xóa hàng loạt thất bại: " + (err.message || "Lỗi không xác định"));
+    }
   };
+
+  const selectedTotalSize = useMemo(() => {
+    const bytes = files
+      .filter((f) => selectedIds.includes(f.id))
+      .reduce((acc, f) => acc + (f.sizeBytes || 0), 0);
+    if (bytes === 0) return "0 MB";
+    const mb = bytes / (1024 * 1024);
+    if (mb >= 1024) return `${(mb / 1024).toFixed(1)} GB`;
+    return `${mb.toFixed(1)} MB`;
+  }, [files, selectedIds]);
 
   return (
     <div className="w-full min-h-screen flex flex-row bg-[#F8FAFC] text-[#0F172A] font-[Inter,system-ui,sans-serif]">
-      {/* 1. Left Project Sidebar */} 
-      <ProjectSidebar activeMenu="documents" />
+      {/* 1. Left Project Sidebar */}
+      <ProjectSidebar activeMenu="documents" projectId={projectId} />
 
       {/* 2. Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-x-hidden">
@@ -190,7 +170,11 @@ export default function ProjectDocuments() {
         <WorkspaceTopbar
           projectName={projectName}
           role={projectRole}
-          user={{ name: "Nguyễn Văn A", role: "Admin", initials: "NV" }}
+          user={{
+            name: user?.fullName || "Nguyễn Văn A",
+            role: user?.role || "Admin",
+            initials: user?.initials || "NV",
+          }}
         />
 
         {/* Explorer Body Container */}
@@ -198,11 +182,18 @@ export default function ProjectDocuments() {
           {/* Page Info Header */}
           <DocumentsHeader
             title="Tài liệu dự án"
-            totalFiles={38}
-            totalSize="1.2 GB"
+            totalFiles={summary.totalFiles || files.length}
+            totalSize={summary.totalSize || "0 B"}
             projectName={projectName}
-            onUpload={handleUpload}
+            onUpload={() => setIsUploadModalOpen(true)}
           />
+
+          {error && (
+            <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-[14px] flex items-center justify-between">
+              <span>{error}</span>
+              <button onClick={fetchDocuments} className="font-semibold underline">Thử lại</button>
+            </div>
+          )}
 
           {/* Search and Controls Toolbar */}
           <DocumentsToolbar
@@ -216,38 +207,46 @@ export default function ProjectDocuments() {
           <DocumentsFilterTabs
             activeFilter={activeFilter}
             onFilterChange={setActiveFilter}
-            counts={{
-              all: 38,
-              docs: 16,
-              sheets: 8,
-              media: 4,
-              images: 6,
-              code: 4,
+            counts={summary.counts || {
+              all: files.length,
+              docs: files.filter((f) => f.category === "docs").length,
+              sheets: files.filter((f) => f.category === "sheets").length,
+              media: files.filter((f) => f.category === "media").length,
+              images: files.filter((f) => f.category === "images").length,
+              code: files.filter((f) => f.category === "code").length,
             }}
           />
 
           {/* Flat Files Table Card */}
-          <DocumentsTable
-            files={filteredFiles}
-            selectedIds={selectedIds}
-            onToggleSelect={handleToggleSelect}
-            onToggleSelectAll={handleToggleSelectAll}
-            onPreview={(file) => console.log("Preview file:", file)}
-            onDownload={(file) => console.log("Download file:", file)}
-            onDelete={(file) => {
-              if (confirm(`Bạn có chắc muốn xóa tệp "${file.name}"?`)) {
-                setFiles((prev) => prev.filter((f) => f.id !== file.id));
-                setSelectedIds((prev) => prev.filter((id) => id !== file.id));
-              }
-            }}
-            onMoreOptions={(file) => console.log("More options for file:", file)}
-          />
+          {loading ? (
+            <div className="w-full py-20 flex flex-col items-center justify-center gap-3 text-slate-400 bg-white border border-slate-200 rounded-xl">
+              <div className="w-8 h-8 border-3 border-primary-600 border-t-transparent rounded-full animate-spin" />
+              <p className="text-[14px]">Đang tải danh sách tài liệu từ MinIO & Cơ sở dữ liệu...</p>
+            </div>
+          ) : (
+            <DocumentsTable
+              files={files}
+              selectedIds={selectedIds}
+              onToggleSelect={handleToggleSelect}
+              onToggleSelectAll={handleToggleSelectAll}
+              onPreview={handlePreview}
+              onDownload={handleDownload}
+              onDelete={handleDelete}
+              onMoreOptions={(file) => handlePreview(file)}
+            />
+          )}
 
           {/* Bulk Action Floating Bar */}
           <BulkActionBar
             selectedCount={selectedIds.length}
             totalSize={selectedTotalSize}
-            onDownloadZip={handleDownloadZip}
+            onDownloadZip={() => {
+              if (selectedIds.length > 0) {
+                // Download first selected or open in tabs
+                const first = files.find(f => f.id === selectedIds[0]);
+                if (first) handleDownload(first);
+              }
+            }}
             onBulkDelete={handleBulkDelete}
           />
         </main>
@@ -256,10 +255,10 @@ export default function ProjectDocuments() {
       {/* 3. Upload Modal Dialog */}
       <UploadModal
         isOpen={isUploadModalOpen}
+        projectId={projectId}
         onClose={() => setIsUploadModalOpen(false)}
-        onComplete={(uploadedQueue) => {
-          console.log("Upload completed with queue:", uploadedQueue);
-          setIsUploadModalOpen(false);
+        onComplete={() => {
+          fetchDocuments();
         }}
       />
     </div>

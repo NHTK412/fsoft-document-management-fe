@@ -1,56 +1,83 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import { documentService } from "@/services";
 
 export default function UploadModal({
   isOpen = false,
   onClose,
   onComplete,
+  projectId,
 }) {
   const [autoIndexAI, setAutoIndexAI] = useState(true);
-  const [queue, setQueue] = useState([
-    {
-      id: "u1",
-      name: "Milvus-Vector-Database-Guide.pdf",
-      size: "12.4 MB",
-      type: "pdf",
-      speed: "2.4 MB/s",
-      remaining: "Còn lại 3 giây",
-      progress: 68,
-      status: "uploading",
-    },
-    {
-      id: "u2",
-      name: "Sprint1-Architecture-Walkthrough.mp4",
-      size: "38.5 MB",
-      type: "mp4",
-      note: "Đã tải lên • Đang trích xuất transcript AI...",
-      progress: 100,
-      status: "completed",
-    },
-    {
-      id: "u3",
-      name: "Financial-Audit-2026.xlsx",
-      size: "3.2 MB",
-      type: "xlsx",
-      error: "Lỗi kết nối máy chủ MinIO (Network Timeout)",
-      progress: 45,
-      status: "error",
-    },
-  ]);
+  const [queue, setQueue] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef(null);
 
   if (!isOpen) return null;
 
-  const handleCancelItem = (id) => {
-    setQueue((prev) => prev.filter((item) => item.id !== id));
+  const handleFiles = async (files) => {
+    if (!files || files.length === 0) return;
+
+    const newItems = Array.from(files).map((file, idx) => ({
+      id: `upload-${Date.now()}-${idx}`,
+      file,
+      name: file.name,
+      size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+      type: file.name.split('.').pop()?.toLowerCase() || 'file',
+      progress: 30,
+      status: 'uploading',
+      error: null,
+      note: 'Đang tải lên MinIO...',
+    }));
+
+    setQueue((prev) => [...prev, ...newItems]);
+    setIsUploading(true);
+
+    for (const item of newItems) {
+      try {
+        setQueue((prev) =>
+          prev.map((q) => (q.id === item.id ? { ...q, progress: 60, note: 'Đang trích xuất & nạp vector PGVector...' } : q))
+        );
+
+        // Determine category from extension
+        const ext = item.type;
+        let category = 'docs';
+        if (['xlsx', 'xls', 'csv'].includes(ext)) category = 'sheets';
+        else if (['mp4', 'mov', 'avi', 'mkv'].includes(ext)) category = 'media';
+        else if (['jpg', 'jpeg', 'png', 'svg', 'webp'].includes(ext)) category = 'images';
+        else if (['py', 'java', 'js', 'jsx', 'ts', 'tsx', 'html', 'css', 'json'].includes(ext)) category = 'code';
+
+        await documentService.uploadDocument(projectId, item.file, category);
+
+        setQueue((prev) =>
+          prev.map((q) =>
+            q.id === item.id
+              ? { ...q, progress: 100, status: 'completed', note: 'Đã tải lên và lập chỉ mục Vector thành công' }
+              : q
+          )
+        );
+      } catch (err) {
+        setQueue((prev) =>
+          prev.map((q) =>
+            q.id === item.id
+              ? { ...q, status: 'error', error: err.message || 'Lỗi khi tải file lên máy chủ' }
+              : q
+          )
+        );
+      }
+    }
+
+    setIsUploading(false);
   };
 
-  const handleRetryItem = (id) => {
-    setQueue((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? { ...item, status: "uploading", progress: 60, error: null }
-          : item
-      )
-    );
+  const handleDrop = (e) => {
+    e.preventDefault();
+    if (e.dataTransfer.files) {
+      handleFiles(e.dataTransfer.files);
+    }
+  };
+
+  const handleCancelItem = (id) => {
+    setQueue((prev) => prev.filter((item) => item.id !== id));
   };
 
   const renderFileIcon = (type) => {
@@ -68,6 +95,7 @@ export default function UploadModal({
           </div>
         );
       case "mp4":
+      case "mov":
         return (
           <div className="w-[30px] h-[30px] shrink-0 flex items-center justify-center bg-[#F3E8FF] rounded-[6px]">
             <svg className="w-[15px] h-[15px] text-[#9333EA]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -77,7 +105,7 @@ export default function UploadModal({
           </div>
         );
       case "xlsx":
-      default:
+      case "csv":
         return (
           <div className="w-[30px] h-[30px] shrink-0 flex items-center justify-center bg-[#ECFDF5] rounded-[6px]">
             <svg className="w-[15px] h-[15px] text-[#059669]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -88,6 +116,15 @@ export default function UploadModal({
             </svg>
           </div>
         );
+      default:
+        return (
+          <div className="w-[30px] h-[30px] shrink-0 flex items-center justify-center bg-[#EFF6FF] rounded-[6px]">
+            <svg className="w-[15px] h-[15px] text-[#3B82F6]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
+          </div>
+        );
     }
   };
 
@@ -95,7 +132,6 @@ export default function UploadModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-150">
-      {/* Upload Modal Dialog */}
       <div className="relative w-full max-w-[720px] bg-white border border-[#E2E8F0] rounded-[16px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-150">
         
         {/* Modal Header */}
@@ -118,7 +154,6 @@ export default function UploadModal({
             </div>
           </div>
 
-          {/* Close Button */}
           <button
             type="button"
             onClick={onClose}
@@ -135,7 +170,19 @@ export default function UploadModal({
         {/* Modal Body Container */}
         <div className="w-full flex flex-col gap-[18px] p-[22px_28px_20px_28px] overflow-y-auto max-h-[calc(90vh-160px)]">
           {/* Dropzone Area Box */}
-          <div className="w-full h-[170px] shrink-0 flex flex-col items-center justify-center gap-[10px] p-[16px] bg-[#F8FAFC] border-2 border-dashed border-[#818CF8] hover:border-[#4F46E5] rounded-[12px] transition-colors cursor-pointer group">
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={handleDrop}
+            className="w-full h-[170px] shrink-0 flex flex-col items-center justify-center gap-[10px] p-[16px] bg-[#F8FAFC] border-2 border-dashed border-[#818CF8] hover:border-[#4F46E5] rounded-[12px] transition-colors cursor-pointer group"
+          >
+            <input
+              type="file"
+              ref={fileInputRef}
+              multiple
+              onChange={(e) => handleFiles(e.target.files)}
+              className="hidden"
+            />
             <div className="w-[48px] h-[48px] shrink-0 flex items-center justify-center bg-[#EEF2FF] border border-[#C7D2FE] group-hover:scale-105 rounded-full transition-transform">
               <svg className="w-[22px] h-[22px] text-[#4F46E5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
@@ -155,25 +202,24 @@ export default function UploadModal({
 
             <div className="px-[12px] py-[4px] bg-white border border-[#E2E8F0] rounded-[20px]">
               <span className="text-[11px] text-[#64748B]">
-                Hỗ trợ: PDF, DOCX, XLSX, PPTX, MD, TXT, JPG, PNG, MP4, MOV (Tối đa 500 MB/tệp)
+                Hỗ trợ: PDF, DOCX, XLSX, PPTX, MD, TXT, JPG, PNG, MP4 (Tối đa 100 MB/tệp)
               </span>
             </div>
           </div>
 
           {/* Queue Section Header */}
-          <div className="w-full flex items-center justify-between">
-            <div className="flex items-center gap-[8px]">
-              <span className="text-[13px] font-bold text-[#0F172A]">
-                Danh sách tệp đang tải lên
-              </span>
-              <span className="text-[10px] font-bold text-[#4F46E5] bg-[#EEF2FF] px-[6px] py-[2px] rounded-[10px]">
-                {queue.length} tệp
-              </span>
+          {queue.length > 0 && (
+            <div className="w-full flex items-center justify-between">
+              <div className="flex items-center gap-[8px]">
+                <span className="text-[13px] font-bold text-[#0F172A]">
+                  Danh sách tệp đang tải lên
+                </span>
+                <span className="text-[10px] font-bold text-[#4F46E5] bg-[#EEF2FF] px-[6px] py-[2px] rounded-[10px]">
+                  {queue.length} tệp
+                </span>
+              </div>
             </div>
-            <span className="text-[11px] text-[#64748B]">
-              Tổng dung lượng: 54.1 MB
-            </span>
-          </div>
+          )}
 
           {/* Upload Queue List */}
           <div className="w-full flex flex-col gap-[10px]">
@@ -192,30 +238,23 @@ export default function UploadModal({
                             {item.name}
                           </span>
                           <span className="text-[11px] text-[#64748B]">
-                            {item.size} • {item.speed} • {item.remaining}
+                            {item.size} • {item.note}
                           </span>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-[10px] shrink-0">
-                        <span className="text-[12px] font-bold text-[#4F46E5]">
-                          {item.progress}%
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => handleCancelItem(item.id)}
-                          aria-label="Hủy tải lên tệp"
-                          className="w-[24px] h-[24px] flex items-center justify-center bg-white border border-[#CBD5E1] hover:bg-slate-100 rounded-full transition-colors cursor-pointer text-[#64748B]"
-                        >
-                          <svg className="w-[12px] h-[12px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M18 6 6 18" />
-                            <path d="m6 6 12 12" />
-                          </svg>
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleCancelItem(item.id)}
+                        className="w-[20px] h-[20px] flex items-center justify-center text-[#94A3B8] hover:text-[#EF4444]"
+                      >
+                        <svg className="w-[14px] h-[14px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M18 6 6 18" />
+                          <path d="m6 6 12 12" />
+                        </svg>
+                      </button>
                     </div>
 
-                    {/* Progress Track */}
                     <div className="w-full h-[5px] bg-[#E2E8F0] rounded-[3px] overflow-hidden">
                       <div
                         style={{ width: `${item.progress}%` }}
@@ -246,7 +285,7 @@ export default function UploadModal({
                       </div>
 
                       <div className="flex items-center gap-[4px] shrink-0">
-                        <svg className="w-[14px] h-[14px] text-[#059669]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <svg className="w-[14px] h-[14px] text-[#059669]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                           <polyline points="20 6 9 17 4 12" />
                         </svg>
                         <span className="text-[11px] font-bold text-[#059669]">
@@ -254,8 +293,6 @@ export default function UploadModal({
                         </span>
                       </div>
                     </div>
-
-                    {/* Progress Full */}
                     <div className="w-full h-[5px] bg-[#10B981] rounded-[3px]" />
                   </div>
                 );
@@ -274,33 +311,22 @@ export default function UploadModal({
                           <span className="text-[12px] font-semibold text-[#0F172A] truncate">
                             {item.name}
                           </span>
-                          <span className="text-[11px] text-[#DC2626]">
-                            {item.size} • {item.error}
+                          <span className="text-[11px] text-[#EF4444] font-medium">
+                            {item.error}
                           </span>
                         </div>
                       </div>
 
                       <button
                         type="button"
-                        onClick={() => handleRetryItem(item.id)}
-                        className="h-[26px] flex items-center gap-[4px] px-[10px] bg-[#DC2626] hover:bg-[#B91C1C] text-white rounded-[4px] text-[11px] font-semibold transition-colors cursor-pointer shrink-0"
+                        onClick={() => handleCancelItem(item.id)}
+                        className="text-[#94A3B8] hover:text-[#EF4444]"
                       >
-                        <svg className="w-[11px] h-[11px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-                          <path d="M3 3v5h5" />
-                          <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
-                          <path d="M16 16h5v5" />
+                        <svg className="w-[14px] h-[14px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M18 6 6 18" />
+                          <path d="m6 6 12 12" />
                         </svg>
-                        <span>Thử lại</span>
                       </button>
-                    </div>
-
-                    {/* Progress Error */}
-                    <div className="w-full h-[5px] bg-[#FEE2E2] rounded-[3px] overflow-hidden">
-                      <div
-                        style={{ width: `${item.progress}%` }}
-                        className="h-full bg-[#EF4444] rounded-[3px]"
-                      />
                     </div>
                   </div>
                 );
@@ -310,29 +336,19 @@ export default function UploadModal({
             })}
           </div>
 
-          {/* Advanced Options Box */}
-          <div
-            onClick={() => setAutoIndexAI(!autoIndexAI)}
-            className="w-full flex items-start gap-[12px] p-[12px_16px] bg-[#F8FAFC] border border-[#E2E8F0] rounded-[8px] cursor-pointer hover:bg-slate-100/70 transition-colors select-none"
-          >
-            <div
-              className={`w-[18px] h-[18px] shrink-0 mt-0.5 flex items-center justify-center rounded-[4px] transition-colors ${
-                autoIndexAI
-                  ? "bg-[#4F46E5] text-white"
-                  : "bg-white border border-[#CBD5E1]"
-              }`}
-            >
-              {autoIndexAI && (
-                <svg className="w-[12px] h-[12px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              )}
-            </div>
-
+          {/* AI Vector Checkbox */}
+          <div className="w-full flex items-start gap-[10px] p-[14px_16px] bg-[#EEF2FF] border border-[#C7D2FE] rounded-[10px]">
+            <input
+              type="checkbox"
+              id="autoIndexAI"
+              checked={autoIndexAI}
+              onChange={(e) => setAutoIndexAI(e.target.checked)}
+              className="mt-[3px] w-4 h-4 text-[#4F46E5] rounded focus:ring-[#4F46E5]"
+            />
             <div className="flex-1 flex flex-col gap-[2px]">
-              <span className="text-[12px] font-bold text-[#0F172A]">
+              <label htmlFor="autoIndexAI" className="text-[12px] font-bold text-[#0F172A] cursor-pointer">
                 Tự động phân tích & nạp vào AI Chatbot (Vector Indexing)
-              </span>
+              </label>
               <p className="text-[11px] leading-[15px] text-[#64748B]">
                 Hệ thống sẽ tự động trích xuất nội dung văn bản, phân đoạn (chunking) và sinh vector embeddings để sẵn sàng hỏi đáp ngay sau khi tải lên hoàn tất.
               </p>
@@ -342,39 +358,32 @@ export default function UploadModal({
 
         {/* Modal Footer */}
         <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 p-[16px_28px_18px_28px] bg-[#F8FAFC] border-t border-[#E2E8F0]">
-          {/* Storage Hint Left */}
           <div className="flex items-center gap-[6px] text-[12px] text-[#64748B]">
-            <svg className="w-[14px] h-[14px] text-[#64748B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="22" x2="2" y1="12" y2="12" />
-              <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
-              <line x1="6" x2="6.01" y1="16" y2="16" />
-              <line x1="10" x2="10.01" y1="16" y2="16" />
-            </svg>
-            <span>Dung lượng MinIO còn trống: 8.8 GB / 10 GB</span>
+            <span>Đã hoàn tất: {completedCount}/{queue.length} tệp</span>
           </div>
 
-          {/* Footer Buttons Right */}
           <div className="flex items-center gap-[12px]">
             <button
               type="button"
               onClick={onClose}
               className="h-[38px] px-[16px] bg-white border border-[#CBD5E1] hover:bg-slate-50 text-[#475569] rounded-[8px] text-[13px] font-medium transition-colors cursor-pointer"
             >
-              Hủy bỏ
+              Đóng
             </button>
 
             <button
               type="button"
+              disabled={isUploading}
               onClick={() => {
                 if (onComplete) onComplete(queue);
                 onClose();
               }}
-              className="h-[38px] flex items-center gap-[6px] px-[20px] bg-[#4F46E5] hover:bg-[#4338CA] text-white rounded-[8px] text-[13px] font-semibold transition-colors cursor-pointer shadow-sm"
+              className="h-[38px] flex items-center gap-[6px] px-[20px] bg-[#4F46E5] hover:bg-[#4338CA] text-white rounded-[8px] text-[13px] font-semibold transition-colors cursor-pointer shadow-sm disabled:opacity-50"
             >
-              <svg className="w-[14px] h-[14px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-[14px] h-[14px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
-              <span>Hoàn tất tải lên ({completedCount}/{queue.length} tệp)</span>
+              <span>Xác nhận & Cập nhật danh sách</span>
             </button>
           </div>
         </div>

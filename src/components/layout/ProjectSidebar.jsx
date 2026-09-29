@@ -1,7 +1,40 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-export default function ProjectSidebar({ activeMenu = "dashboard" }) {
+export default function ProjectSidebar({ activeMenu = "dashboard", projectId }) {
+  const getPath = (menuId) => {
+    if (projectId) {
+      switch (menuId) {
+        case "dashboard":
+          return `/projects/${projectId}/dashboard`;
+        case "documents":
+          return `/projects/${projectId}/documents`;
+        case "ai-assistant":
+          return `/projects/${projectId}/chat`;
+        case "members":
+          return `/projects/${projectId}/members`;
+        case "settings":
+          return `/projects/${projectId}/settings`;
+        default:
+          return `/projects/${projectId}/dashboard`;
+      }
+    }
+    switch (menuId) {
+      case "dashboard":
+        return "/dashboard";
+      case "documents":
+        return "/documents";
+      case "ai-assistant":
+        return "/chat";
+      case "members":
+        return "/members";
+      case "settings":
+        return "/settings";
+      default:
+        return "/projects";
+    }
+  };
+
   const menuItems = [
     {
       id: "dashboard",
@@ -14,7 +47,7 @@ export default function ProjectSidebar({ activeMenu = "dashboard" }) {
           <rect width="7" height="5" x="3" y="16" rx="1" />
         </svg>
       ),
-      path: "/dashboard",
+      path: getPath("dashboard"),
     },
     {
       id: "documents",
@@ -25,7 +58,7 @@ export default function ProjectSidebar({ activeMenu = "dashboard" }) {
           <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
         </svg>
       ),
-      path: "/documents",
+      path: getPath("documents"),
     },
     {
       id: "ai-assistant",
@@ -41,7 +74,7 @@ export default function ProjectSidebar({ activeMenu = "dashboard" }) {
           <path d="M9 13v2" />
         </svg>
       ),
-      path: "/chat",
+      path: getPath("ai-assistant"),
     },
     {
       id: "members",
@@ -54,7 +87,7 @@ export default function ProjectSidebar({ activeMenu = "dashboard" }) {
           <path d="M16 3.13a4 4 0 0 1 0 7.75" />
         </svg>
       ),
-      path: "/members",
+      path: getPath("members"),
     },
     {
       id: "settings",
@@ -65,7 +98,7 @@ export default function ProjectSidebar({ activeMenu = "dashboard" }) {
           <circle cx="12" cy="12" r="3" />
         </svg>
       ),
-      path: "/settings",
+      path: getPath("settings"),
     },
   ];
 
@@ -85,7 +118,7 @@ export default function ProjectSidebar({ activeMenu = "dashboard" }) {
               KBase Workspace
             </span>
             <span className="text-[11px] text-[#94A3B8] whitespace-nowrap">
-              Alpha Engineering
+              AI Knowledge Platform
             </span>
           </div>
         </Link>
@@ -95,20 +128,19 @@ export default function ProjectSidebar({ activeMenu = "dashboard" }) {
           {menuItems.map((item) => {
             const isActive = activeMenu === item.id;
             return (
-              <a
+              <Link
                 key={item.id}
-                href={item.path}
-                className={`w-full h-[40px] flex items-center justify-between px-[12px] rounded-[8px] transition-colors cursor-pointer text-[13px] ${
-                  isActive
+                to={item.path}
+                className={`w-full h-[40px] flex items-center justify-between px-[12px] rounded-[8px] transition-colors cursor-pointer text-[13px] no-underline ${isActive
                     ? "bg-[#4F46E5] text-white font-semibold"
                     : "text-[#94A3B8] hover:bg-[#1E293B]/60 hover:text-white font-medium"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-[12px]">
                   {item.icon}
                   <span className="whitespace-nowrap">{item.label}</span>
                 </div>
-              </a>
+              </Link>
             );
           })}
         </nav>
@@ -116,36 +148,16 @@ export default function ProjectSidebar({ activeMenu = "dashboard" }) {
 
       {/* Sidebar Bottom Content */}
       <div className="w-full flex flex-col gap-[16px]">
-        {/* Storage Usage Card */}
-        <div className="w-full flex flex-col gap-[10px] p-[14px] bg-[#1E293B] rounded-[10px]">
-          <div className="w-full flex items-center justify-between">
-            <div className="flex items-center gap-[6px]">
-              <svg className="w-[14px] h-[14px] text-[#818CF8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="22" x2="2" y1="12" y2="12" />
-                <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
-                <line x1="6" x2="6.01" y1="16" y2="16" />
-                <line x1="10" x2="10.01" y1="16" y2="16" />
-              </svg>
-              <span className="text-[12px] font-semibold text-[#E2E8F0] whitespace-nowrap">
-                MinIO Storage
-              </span>
-            </div>
-            <span className="text-[11px] font-semibold text-[#38BDF8] whitespace-nowrap">
-              34%
-            </span>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="w-full h-[6px] bg-[#334155] rounded-[3px] overflow-hidden">
-            <div className="w-[34%] h-full bg-[#38BDF8] rounded-[3px]" />
-          </div>
-
-          <span className="text-[11px] text-[#94A3B8] whitespace-nowrap">
-            3.4 GB / 10 GB đã dùng
-          </span>
-        </div>
-
-        
+        {/* Link back to all projects */}
+        <Link
+          to="/projects"
+          className="w-full h-[36px] flex items-center justify-center gap-2 bg-[#1E293B] hover:bg-[#334155] text-slate-300 hover:text-white rounded-[8px] text-[12px] font-semibold transition-colors no-underline"
+        >
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="m15 18-6-6 6-6" />
+          </svg>
+          <span>Tất cả Dự án</span>
+        </Link>
       </div>
     </aside>
   );

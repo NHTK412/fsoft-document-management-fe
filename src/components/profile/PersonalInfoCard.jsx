@@ -32,9 +32,6 @@ export default function PersonalInfoCard({
               <span className="px-[8px] py-[2px] bg-[#EEF2FF] border border-[#C7D2FE] rounded-[6px] text-[11px] font-semibold text-[#4F46E5]">
                 {role}
               </span>
-              <span className="px-[8px] py-[2px] bg-[#ECFDF5] rounded-[6px] text-[11px] font-semibold text-[#059669]">
-                Đã xác thực ✅
-              </span>
             </div>
             <span className="text-[12px] text-[#64748B]">
               {email} • Tham gia từ tháng 01/2026
