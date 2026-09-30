@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { formatRole } from "@/utils/formatRole";
+import { formatDate } from "@/utils/formatDate";
 
 export default function MembersTable({
   activeTab = "current",
@@ -79,7 +80,7 @@ export default function MembersTable({
 
                       {/* Column 3: Joined Date */}
                       <div className="w-[160px] shrink-0 text-[13px] text-[#475569] font-normal">
-                        {member.joinedDate}
+                        {formatDate(member.joinedDate)}
                       </div>
 
                       {/* Column 4: Contributions */}
@@ -214,7 +215,7 @@ export default function MembersTable({
 
                       {/* Column 3: Sent Date */}
                       <div className="w-[160px] shrink-0 text-[13px] text-[#475569]">
-                        {invite.sentDate}
+                        {formatDate(invite.sentDate)}
                       </div>
 
                       {/* Column 4: Status */}

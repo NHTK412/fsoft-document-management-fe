@@ -10,6 +10,7 @@ import {
 import { projectService, inviteService } from '@/services';
 import { useAuth } from '@/contexts';
 import { formatRole } from '@/utils/formatRole';
+import { formatDate } from '@/utils/formatDate';
 
 export default function ProjectsHub() {
   const navigate = useNavigate();
@@ -321,10 +322,10 @@ export default function ProjectsHub() {
                     <div className="space-y-3 pt-3 border-t border-slate-100">
                       <div className="flex items-center justify-between text-[11px] text-slate-400">
                         <span>
-                          {inv.sentDate ? `Gửi ngày: ${inv.sentDate}` : 'Đang chờ xác nhận'}
+                          {inv.sentDate ? `Gửi ngày: ${formatDate(inv.sentDate)}` : 'Đang chờ xác nhận'}
                         </span>
                         <span>
-                          {inv.expiresAt ? `Hạn: ${new Date(inv.expiresAt).toLocaleDateString('vi-VN')}` : 'Hết hạn sau 7 ngày'}
+                          {inv.expiresAt ? `Hạn: ${formatDate(inv.expiresAt)}` : 'Hết hạn sau 7 ngày'}
                         </span>
                       </div>
 

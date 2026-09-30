@@ -1,4 +1,5 @@
 import React from "react";
+import { formatRelativeTime } from "@/utils/formatDate";
 
 export default function RecentlyViewedFiles({ files, onViewAll, onQuickView }) {
   const fileList = files || [];
@@ -109,7 +110,7 @@ export default function RecentlyViewedFiles({ files, onViewAll, onQuickView }) {
                     {file.name}
                   </span>
                   <span className="text-[12px] text-[#64748B]">
-                    {file.meta}
+                    {file.meta || `${file.sizeFormatted || (file.size ? file.size + ' MB' : '')} ${file.createdAt || file.updatedAt ? '• ' + formatRelativeTime(file.createdAt || file.updatedAt) : ''}`}
                   </span>
                 </div>
               </div>

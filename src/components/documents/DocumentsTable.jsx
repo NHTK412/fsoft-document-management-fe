@@ -1,4 +1,5 @@
 import React from "react";
+import { formatDate, formatRelativeTime } from "@/utils/formatDate";
 
 export default function DocumentsTable({
   files = [],
@@ -210,8 +211,13 @@ export default function DocumentsTable({
                   </div>
 
                   {/* Date Wrap */}
-                  <div className="w-[140px] shrink-0 text-[13px] text-[#64748B]">
-                    {file.updatedAt}
+                  <div className="w-[140px] shrink-0 flex flex-col justify-center">
+                    <span className="text-[13px] font-medium text-[#334155]">
+                      {formatDate(file.createdAt || file.updatedAt)}
+                    </span>
+                    <span className="text-[11px] text-[#94A3B8]">
+                      {formatRelativeTime(file.createdAt || file.updatedAt)}
+                    </span>
                   </div>
 
                   {/* Actions Wrap */}
