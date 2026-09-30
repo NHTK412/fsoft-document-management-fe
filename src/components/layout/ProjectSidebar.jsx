@@ -1,7 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts";
 
 export default function ProjectSidebar({ activeMenu = "dashboard", projectId }) {
+  const { user } = useAuth();
   const getPath = (menuId) => {
     if (projectId) {
       switch (menuId) {
@@ -103,7 +105,7 @@ export default function ProjectSidebar({ activeMenu = "dashboard", projectId }) 
   ];
 
   return (
-    <aside className="box-border w-[260px] shrink-0 min-h-screen h-full flex flex-col justify-between p-[24px_16px] bg-[#0B0F19] text-white">
+    <aside className="box-border w-[260px] shrink-0 min-h-screen h-screen sticky top-0 flex flex-col justify-between p-[24px_16px] bg-[#0B0F19] text-white overflow-y-auto z-30">
       {/* Sidebar Top Content */}
       <div className="w-full flex flex-col gap-[28px]">
         {/* Brand */}
@@ -147,7 +149,20 @@ export default function ProjectSidebar({ activeMenu = "dashboard", projectId }) 
       </div>
 
       {/* Sidebar Bottom Content */}
-      <div className="w-full flex flex-col gap-[16px]">
+      <div className="w-full flex flex-col gap-[10px]">
+        {/* Admin Link if role is admin */}
+        {user?.role === 'ROLE_ADMIN' && (
+          <Link
+            to="/admin"
+            className="w-full h-[36px] flex items-center justify-center gap-2 bg-gradient-to-r from-purple-900/50 to-indigo-900/50 hover:from-purple-900/80 hover:to-indigo-900/80 text-indigo-300 hover:text-white rounded-[8px] text-[12px] font-semibold transition-colors no-underline border border-indigo-500/30"
+          >
+            <svg className="w-4 h-4 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+            </svg>
+            <span>Khu vực Quản trị</span>
+          </Link>
+        )}
+
         {/* Link back to all projects */}
         <Link
           to="/projects"

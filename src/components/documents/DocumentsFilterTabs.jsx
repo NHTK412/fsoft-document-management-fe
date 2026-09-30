@@ -4,21 +4,19 @@ export default function DocumentsFilterTabs({
   activeFilter = "all",
   onFilterChange,
   counts = {
-    all: 38,
-    docs: 16,
-    sheets: 8,
-    media: 4,
-    images: 6,
-    code: 4,
+    all: 0,
+    pdf: 0,
+    word: 0,
+    md: 0,
+    txt: 0,
   },
 }) {
   const tabs = [
-    { id: "all", label: "Tất cả", count: counts.all },
-    { id: "docs", label: "Tài liệu văn bản (PDF, DOCX)", count: counts.docs },
-    { id: "sheets", label: "Bảng tính & Trình chiếu (XLSX, PPTX)", count: counts.sheets },
-    { id: "media", label: "Video & Âm thanh", count: counts.media },
-    { id: "images", label: "Hình ảnh", count: counts.images },
-    { id: "code", label: "Markdown & TXT", count: counts.code },
+    { id: "all", label: "Tất cả", count: counts.all || 0 },
+    { id: "pdf", label: "PDF (.pdf)", count: counts.pdf || 0 },
+    { id: "word", label: "Word (.docx, .doc)", count: counts.word || 0 },
+    { id: "md", label: "Markdown (.md)", count: counts.md || 0 },
+    { id: "txt", label: "Văn bản (.txt)", count: counts.txt || 0 },
   ];
 
   return (

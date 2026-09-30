@@ -8,71 +8,91 @@ import ProjectChat from "../pages/ProjectChat.jsx";
 import ProjectMembers from "../pages/ProjectMembers.jsx";
 import ProjectSettings from "../pages/ProjectSettings.jsx";
 import UserProfile from "../pages/UserProfile.jsx";
+import AdminOverview from "../pages/admin/AdminOverview.jsx";
+import AdminUsers from "../pages/admin/AdminUsers.jsx";
+import AdminProjects from "../pages/admin/AdminProjects.jsx";
+import { AdminRoute, UserRoute, AuthRoute, ProtectedRoute } from "./guards.jsx";
 
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <Login />
+        element: <AuthRoute><Login /></AuthRoute>
     },
     {
         path: "/login",
-        element: <Login />
+        element: <AuthRoute><Login /></AuthRoute>
     },
     {
         path: "/register",
-        element: <Register />
+        element: <AuthRoute><Register /></AuthRoute>
     },
     {
         path: "/projects",
-        element: <ProjectsHub />
+        element: <UserRoute><ProjectsHub /></UserRoute>
     },
     {
         path: "/dashboard",
-        element: <ProjectDashboard />
+        element: <UserRoute><ProjectDashboard /></UserRoute>
     },
     {
         path: "/projects/:id",
-        element: <ProjectDashboard />
+        element: <UserRoute><ProjectDashboard /></UserRoute>
     },
     {
         path: "/projects/:id/dashboard",
-        element: <ProjectDashboard />
+        element: <UserRoute><ProjectDashboard /></UserRoute>
     },
     {
         path: "/documents",
-        element: <ProjectDocuments />
+        element: <UserRoute><ProjectDocuments /></UserRoute>
     },
     {
         path: "/projects/:id/documents",
-        element: <ProjectDocuments />
+        element: <UserRoute><ProjectDocuments /></UserRoute>
     },
     {
         path: "/chat",
-        element: <ProjectChat />
+        element: <UserRoute><ProjectChat /></UserRoute>
     },
     {
         path: "/projects/:id/chat",
-        element: <ProjectChat />
+        element: <UserRoute><ProjectChat /></UserRoute>
     },
     {
         path: "/members",
-        element: <ProjectMembers />
+        element: <UserRoute><ProjectMembers /></UserRoute>
     },
     {
         path: "/projects/:id/members",
-        element: <ProjectMembers />
+        element: <UserRoute><ProjectMembers /></UserRoute>
     },
     {
         path: "/settings",
-        element: <ProjectSettings />
+        element: <UserRoute><ProjectSettings /></UserRoute>
     },
     {
         path: "/projects/:id/settings",
-        element: <ProjectSettings />
+        element: <UserRoute><ProjectSettings /></UserRoute>
     },
     {
         path: "/profile",
-        element: <UserProfile />
+        element: <ProtectedRoute><UserProfile /></ProtectedRoute>
+    },
+    {
+        path: "/admin",
+        element: <AdminRoute><AdminOverview /></AdminRoute>
+    },
+    {
+        path: "/admin/overview",
+        element: <AdminRoute><AdminOverview /></AdminRoute>
+    },
+    {
+        path: "/admin/users",
+        element: <AdminRoute><AdminUsers /></AdminRoute>
+    },
+    {
+        path: "/admin/projects",
+        element: <AdminRoute><AdminProjects /></AdminRoute>
     }
 ]);
 

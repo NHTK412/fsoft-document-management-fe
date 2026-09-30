@@ -11,18 +11,7 @@ export default function ProfileHeader({
     <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4">
       {/* Left: Breadcrumbs & Title */}
       <div className="flex flex-col gap-1">
-        {/* Breadcrumbs */}
-        <div className="flex items-center gap-[6px] text-[12px] select-none">
-          <span className="text-[#64748B]">Tài khoản</span>
-          <svg className="w-[12px] h-[12px] text-[#94A3B8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-          <span className="text-[#64748B]">{userName}</span>
-          <svg className="w-[12px] h-[12px] text-[#94A3B8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-          <span className="text-[#4F46E5] font-semibold">Hồ sơ &amp; Cài đặt</span>
-        </div>
+        
 
         {/* Title */}
         <h1 className="text-[22px] font-bold text-[#0F172A] tracking-tight">

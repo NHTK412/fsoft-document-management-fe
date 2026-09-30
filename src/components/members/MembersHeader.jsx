@@ -24,7 +24,7 @@ export default function MembersHeader({ onInviteClick }) {
 
       {/* Action Buttons */}
       <div className="flex items-center gap-[10px] shrink-0">
-        {/* Copy Invite Link */}
+        {/* Copy Invite Link
         <button
           type="button"
           onClick={handleCopyLink}
@@ -47,7 +47,7 @@ export default function MembersHeader({ onInviteClick }) {
               <span>Sao chép link mời</span>
             </>
           )}
-        </button>
+        </button> */}
 
         {/* Invite Member Button */}
         <button

@@ -212,11 +212,10 @@ export default function ProjectDocuments() {
             onFilterChange={setActiveFilter}
             counts={summary.counts || {
               all: files.length,
-              docs: files.filter((f) => f.category === "docs").length,
-              sheets: files.filter((f) => f.category === "sheets").length,
-              media: files.filter((f) => f.category === "media").length,
-              images: files.filter((f) => f.category === "images").length,
-              code: files.filter((f) => f.category === "code").length,
+              pdf: files.filter((f) => (f.name || '').toLowerCase().endsWith('.pdf')).length,
+              word: files.filter((f) => (f.name || '').toLowerCase().endsWith('.docx') || (f.name || '').toLowerCase().endsWith('.doc')).length,
+              md: files.filter((f) => (f.name || '').toLowerCase().endsWith('.md')).length,
+              txt: files.filter((f) => (f.name || '').toLowerCase().endsWith('.txt')).length,
             }}
           />
 

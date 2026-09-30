@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatRole } from '@/utils/formatRole';
+import { formatDate, formatDateTime } from '@/utils/formatDate';
 
 export const ProjectCard = ({ project, onClick }) => {
   const {
@@ -36,8 +37,17 @@ export const ProjectCard = ({ project, onClick }) => {
               <line x1="6" x2="6.01" y1="18" y2="18" />
             </svg>
           </div>
-          <div className="w-fit flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-200 rounded-md">
-            <span className="text-[11px] text-slate-400">{updatedAt}</span>
+          <div
+            className="w-fit flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-md"
+            title={`Cập nhật: ${formatDateTime(updatedAt || project?.createdAt)}`}
+          >
+            <svg className="w-3 h-3 text-slate-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            <span className="text-[11px] font-medium text-slate-600">
+              {formatDate(updatedAt || project?.createdAt, 'readable')}
+            </span>
           </div>
         </div>
 

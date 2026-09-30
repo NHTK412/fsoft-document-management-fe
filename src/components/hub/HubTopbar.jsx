@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { formatRole } from '@/utils/formatRole';
+import { useAuth } from '@/contexts';
+import UserHeaderDropdown from '@/components/common/UserHeaderDropdown';
 
 export const HubTopbar = ({
   userName = 'Nguyễn Văn A',
@@ -12,6 +14,7 @@ export const HubTopbar = ({
   fetchInvites,
   onOpenInvitesTab,
 }) => {
+  const { user } = useAuth();
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [actionInProgressId, setActionInProgressId] = useState(null);
   const notificationRef = useRef(null);
@@ -253,29 +256,21 @@ export const HubTopbar = ({
           )}
         </div>
 
-        {/* User Profile Link */}
-        <Link
-          to="/profile"
-          className="flex items-center gap-2.5 p-1 pr-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-full cursor-pointer transition-colors"
-        >
-          <div className="w-[30px] h-[30px] rounded-full bg-primary-600 flex items-center justify-center text-white text-[12px] font-bold">
-            {userInitials}
-          </div>
-          <span className="text-[12px] font-semibold text-slate-800 hidden sm:inline">
-            {userName}
-          </span>
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="w-3.5 h-3.5 text-slate-400"
+        {/* Admin Portal Button */}
+        {user?.role === 'ROLE_ADMIN' && (
+          <Link
+            to="/admin"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 hover:from-indigo-500/20 hover:to-purple-500/20 text-indigo-700 border border-indigo-200 rounded-full text-xs font-semibold transition-all no-underline shadow-2xs"
           >
-            <path d="m6 9 6 6 6-6" />
-          </svg>
-        </Link>
+            <svg className="w-3.5 h-3.5 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+            </svg>
+            <span>Trang Quản Trị</span>
+          </Link>
+        )}
+
+        {/* User Profile Dropdown on Hover */}
+        <UserHeaderDropdown />
       </div>
     </header>
   );

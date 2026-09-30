@@ -12,13 +12,9 @@ export default function GeneralStorageCard({
 }) {
   const allFormats = [
     { id: "pdf", label: "PDF (.pdf)" },
-    { id: "docx", label: "Word (.docx)" },
-    { id: "xlsx", label: "Excel (.xlsx)" },
-    { id: "pptx", label: "PPT (.pptx)" },
+    { id: "docx", label: "Word (.docx, .doc)" },
     { id: "md", label: "Markdown (.md)" },
     { id: "txt", label: "Văn bản (.txt)" },
-    { id: "images", label: "Ảnh (PNG/JPG)" },
-    { id: "video", label: "Video (MP4)" },
   ];
 
   return (
@@ -141,7 +137,7 @@ export default function GeneralStorageCard({
           <div className="flex flex-col gap-[10px]">
             <div className="flex items-center justify-between">
               <span className="text-[13px] font-semibold text-[#334155]">
-                Định Dạng Tệp Cho Phép (Allowed Formats)
+                Định Dạng Tệp Cho Phép
               </span>
               <span className="text-[12px] font-medium text-[#059669]">
                 {allowedFormats.length} / {allFormats.length} định dạng bật
@@ -157,11 +153,10 @@ export default function GeneralStorageCard({
                     key={fmt.id}
                     type="button"
                     onClick={() => onToggleFormat(fmt.id)}
-                    className={`h-[36px] px-[10px] flex items-center gap-[8px] rounded-[8px] border text-[12px] font-semibold transition-all cursor-pointer ${
-                      isChecked
+                    className={`h-[36px] px-[10px] flex items-center gap-[8px] rounded-[8px] border text-[12px] font-semibold transition-all cursor-pointer ${isChecked
                         ? "bg-[#EEF2FF] border-[#C7D2FE] text-[#3730A3]"
                         : "bg-[#F8FAFC] border-[#E2E8F0] text-[#94A3B8] hover:bg-[#F1F5F9]"
-                    }`}
+                      }`}
                   >
                     <svg
                       className={`w-[13px] h-[13px] shrink-0 ${isChecked ? "text-[#4F46E5]" : "text-[#CBD5E1]"}`}
@@ -181,26 +176,7 @@ export default function GeneralStorageCard({
             </div>
           </div>
 
-          {/* Storage Summary Bar */}
-          <div className="w-full flex items-center justify-between p-[12px_14px] bg-[#F8FAFC] border border-[#E2E8F0] rounded-[8px]">
-            <div className="flex items-center gap-[10px]">
-              <svg className="w-[16px] h-[16px] text-[#0284C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="22" x2="2" y1="12" y2="12" />
-                <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
-                <line x1="6" x2="6.01" y1="16" y2="16" />
-                <line x1="10" x2="10.01" y1="16" y2="16" />
-              </svg>
-              <span className="text-[13px] text-[#475569]">
-                Dung lượng MinIO hiện tại:
-              </span>
-              <span className="text-[13px] font-semibold text-[#0284C7]">
-                1.2 GB / 10 GB (12% đã dùng)
-              </span>
-            </div>
-            <div className="px-[8px] py-[3px] bg-[#ECFDF5] rounded-[4px] text-[11px] font-semibold text-[#059669]">
-              🟢 Bình thường
-            </div>
-          </div>
+
         </div>
       </div>
     </div>

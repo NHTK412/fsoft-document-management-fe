@@ -48,7 +48,7 @@ export default function ProjectSettings() {
   const [projectName, setProjectName] = useState("");
   const [projectDesc, setProjectDesc] = useState("");
   const [maxFileSize, setMaxFileSize] = useState("50 MB");
-  const [allowedFormats, setAllowedFormats] = useState(["pdf", "docx", "xlsx"]);
+  const [allowedFormats, setAllowedFormats] = useState(["pdf", "docx", "doc", "md", "txt"]);
   const [temperature, setTemperature] = useState(0.2);
   const [systemPrompt, setSystemPrompt] = useState("");
 
@@ -68,7 +68,9 @@ export default function ProjectSettings() {
         setProjectName(d.projectName || "");
         setProjectDesc(d.projectDesc || "");
         setMaxFileSize(d.maxFileSize || "50 MB");
-        setAllowedFormats(d.allowedFormats || ["pdf", "docx", "xlsx"]);
+        const allowedOnly = (d.allowedFormats || ["pdf", "docx", "doc", "md", "txt"])
+          .filter(f => ['pdf', 'docx', 'doc', 'md', 'txt'].includes(f.toLowerCase()));
+        setAllowedFormats(allowedOnly.length > 0 ? allowedOnly : ["pdf", "docx", "doc", "md", "txt"]);
         if (d.aiPersona) {
           setTemperature(d.aiPersona.temperature ?? 0.2);
           setSystemPrompt(d.aiPersona.systemPrompt || "");

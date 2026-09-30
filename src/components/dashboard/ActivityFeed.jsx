@@ -1,4 +1,5 @@
 import React from "react";
+import { formatRelativeTime } from "@/utils/formatDate";
 
 export default function ActivityFeed({ activities }) {
   const defaultActivities = [
@@ -108,7 +109,7 @@ export default function ActivityFeed({ activities }) {
                 {item.target}
               </span>
               <span className="text-[12px] text-[#94A3B8]">
-                {item.time}
+                {item.createdAt ? formatRelativeTime(item.createdAt) : (item.time || "Vừa xong")}
               </span>
             </div>
           </div>
