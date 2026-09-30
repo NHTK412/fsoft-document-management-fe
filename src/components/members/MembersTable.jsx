@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { formatRole } from "@/utils/formatRole";
 import { formatDate } from "@/utils/formatDate";
 
@@ -11,15 +11,42 @@ export default function MembersTable({
   onResendInvite,
   onCancelInvite,
 }) {
-  const [activeDropdownId, setActiveDropdownId] = useState(null);
+  const [dropdownState, setDropdownState] = useState(null); // { id, member, top, right, openUpward }
 
-  const toggleDropdown = (id) => {
-    setActiveDropdownId((prev) => (prev === id ? null : id));
+  const toggleDropdown = (e, member) => {
+    e.stopPropagation();
+    if (dropdownState && dropdownState.id === member.id) {
+      setDropdownState(null);
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const openUpward = spaceBelow < 180;
+    setDropdownState({
+      id: member.id,
+      member,
+      top: openUpward ? rect.top - 6 : rect.bottom + 6,
+      right: Math.max(16, window.innerWidth - rect.right),
+      openUpward,
+    });
   };
+
+  const closeDropdown = () => setDropdownState(null);
+
+  useEffect(() => {
+    if (!dropdownState) return;
+    const handleScrollOrResize = () => setDropdownState(null);
+    window.addEventListener("scroll", handleScrollOrResize, true);
+    window.addEventListener("resize", handleScrollOrResize);
+    return () => {
+      window.removeEventListener("scroll", handleScrollOrResize, true);
+      window.removeEventListener("resize", handleScrollOrResize);
+    };
+  }, [dropdownState]);
 
   return (
     <div className="w-full bg-white border border-[#E2E8F0] rounded-[12px] overflow-hidden shadow-xs">
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto min-h-[140px]">
         <div className="min-w-[960px]">
           {activeTab === "current" ? (
             /* Current Members Table */
@@ -99,12 +126,16 @@ export default function MembersTable({
                           Đổi vai trò
                         </button>
 
-                        {/* More Horizontal Button & Dropdown */}
-                        <div className="relative">
+                        {/* More Horizontal Button */}
+                        <div>
                           <button
                             type="button"
-                            onClick={() => toggleDropdown(member.id)}
-                            className="w-[32px] h-[32px] flex items-center justify-center bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#64748B] rounded-[6px] transition-colors cursor-pointer"
+                            onClick={(e) => toggleDropdown(e, member)}
+                            className={`w-[32px] h-[32px] flex items-center justify-center rounded-[6px] transition-colors cursor-pointer ${
+                              dropdownState?.id === member.id
+                                ? "bg-[#E2E8F0] text-[#1E293B]"
+                                : "bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#64748B]"
+                            }`}
                           >
                             <svg className="w-[14px] h-[14px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <circle cx="12" cy="12" r="1" />
@@ -112,51 +143,6 @@ export default function MembersTable({
                               <circle cx="5" cy="12" r="1" />
                             </svg>
                           </button>
-
-                          {activeDropdownId === member.id && (
-                            <>
-                              <div
-                                className="fixed inset-0 z-10"
-                                onClick={() => setActiveDropdownId(null)}
-                              />
-                              <div className="absolute right-0 top-full mt-1 w-[170px] bg-white border border-[#E2E8F0] rounded-[8px] shadow-lg py-1 z-20 text-[13px] text-[#334155]">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setActiveDropdownId(null);
-                                    onChangeRole && onChangeRole(member);
-                                  }}
-                                  className="w-full text-left px-3 py-2 hover:bg-[#F8FAFC] transition-colors cursor-pointer"
-                                >
-                                  Đổi quyền hạn
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setActiveDropdownId(null);
-                                    alert(`Xem hoạt động của ${member.name}`);
-                                  }}
-                                  className="w-full text-left px-3 py-2 hover:bg-[#F8FAFC] transition-colors cursor-pointer"
-                                >
-                                  Xem lịch sử đóng góp
-                                </button>
-                                {!((member.role || '').toUpperCase().includes('OWNER')) && (
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setActiveDropdownId(null);
-                                      if (confirm(`Bạn có chắc muốn xoá ${member.name} khỏi dự án?`)) {
-                                        onRemoveMember && onRemoveMember(member.id);
-                                      }
-                                    }}
-                                    className="w-full text-left px-3 py-2 text-[#EF4444] hover:bg-[#FEF2F2] transition-colors cursor-pointer"
-                                  >
-                                    Xoá khỏi dự án
-                                  </button>
-                                )}
-                              </div>
-                            </>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -251,6 +237,74 @@ export default function MembersTable({
           )}
         </div>
       </div>
+
+      {/* Fixed Dropdown Menu (Outside scroll/overflow containers) */}
+      {dropdownState && (
+        <>
+          <div
+            className="fixed inset-0 z-40"
+            onClick={closeDropdown}
+          />
+          <div
+            className="fixed w-[185px] bg-white border border-[#E2E8F0] rounded-[10px] shadow-2xl py-1.5 z-50 text-[13px] text-[#334155] animate-in fade-in zoom-in-95 duration-100"
+            style={{
+              top: dropdownState.openUpward ? undefined : `${dropdownState.top}px`,
+              bottom: dropdownState.openUpward ? `${window.innerHeight - dropdownState.top}px` : undefined,
+              right: `${dropdownState.right}px`,
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => {
+                const m = dropdownState.member;
+                closeDropdown();
+                onChangeRole && onChangeRole(m);
+              }}
+              className="w-full text-left px-3.5 py-2 hover:bg-[#F8FAFC] text-[#1E293B] font-medium transition-colors cursor-pointer flex items-center gap-2"
+            >
+              <svg className="w-4 h-4 text-[#64748B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M19 8v6m3-3h-6" />
+              </svg>
+              <span>Đổi quyền hạn</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const m = dropdownState.member;
+                closeDropdown();
+                alert(`Xem hoạt động của ${m.name}`);
+              }}
+              className="w-full text-left px-3.5 py-2 hover:bg-[#F8FAFC] text-[#1E293B] font-medium transition-colors cursor-pointer flex items-center gap-2"
+            >
+              <svg className="w-4 h-4 text-[#64748B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              <span>Lịch sử đóng góp</span>
+            </button>
+            {!((dropdownState.member?.role || '').toUpperCase().includes('OWNER')) && (
+              <button
+                type="button"
+                onClick={() => {
+                  const m = dropdownState.member;
+                  closeDropdown();
+                  if (confirm(`Bạn có chắc muốn xoá ${m.name} khỏi dự án?`)) {
+                    onRemoveMember && onRemoveMember(m.id);
+                  }
+                }}
+                className="w-full text-left px-3.5 py-2 text-[#EF4444] hover:bg-[#FEF2F2] font-medium transition-colors cursor-pointer flex items-center gap-2 border-t border-[#F1F5F9] mt-1 pt-2"
+              >
+                <svg className="w-4 h-4 text-[#EF4444]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                </svg>
+                <span>Xoá khỏi dự án</span>
+              </button>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }

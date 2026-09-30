@@ -67,9 +67,9 @@ export default function AdminSidebar({ activeTab = "overview" }) {
               <span className="text-[15px] font-bold text-white tracking-tight">
                 KBase Admin
               </span>
-              <span className="text-[9px] font-semibold bg-indigo-500/30 text-indigo-300 border border-indigo-400/30 px-1.5 py-0.2 rounded">
+              {/* <span className="text-[9px] font-semibold bg-indigo-500/30 text-indigo-300 border border-indigo-400/30 px-1.5 py-0.2 rounded">
                 ROOT
-              </span>
+              </span> */}
             </div>
             <span className="text-[11px] text-slate-400">
               Quản trị hệ thống

@@ -114,7 +114,18 @@ export default function ProjectSettings() {
           systemPrompt,
         },
       };
-      await projectService.updateProjectSettings(projectId, payload);
+      const res = await projectService.updateProjectSettings(projectId, payload);
+      if (res?.data) {
+        const d = res.data;
+        if (d.projectName) setProjectName(d.projectName);
+        if (d.projectDesc !== undefined) setProjectDesc(d.projectDesc || "");
+        setProject((prev) => ({
+          ...prev,
+          name: d.projectName || projectName,
+          title: d.projectName || projectName,
+          description: d.projectDesc !== undefined ? d.projectDesc : projectDesc,
+        }));
+      }
       setToastMessage("Cài đặt dự án đã được lưu thành công!");
       setSaveToast(true);
       setTimeout(() => setSaveToast(false), 3000);
@@ -220,10 +231,13 @@ export default function ProjectSettings() {
               {(activeTab === "general" || activeTab === "all") && (
                 <GeneralStorageCard
                   projectName={projectName}
+                  setProjectName={setProjectName}
                   onProjectNameChange={setProjectName}
                   projectDesc={projectDesc}
+                  setProjectDesc={setProjectDesc}
                   onProjectDescChange={setProjectDesc}
                   maxFileSize={maxFileSize}
+                  setMaxFileSize={setMaxFileSize}
                   onMaxFileSizeChange={setMaxFileSize}
                   allowedFormats={allowedFormats}
                   onToggleFormat={handleToggleFormat}
@@ -234,8 +248,10 @@ export default function ProjectSettings() {
               {(activeTab === "ai" || activeTab === "all") && (
                 <AiPersonaCard
                   temperature={temperature}
+                  setTemperature={setTemperature}
                   onTemperatureChange={setTemperature}
                   systemPrompt={systemPrompt}
+                  setSystemPrompt={setSystemPrompt}
                   onSystemPromptChange={setSystemPrompt}
                 />
               )}

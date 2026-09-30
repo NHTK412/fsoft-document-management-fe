@@ -1,15 +1,21 @@
 import React from "react";
 
 export default function GeneralStorageCard({
-  projectName,
+  projectName = "",
   setProjectName,
-  projectDesc,
+  onProjectNameChange,
+  projectDesc = "",
   setProjectDesc,
-  maxFileSize,
+  onProjectDescChange,
+  maxFileSize = "50 MB",
   setMaxFileSize,
-  allowedFormats,
+  onMaxFileSizeChange,
+  allowedFormats = [],
   onToggleFormat,
 }) {
+  const handleNameChange = onProjectNameChange || setProjectName || (() => {});
+  const handleDescChange = onProjectDescChange || setProjectDesc || (() => {});
+  const handleSizeChange = onMaxFileSizeChange || setMaxFileSize || (() => {});
   const allFormats = [
     { id: "pdf", label: "PDF (.pdf)" },
     { id: "docx", label: "Word (.docx, .doc)" },
@@ -89,7 +95,7 @@ export default function GeneralStorageCard({
             <input
               type="text"
               value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
+              onChange={(e) => handleNameChange(e.target.value)}
               className="w-full h-[42px] px-[14px] bg-white border border-[#CBD5E1] rounded-[8px] text-[14px] font-semibold text-[#0F172A] focus:outline-none focus:border-[#4F46E5] focus:ring-2 focus:ring-[#4F46E5]/20 transition-all"
             />
           </div>
@@ -102,7 +108,7 @@ export default function GeneralStorageCard({
             <textarea
               rows={3}
               value={projectDesc}
-              onChange={(e) => setProjectDesc(e.target.value)}
+              onChange={(e) => handleDescChange(e.target.value)}
               className="w-full p-[12px_14px] bg-white border border-[#CBD5E1] rounded-[8px] text-[13px] text-[#334155] focus:outline-none focus:border-[#4F46E5] focus:ring-2 focus:ring-[#4F46E5]/20 transition-all resize-none leading-relaxed"
             />
           </div>
@@ -122,7 +128,7 @@ export default function GeneralStorageCard({
             </div>
             <select
               value={maxFileSize}
-              onChange={(e) => setMaxFileSize(e.target.value)}
+              onChange={(e) => handleSizeChange(e.target.value)}
               className="h-[40px] px-[12px] bg-[#F8FAFC] border border-[#CBD5E1] rounded-[8px] text-[13px] font-semibold text-[#1E293B] focus:outline-none focus:border-[#4F46E5] cursor-pointer"
             >
               <option value="10 MB">10 MB / tệp</option>
