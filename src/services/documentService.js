@@ -5,11 +5,14 @@ export const documentService = {
     return await apiClient.get(`/projects/${projectId}/documents`, { params });
   },
 
-  async uploadDocument(projectId, file, category) {
+  async uploadDocument(projectId, file, category, enableRag = true) {
     const formData = new FormData();
     formData.append('file', file);
     if (category) {
       formData.append('category', category);
+    }
+    if (enableRag !== undefined && enableRag !== null) {
+      formData.append('enableRag', enableRag);
     }
     return await apiClient.post(`/projects/${projectId}/documents/upload`, formData, {
       headers: {

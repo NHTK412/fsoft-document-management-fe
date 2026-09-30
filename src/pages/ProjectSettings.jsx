@@ -71,9 +71,10 @@ export default function ProjectSettings() {
         setProjectDesc(d.projectDesc || "");
         setLogoUrl(d.logoUrl || null);
         setMaxFileSize(d.maxFileSize || "50 MB");
-        const allowedOnly = (d.allowedFormats || ["pdf", "docx", "doc", "md", "txt"])
-          .filter(f => ['pdf', 'docx', 'doc', 'md', 'txt'].includes(f.toLowerCase()));
-        setAllowedFormats(allowedOnly.length > 0 ? allowedOnly : ["pdf", "docx", "doc", "md", "txt"]);
+        const formats = Array.isArray(d.allowedFormats) && d.allowedFormats.length > 0
+          ? d.allowedFormats
+          : ["pdf", "docx", "doc", "md", "txt", "png", "jpg", "jpeg", "webp", "xlsx", "mp4", "zip"];
+        setAllowedFormats(formats);
         if (d.aiPersona) {
           setTemperature(d.aiPersona.temperature ?? 0.2);
           setSystemPrompt(d.aiPersona.systemPrompt || "");

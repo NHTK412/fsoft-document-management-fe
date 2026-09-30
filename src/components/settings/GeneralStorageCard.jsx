@@ -31,10 +31,30 @@ export default function GeneralStorageCard({
   };
 
   const allFormats = [
-    { id: "pdf", label: "PDF (.pdf)" },
-    { id: "docx", label: "Word (.docx, .doc)" },
-    { id: "md", label: "Markdown (.md)" },
-    { id: "txt", label: "Văn bản (.txt)" },
+    // 1. Nhóm tài liệu & Hỏi đáp AI
+    { id: "pdf", label: "PDF (.pdf)", ragSupported: true },
+    { id: "docx", label: "Word (.docx, .doc)", ragSupported: true },
+    { id: "md", label: "Markdown (.md)", ragSupported: true },
+    { id: "txt", label: "Văn bản (.txt)", ragSupported: true },
+
+    // 2. Nhóm bảng tính & dữ liệu
+    { id: "xlsx", label: "Excel (.xlsx, .xls)", ragSupported: false },
+    { id: "csv", label: "CSV (.csv)", ragSupported: false },
+    { id: "json", label: "JSON (.json)", ragSupported: false },
+
+    // 3. Nhóm hình ảnh (MinIO)
+    { id: "png", label: "PNG (.png)", ragSupported: false },
+    { id: "jpg", label: "JPG / JPEG", ragSupported: false },
+    { id: "webp", label: "WebP (.webp)", ragSupported: false },
+    { id: "svg", label: "SVG (.svg)", ragSupported: false },
+    { id: "gif", label: "GIF (.gif)", ragSupported: false },
+
+    // 4. Nhóm video & âm thanh
+    { id: "mp4", label: "Video (.mp4)", ragSupported: false },
+    { id: "mp3", label: "Âm thanh (.mp3)", ragSupported: false },
+
+    // 5. Tệp nén
+    { id: "zip", label: "Tệp nén (.zip, .rar)", ragSupported: false },
   ];
 
   return (
@@ -189,8 +209,19 @@ export default function GeneralStorageCard({
               </span>
             </div>
 
+            <div className="p-3 bg-indigo-50/60 border border-indigo-100 rounded-lg text-[12px] text-indigo-900 flex items-start gap-2">
+              <svg className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="16" x2="12" y2="12" />
+                <line x1="12" y1="8" x2="12.01" y2="8" />
+              </svg>
+              <span>
+                <strong>Khả năng AI RAG:</strong> Chỉ các tệp <strong>PDF, Word, Markdown và Text (.txt)</strong> mới được hệ thống hỗ trợ trích xuất văn bản và nạp embeddings vào PGVector để hỏi đáp AI. Các tệp khác (ảnh, video, bảng tính, nén) chỉ phục vụ lưu trữ trên MinIO.
+              </span>
+            </div>
+
             {/* Format Pills */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {allFormats.map((fmt) => {
                 const isChecked = allowedFormats.includes(fmt.id);
                 return (
@@ -198,23 +229,31 @@ export default function GeneralStorageCard({
                     key={fmt.id}
                     type="button"
                     onClick={() => onToggleFormat(fmt.id)}
-                    className={`h-[36px] px-[10px] flex items-center gap-[8px] rounded-[8px] border text-[12px] font-semibold transition-all cursor-pointer ${isChecked
+                    className={`h-[38px] px-[10px] flex items-center justify-between rounded-[8px] border text-[12px] font-semibold transition-all cursor-pointer ${
+                      isChecked
                         ? "bg-[#EEF2FF] border-[#C7D2FE] text-[#3730A3]"
                         : "bg-[#F8FAFC] border-[#E2E8F0] text-[#94A3B8] hover:bg-[#F1F5F9]"
-                      }`}
+                    }`}
                   >
-                    <svg
-                      className={`w-[13px] h-[13px] shrink-0 ${isChecked ? "text-[#4F46E5]" : "text-[#CBD5E1]"}`}
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                    <span className="truncate">{fmt.label}</span>
+                    <div className="flex items-center gap-[6px] truncate">
+                      <svg
+                        className={`w-[13px] h-[13px] shrink-0 ${isChecked ? "text-[#4F46E5]" : "text-[#CBD5E1]"}`}
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      <span className="truncate">{fmt.label}</span>
+                    </div>
+                    {fmt.ragSupported && (
+                      <span className="px-1.5 py-0.5 text-[9px] font-bold bg-indigo-200/70 text-indigo-800 rounded shrink-0">
+                        AI RAG
+                      </span>
+                    )}
                   </button>
                 );
               })}

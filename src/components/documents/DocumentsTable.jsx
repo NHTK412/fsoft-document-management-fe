@@ -182,9 +182,22 @@ export default function DocumentsTable({
                   {/* Name Wrap */}
                   <div className="flex-1 min-w-[280px] flex items-center gap-[12px] pr-4">
                     {renderIcon(file.type)}
-                    <span className="text-[14px] font-semibold text-[#0F172A] truncate">
-                      {file.name}
-                    </span>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-[14px] font-semibold text-[#0F172A] truncate" title={file.name}>
+                        {file.name}
+                      </span>
+                      {file.isAiIndexed && (
+                        <span
+                          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0 select-none"
+                          title="Tài liệu đã được trích xuất và lưu vector embedding để AI trả lời câu hỏi"
+                        >
+                          <svg className="w-2.5 h-2.5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
+                          </svg>
+                          AI Hỏi đáp
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   {/* Format Wrap */}

@@ -61,18 +61,20 @@ export default function ProjectChat() {
     }
   }, [projectId, location.state]);
 
-  // Load project documents for questioning
+  // Load project documents for questioning (Chỉ hiển thị các tệp đã được nhúng vector AI)
   useEffect(() => {
     if (!projectId) return;
     let isMounted = true;
     setLoadingDocs(true);
-    documentService.getDocuments(projectId, { limit: 100 })
+    documentService.getDocuments(projectId, { limit: 100, isAiIndexed: true })
       .then((res) => {
         if (!isMounted) return;
-        const files = res?.data?.files || [];
-        setDocuments(files);
-        // By default, select all documents
-        setSelectedDocIds(files.map((f) => f.id));
+        const allFiles = res?.data?.files || [];
+        // Chỉ những file được embed (isAiIndexed === true) mới hiển thị
+        const embeddedFiles = allFiles.filter((f) => f.isAiIndexed === true);
+        setDocuments(embeddedFiles);
+        // By default, select all embedded documents
+        setSelectedDocIds(embeddedFiles.map((f) => f.id));
       })
       .catch((err) => {
         console.warn("Lỗi tải danh sách tài liệu dự án:", err.message);
