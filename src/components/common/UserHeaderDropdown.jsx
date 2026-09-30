@@ -49,7 +49,12 @@ export default function UserHeaderDropdown({ customTrigger }) {
         >
           <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white text-[11px] font-bold shrink-0 shadow-2xs">
             {user?.avatarUrl ? (
-              <img src={user.avatarUrl} alt="" className="w-full h-full rounded-full object-cover" />
+              <img
+                src={user.avatarUrl}
+                alt=""
+                className="w-full h-full rounded-full object-cover"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
             ) : (
               userInitials
             )}
@@ -85,7 +90,12 @@ export default function UserHeaderDropdown({ customTrigger }) {
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-xs">
                 {user?.avatarUrl ? (
-                  <img src={user.avatarUrl} alt="" className="w-full h-full rounded-full object-cover" />
+                  <img
+                    src={user.avatarUrl}
+                    alt=""
+                    className="w-full h-full rounded-full object-cover"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  />
                 ) : (
                   userInitials
                 )}

@@ -74,12 +74,21 @@ export default function MembersTable({
                     >
                       {/* Column 1: Member Avatar & Info */}
                       <div className="flex-1 min-w-[280px] flex items-center gap-[14px]">
-                        <div
-                          className="w-[38px] h-[38px] shrink-0 flex items-center justify-center text-white text-[13px] font-bold rounded-full select-none shadow-xs"
-                          style={{ backgroundColor: member.avatarBg || "#4F46E5" }}
-                        >
-                          {member.initial || member.name.charAt(0)}
-                        </div>
+                        {member.avatarUrl ? (
+                          <img
+                            src={member.avatarUrl}
+                            alt={member.name}
+                            className="w-[38px] h-[38px] shrink-0 rounded-full object-cover shadow-xs border border-slate-200 bg-slate-50"
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          />
+                        ) : (
+                          <div
+                            className="w-[38px] h-[38px] shrink-0 flex items-center justify-center text-white text-[13px] font-bold rounded-full select-none shadow-xs"
+                            style={{ backgroundColor: member.avatarBg || "#4F46E5" }}
+                          >
+                            {member.initial || member.name.charAt(0)}
+                          </div>
+                        )}
                         <div className="flex flex-col gap-[2px] min-w-0">
                           <span className="text-[14px] font-semibold text-[#0F172A] truncate">
                             {member.name}

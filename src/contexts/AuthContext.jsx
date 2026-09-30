@@ -50,6 +50,14 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateUser = (userData) => {
+    setUser((prev) => {
+      const updated = typeof userData === 'function' ? userData(prev) : { ...prev, ...userData };
+      localStorage.setItem('kbase_user', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -60,6 +68,7 @@ export const AuthProvider = ({ children }) => {
         login,
         register,
         logout,
+        updateUser,
       }}
     >
       {children}

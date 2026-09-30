@@ -51,6 +51,8 @@ export default function ProjectSettings() {
   const [allowedFormats, setAllowedFormats] = useState(["pdf", "docx", "doc", "md", "txt"]);
   const [temperature, setTemperature] = useState(0.2);
   const [systemPrompt, setSystemPrompt] = useState("");
+  const [logoUrl, setLogoUrl] = useState(null);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
 
   const [activeTab, setActiveTab] = useState("general");
   const [loading, setLoading] = useState(true);
@@ -67,6 +69,7 @@ export default function ProjectSettings() {
         const d = res.data;
         setProjectName(d.projectName || "");
         setProjectDesc(d.projectDesc || "");
+        setLogoUrl(d.logoUrl || null);
         setMaxFileSize(d.maxFileSize || "50 MB");
         const allowedOnly = (d.allowedFormats || ["pdf", "docx", "doc", "md", "txt"])
           .filter(f => ['pdf', 'docx', 'doc', 'md', 'txt'].includes(f.toLowerCase()));
@@ -86,6 +89,44 @@ export default function ProjectSettings() {
   useEffect(() => {
     fetchSettings();
   }, [fetchSettings]);
+
+  const handleUploadLogo = async (file) => {
+    if (!projectId) return;
+    try {
+      setIsUploadingLogo(true);
+      const res = await projectService.uploadLogo(projectId, file);
+      if (res?.data) {
+        const freshUrl = res.data.logoUrl ? `${res.data.logoUrl}?t=${Date.now()}` : null;
+        setLogoUrl(freshUrl);
+        setProject((prev) => ({ ...prev, logoUrl: freshUrl }));
+        setToastMessage("Logo dự án đã được cập nhật thành công!");
+        setSaveToast(true);
+        setTimeout(() => setSaveToast(false), 3000);
+      }
+    } catch (err) {
+      alert("Tải logo dự án thất bại: " + (err.message || "Lỗi không xác định"));
+    } finally {
+      setIsUploadingLogo(false);
+    }
+  };
+
+  const handleRemoveLogo = async () => {
+    if (!projectId) return;
+    if (!confirm("Bạn có chắc chắn muốn gỡ logo và sử dụng biểu tượng mặc định?")) return;
+    try {
+      setIsUploadingLogo(true);
+      await projectService.removeLogo(projectId);
+      setLogoUrl(null);
+      setProject((prev) => ({ ...prev, logoUrl: null }));
+      setToastMessage("Đã đặt lại logo mặc định cho dự án!");
+      setSaveToast(true);
+      setTimeout(() => setSaveToast(false), 3000);
+    } catch (err) {
+      alert("Gỡ logo dự án thất bại: " + (err.message || "Lỗi không xác định"));
+    } finally {
+      setIsUploadingLogo(false);
+    }
+  };
 
   const handleToggleFormat = (formatId) => {
     setAllowedFormats((prev) =>
@@ -236,6 +277,10 @@ export default function ProjectSettings() {
                   projectDesc={projectDesc}
                   setProjectDesc={setProjectDesc}
                   onProjectDescChange={setProjectDesc}
+                  logoUrl={logoUrl}
+                  onUploadLogo={handleUploadLogo}
+                  onRemoveLogo={handleRemoveLogo}
+                  isUploadingLogo={isUploadingLogo}
                   maxFileSize={maxFileSize}
                   setMaxFileSize={setMaxFileSize}
                   onMaxFileSizeChange={setMaxFileSize}

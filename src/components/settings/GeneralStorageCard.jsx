@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 
 export default function GeneralStorageCard({
   projectName = "",
@@ -7,15 +7,29 @@ export default function GeneralStorageCard({
   projectDesc = "",
   setProjectDesc,
   onProjectDescChange,
+  logoUrl = null,
+  onUploadLogo,
+  onRemoveLogo,
+  isUploadingLogo = false,
   maxFileSize = "50 MB",
   setMaxFileSize,
   onMaxFileSizeChange,
   allowedFormats = [],
   onToggleFormat,
 }) {
+  const fileInputRef = useRef(null);
   const handleNameChange = onProjectNameChange || setProjectName || (() => {});
   const handleDescChange = onProjectDescChange || setProjectDesc || (() => {});
   const handleSizeChange = onMaxFileSizeChange || setMaxFileSize || (() => {});
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file && onUploadLogo) {
+      onUploadLogo(file);
+    }
+    e.target.value = "";
+  };
+
   const allFormats = [
     { id: "pdf", label: "PDF (.pdf)" },
     { id: "docx", label: "Word (.docx, .doc)" },
@@ -25,6 +39,14 @@ export default function GeneralStorageCard({
 
   return (
     <div className="w-full bg-white border border-[#E2E8F0] rounded-[12px] p-6 lg:p-[26px] flex flex-col gap-6 shadow-xs">
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/png,image/jpeg,image/jpg,image/webp,image/gif,image/svg+xml"
+        className="hidden"
+      />
+
       {/* Card Header */}
       <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#F1F5F9]">
         <div className="flex items-center gap-[12px]">
@@ -52,37 +74,54 @@ export default function GeneralStorageCard({
         <div className="flex flex-col gap-[14px]">
           {/* Logo Section */}
           <div className="flex items-center gap-[14px]">
-            <div className="w-[48px] h-[48px] shrink-0 flex items-center justify-center bg-[#4F46E5] rounded-[10px] text-white shadow-xs">
-              <svg className="w-[24px] h-[24px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect width="16" height="16" x="4" y="4" rx="2" />
-                <rect width="6" height="6" x="9" y="9" rx="1" />
-                <path d="M15 2v2" /><path d="M15 20v2" /><path d="M2 15h2" /><path d="M2 9h2" /><path d="M20 15h2" /><path d="M20 9h2" /><path d="M9 2v2" /><path d="M9 20v2" />
-              </svg>
-            </div>
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                alt={projectName || "Project Logo"}
+                className="w-[48px] h-[48px] shrink-0 rounded-[10px] object-cover shadow-xs border border-[#E2E8F0] bg-[#F8FAFC]"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
+            ) : (
+              <div className="w-[48px] h-[48px] shrink-0 flex items-center justify-center bg-[#4F46E5] rounded-[10px] text-white shadow-xs">
+                <svg className="w-[24px] h-[24px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect width="16" height="16" x="4" y="4" rx="2" />
+                  <rect width="6" height="6" x="9" y="9" rx="1" />
+                  <path d="M15 2v2" /><path d="M15 20v2" /><path d="M2 15h2" /><path d="M2 9h2" /><path d="M20 15h2" /><path d="M20 9h2" /><path d="M9 2v2" /><path d="M9 20v2" />
+                </svg>
+              </div>
+            )}
             <div className="flex flex-col gap-[4px]">
               <div className="flex items-center gap-[8px]">
                 <button
                   type="button"
-                  onClick={() => alert("Chọn file hình ảnh logo mới (PNG, JPG, SVG)")}
-                  className="flex items-center gap-[6px] h-[30px] px-[10px] bg-[#F8FAFC] border border-[#CBD5E1] hover:bg-[#F1F5F9] text-[#334155] rounded-[6px] text-[12px] font-medium transition-colors cursor-pointer"
+                  disabled={isUploadingLogo}
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-[6px] h-[30px] px-[10px] bg-[#F8FAFC] border border-[#CBD5E1] hover:bg-[#F1F5F9] disabled:opacity-50 text-[#334155] rounded-[6px] text-[12px] font-medium transition-colors cursor-pointer"
                 >
-                  <svg className="w-[12px] h-[12px] text-[#475569]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="17 8 12 3 7 8" />
-                    <line x1="12" x2="12" y1="3" y2="15" />
-                  </svg>
-                  <span>Đổi Logo</span>
+                  {isUploadingLogo ? (
+                    <div className="w-3 h-3 border-2 border-[#4F46E5] border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <svg className="w-[12px] h-[12px] text-[#475569]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="17 8 12 3 7 8" />
+                      <line x1="12" x2="12" y1="3" y2="15" />
+                    </svg>
+                  )}
+                  <span>{isUploadingLogo ? "Đang tải..." : "Đổi Logo"}</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => alert("Đã đặt lại logo mặc định")}
-                  className="h-[30px] px-[8px] text-[12px] text-[#94A3B8] hover:text-[#EF4444] transition-colors cursor-pointer"
-                >
-                  Gỡ bỏ
-                </button>
+                {logoUrl && (
+                  <button
+                    type="button"
+                    disabled={isUploadingLogo}
+                    onClick={onRemoveLogo}
+                    className="h-[30px] px-[8px] text-[12px] text-[#94A3B8] hover:text-[#EF4444] disabled:opacity-50 transition-colors cursor-pointer"
+                  >
+                    Gỡ bỏ
+                  </button>
+                )}
               </div>
               <span className="text-[11px] text-[#94A3B8]">
-                Định dạng PNG, JPG hoặc SVG tối đa 2MB (1:1).
+                Định dạng PNG, JPG, WebP hoặc SVG tối đa 2MB (1:1).
               </span>
             </div>
           </div>
