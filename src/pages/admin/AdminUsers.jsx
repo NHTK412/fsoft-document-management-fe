@@ -201,8 +201,8 @@ export default function AdminUsers() {
             className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20"
           >
             <option value="all">Tất cả vai trò</option>
-            <option value="admin">Quản trị viên (ROLE_ADMIN)</option>
-            <option value="user">Thành viên (ROLE_USER)</option>
+            <option value="admin">Quản trị viên</option>
+            <option value="user">Thành viên</option>
           </select>
 
           <select
@@ -313,8 +313,8 @@ export default function AdminUsers() {
                               : "bg-slate-50 text-slate-700 border-slate-200 focus:border-indigo-400"
                           } ${isCurrent ? "opacity-60 cursor-not-allowed" : ""}`}
                         >
-                          <option value="ROLE_USER">Thành viên (ROLE_USER)</option>
-                          <option value="ROLE_ADMIN">Quản trị viên (ROLE_ADMIN)</option>
+                          <option value="ROLE_USER">Thành viên</option>
+                          <option value="ROLE_ADMIN">Quản trị viên</option>
                         </select>
                       </td>
 

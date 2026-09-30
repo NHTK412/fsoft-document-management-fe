@@ -9,12 +9,12 @@ export default function ChatHistorySidebar({
   const hasRealSessions = Array.isArray(sessions) && sessions.length > 0;
 
   return (
-    <div className="w-[260px] shrink-0 h-full flex flex-col gap-[16px] p-[16px] bg-white border-r border-[#E2E8F0] select-none">
+    <div className="w-[260px] shrink-0 h-full flex flex-col min-h-0 gap-[16px] p-[16px] bg-white border-r border-[#E2E8F0] select-none">
       {/* New Chat Button */}
       <button
         type="button"
         onClick={onNewChat}
-        className="w-full h-[40px] flex items-center justify-center gap-[8px] bg-[#4F46E5] hover:bg-[#4338CA] text-white rounded-[8px] text-[13px] font-semibold transition-colors cursor-pointer shadow-xs"
+        className="w-full h-[40px] flex items-center justify-center gap-[8px] bg-[#4F46E5] hover:bg-[#4338CA] text-white rounded-[8px] text-[13px] font-semibold transition-colors cursor-pointer shadow-xs shrink-0"
       >
         <svg className="w-[16px] h-[16px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <line x1="12" x2="12" y1="5" y2="19" />
@@ -24,7 +24,7 @@ export default function ChatHistorySidebar({
       </button>
 
       {/* History Groups */}
-      <div className="w-full flex-1 flex flex-col gap-[14px] overflow-y-auto">
+      <div className="w-full flex-1 min-h-0 flex flex-col gap-[14px] overflow-y-auto">
         {hasRealSessions ? (
           <div className="w-full flex flex-col gap-[6px]">
             <span className="text-[10px] font-bold text-[#94A3B8] tracking-wider uppercase px-[10px]">

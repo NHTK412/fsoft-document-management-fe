@@ -363,7 +363,7 @@ export default function UploadModal({
           </div>
 
           {/* AI Vector Checkbox */}
-          <div className="w-full flex items-start gap-[10px] p-[14px_16px] bg-[#EEF2FF] border border-[#C7D2FE] rounded-[10px]">
+          {/* <div className="w-full flex items-start gap-[10px] p-[14px_16px] bg-[#EEF2FF] border border-[#C7D2FE] rounded-[10px]">
             <input
               type="checkbox"
               id="autoIndexAI"
@@ -379,7 +379,7 @@ export default function UploadModal({
                 Hệ thống sẽ tự động trích xuất nội dung văn bản, phân đoạn (chunking) và sinh vector embeddings để sẵn sàng hỏi đáp ngay sau khi tải lên hoàn tất.
               </p>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Modal Footer */}

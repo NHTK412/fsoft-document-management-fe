@@ -245,12 +245,12 @@ export default function ProjectChat() {
   const userInitials = user?.initials || (user?.fullName ? user.fullName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'NV');
 
   return (
-    <div className="w-full min-h-screen flex flex-row bg-[#F8FAFC] text-[#0F172A] font-[Inter,system-ui,sans-serif]">
+    <div className="w-full h-screen max-h-screen flex flex-row bg-[#F8FAFC] text-[#0F172A] font-[Inter,system-ui,sans-serif] overflow-hidden">
       {/* 1. Left Project Sidebar */}
       <ProjectSidebar activeMenu="ai-assistant" projectId={projectId} />
 
       {/* 2. Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-x-hidden">
+      <div className="flex-1 flex flex-col min-w-0 h-screen max-h-screen overflow-hidden">
         {/* Workspace Topbar */}
         <WorkspaceTopbar
           currentProjectId={projectId}
@@ -264,7 +264,7 @@ export default function ProjectChat() {
         />
 
         {/* Chat Main View (History Sidebar + Main Chat Pane + Documents Sidebar) */}
-        <div className="w-full flex-1 flex flex-row min-h-0 bg-white overflow-hidden">
+        <div className="w-full flex-1 flex flex-row min-h-0 min-w-0 bg-white overflow-hidden">
           {/* Left Chat History Column */}
           <ChatHistorySidebar
             sessions={sessions}
@@ -274,7 +274,7 @@ export default function ProjectChat() {
           />
 
           {/* Center Main Chat Pane */}
-          <div className="flex-1 h-full flex flex-col justify-between bg-white min-w-0">
+          <div className="flex-1 h-full flex flex-col min-w-0 min-h-0 bg-white overflow-hidden">
             {/* Context Scope Bar */}
             <ContextScopeBar
               selectedCount={selectedDocIds.length}
@@ -285,7 +285,7 @@ export default function ProjectChat() {
 
             {/* Message Thread */}
             {loadingMessages ? (
-              <div className="w-full flex-1 flex items-center justify-center text-slate-400">
+              <div className="w-full flex-1 min-h-0 flex items-center justify-center text-slate-400">
                 <div className="w-6 h-6 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
               </div>
             ) : (

@@ -72,9 +72,9 @@ export default function ChatDocumentsSidebar({
   if (!isOpen) return null;
 
   return (
-    <div className="w-[280px] xl:w-[310px] shrink-0 h-full flex flex-col bg-white border-l border-[#E2E8F0] select-none text-[#0F172A]">
+    <div className="w-[280px] xl:w-[310px] shrink-0 h-full flex flex-col min-h-0 bg-white border-l border-[#E2E8F0] select-none text-[#0F172A]">
       {/* Header */}
-      <div className="p-4 border-b border-[#E2E8F0] flex flex-col gap-3">
+      <div className="p-4 border-b border-[#E2E8F0] flex flex-col gap-3 shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <svg className="w-[16px] h-[16px] text-[#4F46E5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -154,7 +154,7 @@ export default function ChatDocumentsSidebar({
       </div>
 
       {/* Documents List */}
-      <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-1.5">
+      <div className="flex-1 min-h-0 overflow-y-auto p-3 flex flex-col gap-1.5">
         {loading ? (
           <div className="w-full py-8 flex flex-col items-center justify-center text-slate-400 gap-2">
             <div className="w-5 h-5 border-2 border-[#4F46E5] border-t-transparent rounded-full animate-spin" />
@@ -224,7 +224,7 @@ export default function ChatDocumentsSidebar({
       </div>
 
       {/* Footer Info Notice */}
-      <div className="p-3 bg-[#F8FAFC] border-t border-[#E2E8F0] flex items-start gap-2">
+      <div className="p-3 bg-[#F8FAFC] border-t border-[#E2E8F0] flex items-start gap-2 shrink-0">
         <svg className="w-4 h-4 text-[#4F46E5] shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10" />
           <line x1="12" y1="16" x2="12" y2="12" />

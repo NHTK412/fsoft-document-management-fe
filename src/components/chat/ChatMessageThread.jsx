@@ -9,15 +9,21 @@ export default function ChatMessageThread({
   onCitationClick,
 }) {
   const thread = Array.isArray(messages) ? messages : [];
+  const containerRef = useRef(null);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (containerRef.current) {
+      containerRef.current.scrollTo({
+        top: containerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
   }, [thread.length, sending]);
 
   if (thread.length === 0 && !sending) {
     return (
-      <div className="w-full flex-1 flex flex-col items-center justify-center p-8 text-center my-auto">
+      <div className="w-full flex-1 min-h-0 flex flex-col items-center justify-center p-8 text-center my-auto overflow-y-auto">
         <div className="w-14 h-14 rounded-2xl bg-[#EEF2FF] flex items-center justify-center text-[#4F46E5] mb-3 shadow-xs">
           <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 8V4H8" />
@@ -39,7 +45,10 @@ export default function ChatMessageThread({
   }
 
   return (
-    <div className="w-full flex-1 flex flex-col gap-[20px] p-[24px_32px] overflow-y-auto">
+    <div
+      ref={containerRef}
+      className="w-full flex-1 min-h-0 flex flex-col gap-[20px] p-[24px_32px] overflow-y-auto"
+    >
       {thread.map((msg) => {
         if (msg.sender === "user") {
           return (

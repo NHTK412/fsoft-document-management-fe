@@ -53,7 +53,7 @@ export default function ChatInputBox({ onSendMessage, onAttachFile }) {
   };
 
   return (
-    <div className="w-full flex flex-col gap-[12px] p-[16px_24px_20px_24px] border-t border-[#E2E8F0] bg-white">
+    <div className="w-full shrink-0 flex flex-col gap-[12px] p-[16px_24px_20px_24px] border-t border-[#E2E8F0] bg-white z-10">
       {/* Prompt Starters Row */}
       <div className="flex items-center gap-[8px] flex-wrap select-none">
         {promptStarters.map((starter) => (
