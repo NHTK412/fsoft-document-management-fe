@@ -105,7 +105,7 @@ export default function ProjectSidebar({ activeMenu = "dashboard", projectId }) 
   ];
 
   return (
-    <aside className="box-border w-[260px] shrink-0 h-full max-h-screen sticky top-0 flex flex-col justify-between p-[24px_16px] bg-[#0B0F19] text-white overflow-y-auto">
+    <aside className="box-border w-[260px] shrink-0 min-h-screen h-screen sticky top-0 flex flex-col justify-between p-[24px_16px] bg-[#0B0F19] text-white overflow-y-auto z-30">
       {/* Sidebar Top Content */}
       <div className="w-full flex flex-col gap-[28px]">
         {/* Brand */}
