@@ -1,28 +1,68 @@
-import React from "react";
+import React, { useRef } from "react";
 import { formatRole } from "@/utils/formatRole";
 
 export default function PersonalInfoCard({
   fullName,
   setFullName,
+  onFullNameChange,
   title,
   setTitle,
+  onTitleChange,
   email,
   phone,
   setPhone,
+  onPhoneChange,
   role = "Project Admin",
   initials = "NV",
+  avatarUrl = null,
   onUploadAvatar,
   onRemoveAvatar,
+  isUploadingAvatar = false,
 }) {
+  const fileInputRef = useRef(null);
+
+  const handleNameChange = onFullNameChange || setFullName;
+  const handleTitleChange = onTitleChange || setTitle;
+  const handlePhoneChange = onPhoneChange || setPhone;
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file && onUploadAvatar) {
+      onUploadAvatar(file);
+    }
+    // reset input so same file can be selected again
+    e.target.value = "";
+  };
+
   return (
     <div className="w-full bg-white border border-[#E2E8F0] rounded-[16px] p-6 sm:p-8 lg:p-9 flex flex-col gap-6 sm:gap-8 shadow-xs">
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/png,image/jpeg,image/jpg,image/webp,image/gif,image/svg+xml"
+        className="hidden"
+      />
+
       {/* Avatar Section */}
       <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-5 pb-6 sm:pb-8 border-b border-[#F1F5F9]">
         <div className="flex items-center gap-5">
           {/* Big Avatar */}
-          <div className="w-[72px] h-[72px] shrink-0 flex items-center justify-center bg-[#4F46E5] text-white rounded-full text-[24px] font-bold select-none shadow-sm ring-4 ring-[#EEF2FF]">
-            {initials}
-          </div>
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt={fullName || "User Avatar"}
+              className="w-[72px] h-[72px] shrink-0 rounded-full object-cover shadow-sm ring-4 ring-[#EEF2FF] bg-[#F8FAFC]"
+              onError={(e) => {
+                // If fails to load, hide image and show fallback
+                e.currentTarget.style.display = "none";
+              }}
+            />
+          ) : (
+            <div className="w-[72px] h-[72px] shrink-0 flex items-center justify-center bg-[#4F46E5] text-white rounded-full text-[24px] font-bold select-none shadow-sm ring-4 ring-[#EEF2FF]">
+              {initials}
+            </div>
+          )}
 
           {/* Details */}
           <div className="flex flex-col gap-1.5">
@@ -31,6 +71,9 @@ export default function PersonalInfoCard({
                 {fullName}
               </span>
             </div>
+            <p className="text-[13px] text-[#64748B]">
+              {title || "Thành viên hệ thống"}
+            </p>
           </div>
         </div>
 
@@ -38,22 +81,30 @@ export default function PersonalInfoCard({
         <div className="flex items-center gap-2.5 self-start sm:self-auto">
           <button
             type="button"
-            onClick={onUploadAvatar || (() => alert("Chọn tệp ảnh mới (JPG, PNG)"))}
-            className="flex items-center gap-2 h-[38px] px-3.5 bg-[#F8FAFC] border border-[#CBD5E1] hover:bg-[#F1F5F9] text-[#334155] rounded-lg text-[13px] font-medium transition-colors cursor-pointer shadow-xs"
+            disabled={isUploadingAvatar}
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center gap-2 h-[38px] px-3.5 bg-[#F8FAFC] border border-[#CBD5E1] hover:bg-[#F1F5F9] disabled:opacity-50 text-[#334155] rounded-lg text-[13px] font-medium transition-colors cursor-pointer shadow-xs"
           >
-            <svg className="w-4 h-4 text-[#475569]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
-              <circle cx="12" cy="13" r="3" />
-            </svg>
-            <span>Tải ảnh đại diện</span>
+            {isUploadingAvatar ? (
+              <div className="w-4 h-4 border-2 border-[#4F46E5] border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <svg className="w-4 h-4 text-[#475569]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
+                <circle cx="12" cy="13" r="3" />
+              </svg>
+            )}
+            <span>{isUploadingAvatar ? "Đang tải lên..." : "Tải ảnh đại diện"}</span>
           </button>
-          <button
-            type="button"
-            onClick={onRemoveAvatar || (() => alert("Đã gỡ ảnh đại diện"))}
-            className="h-[38px] px-3 text-[13px] text-[#94A3B8] hover:text-[#EF4444] transition-colors cursor-pointer font-medium"
-          >
-            Gỡ ảnh
-          </button>
+          {avatarUrl && (
+            <button
+              type="button"
+              disabled={isUploadingAvatar}
+              onClick={onRemoveAvatar}
+              className="h-[38px] px-3 text-[13px] text-[#94A3B8] hover:text-[#EF4444] disabled:opacity-50 transition-colors cursor-pointer font-medium"
+            >
+              Gỡ ảnh
+            </button>
+          )}
         </div>
       </div>
 

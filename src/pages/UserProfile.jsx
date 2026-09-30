@@ -12,7 +12,7 @@ import { useAuth } from "@/contexts";
 
 export default function UserProfile() {
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
 
   const currentProject = location.state?.project;
   const projectName = currentProject?.title || currentProject?.name || "AI Knowledge Core";
@@ -26,6 +26,8 @@ export default function UserProfile() {
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState("Member");
   const [initials, setInitials] = useState("NV");
+  const [avatarUrl, setAvatarUrl] = useState(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -46,6 +48,7 @@ export default function UserProfile() {
         setPhone(d.phone || "");
         setRole(d.role || "Member");
         setInitials(d.initials || "NV");
+        setAvatarUrl(d.avatarUrl || null);
       }
     } catch (err) {
       console.warn("Lỗi tải thông tin hồ sơ:", err.message);
@@ -57,6 +60,46 @@ export default function UserProfile() {
   useEffect(() => {
     fetchProfile();
   }, [fetchProfile]);
+
+  const handleUploadAvatar = async (file) => {
+    try {
+      setIsUploadingAvatar(true);
+      const res = await userService.uploadAvatar(file);
+      if (res?.data) {
+        const freshUrl = res.data.avatarUrl ? `${res.data.avatarUrl}?t=${Date.now()}` : null;
+        setAvatarUrl(freshUrl);
+        if (updateUser) {
+          updateUser({ avatarUrl: freshUrl, fullName: res.data.fullName });
+        }
+        setToastMessage("Ảnh đại diện đã được cập nhật thành công!");
+        setSaveToast(true);
+        setTimeout(() => setSaveToast(false), 3000);
+      }
+    } catch (err) {
+      alert("Tải ảnh đại diện thất bại: " + (err.message || "Lỗi không xác định"));
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    if (!confirm("Bạn có chắc chắn muốn gỡ ảnh đại diện và quay về mặc định?")) return;
+    try {
+      setIsUploadingAvatar(true);
+      await userService.removeAvatar();
+      setAvatarUrl(null);
+      if (updateUser) {
+        updateUser({ avatarUrl: null });
+      }
+      setToastMessage("Đã gỡ ảnh đại diện thành công!");
+      setSaveToast(true);
+      setTimeout(() => setSaveToast(false), 3000);
+    } catch (err) {
+      alert("Gỡ ảnh đại diện thất bại: " + (err.message || "Lỗi không xác định"));
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
 
   const handleDiscard = () => {
     if (confirm("Hủy bỏ các chỉnh sửa chưa lưu?")) {
@@ -122,9 +165,13 @@ export default function UserProfile() {
               phone={phone}
               role={role}
               initials={initials}
+              avatarUrl={avatarUrl}
               onFullNameChange={setFullName}
               onTitleChange={setTitle}
               onPhoneChange={setPhone}
+              onUploadAvatar={handleUploadAvatar}
+              onRemoveAvatar={handleRemoveAvatar}
+              isUploadingAvatar={isUploadingAvatar}
             />
           </div>
         )}
@@ -144,7 +191,7 @@ export default function UserProfile() {
           currentProjectId={currentProject?.id}
           projectName={projectName}
           role={projectRole}
-          user={{ name: fullName || "Nguyễn Văn A", role, initials }}
+          user={{ name: fullName || "Nguyễn Văn A", role, initials, avatarUrl }}
         />
 
         {/* Profile Body Content */}
@@ -182,9 +229,13 @@ export default function UserProfile() {
                 phone={phone}
                 role={role}
                 initials={initials}
+                avatarUrl={avatarUrl}
                 onFullNameChange={setFullName}
                 onTitleChange={setTitle}
                 onPhoneChange={setPhone}
+                onUploadAvatar={handleUploadAvatar}
+                onRemoveAvatar={handleRemoveAvatar}
+                isUploadingAvatar={isUploadingAvatar}
               />
             </div>
           )}

@@ -51,6 +51,8 @@ export default function ProjectSettings() {
   const [allowedFormats, setAllowedFormats] = useState(["pdf", "docx", "doc", "md", "txt"]);
   const [temperature, setTemperature] = useState(0.2);
   const [systemPrompt, setSystemPrompt] = useState("");
+  const [logoUrl, setLogoUrl] = useState(null);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
 
   const [activeTab, setActiveTab] = useState("general");
   const [loading, setLoading] = useState(true);
@@ -67,10 +69,12 @@ export default function ProjectSettings() {
         const d = res.data;
         setProjectName(d.projectName || "");
         setProjectDesc(d.projectDesc || "");
+        setLogoUrl(d.logoUrl || null);
         setMaxFileSize(d.maxFileSize || "50 MB");
-        const allowedOnly = (d.allowedFormats || ["pdf", "docx", "doc", "md", "txt"])
-          .filter(f => ['pdf', 'docx', 'doc', 'md', 'txt'].includes(f.toLowerCase()));
-        setAllowedFormats(allowedOnly.length > 0 ? allowedOnly : ["pdf", "docx", "doc", "md", "txt"]);
+        const formats = Array.isArray(d.allowedFormats) && d.allowedFormats.length > 0
+          ? d.allowedFormats
+          : ["pdf", "docx", "doc", "md", "txt", "png", "jpg", "jpeg", "webp", "xlsx", "mp4", "zip"];
+        setAllowedFormats(formats);
         if (d.aiPersona) {
           setTemperature(d.aiPersona.temperature ?? 0.2);
           setSystemPrompt(d.aiPersona.systemPrompt || "");
@@ -86,6 +90,44 @@ export default function ProjectSettings() {
   useEffect(() => {
     fetchSettings();
   }, [fetchSettings]);
+
+  const handleUploadLogo = async (file) => {
+    if (!projectId) return;
+    try {
+      setIsUploadingLogo(true);
+      const res = await projectService.uploadLogo(projectId, file);
+      if (res?.data) {
+        const freshUrl = res.data.logoUrl ? `${res.data.logoUrl}?t=${Date.now()}` : null;
+        setLogoUrl(freshUrl);
+        setProject((prev) => ({ ...prev, logoUrl: freshUrl }));
+        setToastMessage("Logo dự án đã được cập nhật thành công!");
+        setSaveToast(true);
+        setTimeout(() => setSaveToast(false), 3000);
+      }
+    } catch (err) {
+      alert("Tải logo dự án thất bại: " + (err.message || "Lỗi không xác định"));
+    } finally {
+      setIsUploadingLogo(false);
+    }
+  };
+
+  const handleRemoveLogo = async () => {
+    if (!projectId) return;
+    if (!confirm("Bạn có chắc chắn muốn gỡ logo và sử dụng biểu tượng mặc định?")) return;
+    try {
+      setIsUploadingLogo(true);
+      await projectService.removeLogo(projectId);
+      setLogoUrl(null);
+      setProject((prev) => ({ ...prev, logoUrl: null }));
+      setToastMessage("Đã đặt lại logo mặc định cho dự án!");
+      setSaveToast(true);
+      setTimeout(() => setSaveToast(false), 3000);
+    } catch (err) {
+      alert("Gỡ logo dự án thất bại: " + (err.message || "Lỗi không xác định"));
+    } finally {
+      setIsUploadingLogo(false);
+    }
+  };
 
   const handleToggleFormat = (formatId) => {
     setAllowedFormats((prev) =>
@@ -114,7 +156,18 @@ export default function ProjectSettings() {
           systemPrompt,
         },
       };
-      await projectService.updateProjectSettings(projectId, payload);
+      const res = await projectService.updateProjectSettings(projectId, payload);
+      if (res?.data) {
+        const d = res.data;
+        if (d.projectName) setProjectName(d.projectName);
+        if (d.projectDesc !== undefined) setProjectDesc(d.projectDesc || "");
+        setProject((prev) => ({
+          ...prev,
+          name: d.projectName || projectName,
+          title: d.projectName || projectName,
+          description: d.projectDesc !== undefined ? d.projectDesc : projectDesc,
+        }));
+      }
       setToastMessage("Cài đặt dự án đã được lưu thành công!");
       setSaveToast(true);
       setTimeout(() => setSaveToast(false), 3000);
@@ -220,10 +273,17 @@ export default function ProjectSettings() {
               {(activeTab === "general" || activeTab === "all") && (
                 <GeneralStorageCard
                   projectName={projectName}
+                  setProjectName={setProjectName}
                   onProjectNameChange={setProjectName}
                   projectDesc={projectDesc}
+                  setProjectDesc={setProjectDesc}
                   onProjectDescChange={setProjectDesc}
+                  logoUrl={logoUrl}
+                  onUploadLogo={handleUploadLogo}
+                  onRemoveLogo={handleRemoveLogo}
+                  isUploadingLogo={isUploadingLogo}
                   maxFileSize={maxFileSize}
+                  setMaxFileSize={setMaxFileSize}
                   onMaxFileSizeChange={setMaxFileSize}
                   allowedFormats={allowedFormats}
                   onToggleFormat={handleToggleFormat}
@@ -234,8 +294,10 @@ export default function ProjectSettings() {
               {(activeTab === "ai" || activeTab === "all") && (
                 <AiPersonaCard
                   temperature={temperature}
+                  setTemperature={setTemperature}
                   onTemperatureChange={setTemperature}
                   systemPrompt={systemPrompt}
+                  setSystemPrompt={setSystemPrompt}
                   onSystemPromptChange={setSystemPrompt}
                 />
               )}

@@ -29,6 +29,20 @@ export const projectService = {
     return await apiClient.put(`/projects/${projectId}/settings`, data);
   },
 
+  async uploadLogo(projectId, file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return await apiClient.post(`/projects/${projectId}/logo`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+
+  async removeLogo(projectId) {
+    return await apiClient.delete(`/projects/${projectId}/logo`);
+  },
+
   async transferOwnership(projectId, newOwnerEmail) {
     return await apiClient.post(`/projects/${projectId}/transfer-ownership`, { newOwnerEmail });
   },

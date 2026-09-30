@@ -67,9 +67,9 @@ export default function AdminSidebar({ activeTab = "overview" }) {
               <span className="text-[15px] font-bold text-white tracking-tight">
                 KBase Admin
               </span>
-              <span className="text-[9px] font-semibold bg-indigo-500/30 text-indigo-300 border border-indigo-400/30 px-1.5 py-0.2 rounded">
+              {/* <span className="text-[9px] font-semibold bg-indigo-500/30 text-indigo-300 border border-indigo-400/30 px-1.5 py-0.2 rounded">
                 ROOT
-              </span>
+              </span> */}
             </div>
             <span className="text-[11px] text-slate-400">
               Quản trị hệ thống
@@ -109,8 +109,17 @@ export default function AdminSidebar({ activeTab = "overview" }) {
         {/* User Card */}
         <div className="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
-              {user?.fullName?.charAt(0) || user?.email?.charAt(0) || "A"}
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white text-xs font-bold shrink-0 overflow-hidden">
+              {user?.avatarUrl ? (
+                <img
+                  src={user.avatarUrl}
+                  alt=""
+                  className="w-full h-full object-cover"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+              ) : (
+                user?.fullName?.charAt(0) || user?.email?.charAt(0) || "A"
+              )}
             </div>
             <div className="min-w-0 flex flex-col">
               <span className="text-xs font-semibold text-white truncate">

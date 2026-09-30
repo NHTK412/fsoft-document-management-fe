@@ -192,13 +192,22 @@ export default function WorkspaceTopbar({
           onClick={toggleSwitcher}
           className="flex items-center gap-[10px] px-[12px] py-[6px] bg-[#F8FAFC] border border-[#E2E8F0] rounded-[8px] hover:bg-[#F1F5F9] transition-colors cursor-pointer text-left group"
         >
-          <div className="w-[24px] h-[24px] shrink-0 flex items-center justify-center bg-[#EEF2FF] rounded-[6px]">
-            <svg className="w-[14px] h-[14px] text-[#4F46E5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect width="16" height="16" x="4" y="4" rx="2" />
-              <rect width="6" height="6" x="9" y="9" rx="1" />
-              <path d="M15 2v2" /><path d="M15 20v2" /><path d="M2 15h2" /><path d="M2 9h2" /><path d="M20 15h2" /><path d="M20 9h2" /><path d="M9 2v2" /><path d="M9 20v2" />
-            </svg>
-          </div>
+          {matchedProject?.logoUrl ? (
+            <img
+              src={matchedProject.logoUrl}
+              alt={displayProjectName}
+              className="w-[24px] h-[24px] shrink-0 rounded-[6px] object-cover"
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            />
+          ) : (
+            <div className="w-[24px] h-[24px] shrink-0 flex items-center justify-center bg-[#EEF2FF] rounded-[6px]">
+              <svg className="w-[14px] h-[14px] text-[#4F46E5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect width="16" height="16" x="4" y="4" rx="2" />
+                <rect width="6" height="6" x="9" y="9" rx="1" />
+                <path d="M15 2v2" /><path d="M15 20v2" /><path d="M2 15h2" /><path d="M2 9h2" /><path d="M20 15h2" /><path d="M20 9h2" /><path d="M9 2v2" /><path d="M9 20v2" />
+              </svg>
+            </div>
+          )}
           <div className="flex flex-col">
             <span className="text-[13px] font-semibold text-[#0F172A] whitespace-nowrap max-w-[180px] sm:max-w-[240px] truncate">
               {displayProjectName}
@@ -274,15 +283,24 @@ export default function WorkspaceTopbar({
                       }`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <div
-                          className={`w-7 h-7 shrink-0 rounded-md flex items-center justify-center text-xs font-bold ${
-                            isCurrent
-                              ? "bg-indigo-600 text-white"
-                              : "bg-slate-100 text-slate-600"
-                          }`}
-                        >
-                          {(p.name || p.title || "P").substring(0, 2).toUpperCase()}
-                        </div>
+                        {p.logoUrl ? (
+                          <img
+                            src={p.logoUrl}
+                            alt={p.name || p.title}
+                            className="w-7 h-7 shrink-0 rounded-md object-cover"
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          />
+                        ) : (
+                          <div
+                            className={`w-7 h-7 shrink-0 rounded-md flex items-center justify-center text-xs font-bold ${
+                              isCurrent
+                                ? "bg-indigo-600 text-white"
+                                : "bg-slate-100 text-slate-600"
+                            }`}
+                          >
+                            {(p.name || p.title || "P").substring(0, 2).toUpperCase()}
+                          </div>
+                        )}
                         <div className="flex flex-col min-w-0">
                           <span className="text-xs truncate max-w-[180px]">
                             {p.title || p.name}

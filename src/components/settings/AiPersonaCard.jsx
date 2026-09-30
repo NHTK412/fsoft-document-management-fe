@@ -3,9 +3,14 @@ import React from "react";
 export default function AiPersonaCard({
   temperature = 0.2,
   setTemperature,
-  systemPrompt,
+  onTemperatureChange,
+  systemPrompt = "",
   setSystemPrompt,
+  onSystemPromptChange,
 }) {
+  const handleTempChange = onTemperatureChange || setTemperature || (() => {});
+  const handlePromptChange = onSystemPromptChange || setSystemPrompt || (() => {});
+
   const getTempDescription = (val) => {
     if (val <= 0.2) return `${val} (Chính xác cao / RAG)`;
     if (val <= 0.5) return `${val} (Cân bằng)`;
@@ -51,7 +56,7 @@ export default function AiPersonaCard({
             max="1"
             step="0.05"
             value={temperature}
-            onChange={(e) => setTemperature(parseFloat(e.target.value))}
+            onChange={(e) => handleTempChange(parseFloat(e.target.value))}
             className="w-full h-[6px] bg-[#E2E8F0] rounded-[3px] appearance-none cursor-pointer accent-[#4F46E5] focus:outline-none"
           />
         </div>
@@ -70,7 +75,7 @@ export default function AiPersonaCard({
         <textarea
           rows={4}
           value={systemPrompt}
-          onChange={(e) => setSystemPrompt(e.target.value)}
+          onChange={(e) => handlePromptChange(e.target.value)}
           placeholder="Nhập hướng dẫn và phong cách ứng xử của trợ lý AI..."
           className="w-full p-[10px_14px] bg-[#F8FAFC] border border-[#CBD5E1] rounded-[8px] text-[13px] text-[#334155] focus:bg-white focus:outline-none focus:border-[#4F46E5] focus:ring-2 focus:ring-[#4F46E5]/20 transition-all resize-none leading-relaxed"
         />

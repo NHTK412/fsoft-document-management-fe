@@ -58,9 +58,9 @@ export default function AdminLayout({ activeTab = "overview", children, title = 
           <div>
             <h1 className="text-lg font-bold text-slate-900 flex items-center gap-2.5">
               <span>{title}</span>
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+              {/* <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
                 Admin Panel
-              </span>
+              </span> */}
             </h1>
             <p className="text-xs text-slate-500 hidden sm:block">
               {description}

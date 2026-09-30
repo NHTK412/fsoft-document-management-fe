@@ -26,17 +26,26 @@ export const ProjectCard = ({ project, onClick }) => {
       {/* Card Header */}
       <div className="w-full flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div
-            className="w-[38px] h-[38px] flex items-center justify-center rounded-lg transition-transform group-hover:scale-105"
-            style={{ backgroundColor: iconBg }}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5" style={{ color: iconColor }}>
-              <rect width="20" height="8" x="2" y="2" rx="2" ry="2" />
-              <rect width="20" height="8" x="2" y="14" rx="2" ry="2" />
-              <line x1="6" x2="6.01" y1="6" y2="6" />
-              <line x1="6" x2="6.01" y1="18" y2="18" />
-            </svg>
-          </div>
+          {project?.logoUrl ? (
+            <img
+              src={project.logoUrl}
+              alt={title || "Project Logo"}
+              className="w-[38px] h-[38px] rounded-lg object-cover transition-transform group-hover:scale-105 border border-slate-200/80 shadow-2xs"
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            />
+          ) : (
+            <div
+              className="w-[38px] h-[38px] flex items-center justify-center rounded-lg transition-transform group-hover:scale-105"
+              style={{ backgroundColor: iconBg }}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5" style={{ color: iconColor }}>
+                <rect width="20" height="8" x="2" y="2" rx="2" ry="2" />
+                <rect width="20" height="8" x="2" y="14" rx="2" ry="2" />
+                <line x1="6" x2="6.01" y1="6" y2="6" />
+                <line x1="6" x2="6.01" y1="18" y2="18" />
+              </svg>
+            </div>
+          )}
           <div
             className="w-fit flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-md"
             title={`Cập nhật: ${formatDateTime(updatedAt || project?.createdAt)}`}

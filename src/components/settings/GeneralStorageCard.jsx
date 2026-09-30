@@ -1,24 +1,72 @@
-import React from "react";
+import React, { useRef } from "react";
 
 export default function GeneralStorageCard({
-  projectName,
+  projectName = "",
   setProjectName,
-  projectDesc,
+  onProjectNameChange,
+  projectDesc = "",
   setProjectDesc,
-  maxFileSize,
+  onProjectDescChange,
+  logoUrl = null,
+  onUploadLogo,
+  onRemoveLogo,
+  isUploadingLogo = false,
+  maxFileSize = "50 MB",
   setMaxFileSize,
-  allowedFormats,
+  onMaxFileSizeChange,
+  allowedFormats = [],
   onToggleFormat,
 }) {
+  const fileInputRef = useRef(null);
+  const handleNameChange = onProjectNameChange || setProjectName || (() => {});
+  const handleDescChange = onProjectDescChange || setProjectDesc || (() => {});
+  const handleSizeChange = onMaxFileSizeChange || setMaxFileSize || (() => {});
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file && onUploadLogo) {
+      onUploadLogo(file);
+    }
+    e.target.value = "";
+  };
+
   const allFormats = [
-    { id: "pdf", label: "PDF (.pdf)" },
-    { id: "docx", label: "Word (.docx, .doc)" },
-    { id: "md", label: "Markdown (.md)" },
-    { id: "txt", label: "Văn bản (.txt)" },
+    // 1. Nhóm tài liệu & Hỏi đáp AI
+    { id: "pdf", label: "PDF (.pdf)", ragSupported: true },
+    { id: "docx", label: "Word (.docx, .doc)", ragSupported: true },
+    { id: "md", label: "Markdown (.md)", ragSupported: true },
+    { id: "txt", label: "Văn bản (.txt)", ragSupported: true },
+
+    // 2. Nhóm bảng tính & dữ liệu
+    { id: "xlsx", label: "Excel (.xlsx, .xls)", ragSupported: false },
+    { id: "csv", label: "CSV (.csv)", ragSupported: false },
+    { id: "json", label: "JSON (.json)", ragSupported: false },
+
+    // 3. Nhóm hình ảnh (MinIO)
+    { id: "png", label: "PNG (.png)", ragSupported: false },
+    { id: "jpg", label: "JPG / JPEG", ragSupported: false },
+    { id: "webp", label: "WebP (.webp)", ragSupported: false },
+    { id: "svg", label: "SVG (.svg)", ragSupported: false },
+    { id: "gif", label: "GIF (.gif)", ragSupported: false },
+
+    // 4. Nhóm video & âm thanh
+    { id: "mp4", label: "Video (.mp4)", ragSupported: false },
+    { id: "mp3", label: "Âm thanh (.mp3)", ragSupported: false },
+
+    // 5. Tệp nén
+    { id: "zip", label: "Tệp nén (.zip, .rar)", ragSupported: false },
   ];
 
   return (
     <div className="w-full bg-white border border-[#E2E8F0] rounded-[12px] p-6 lg:p-[26px] flex flex-col gap-6 shadow-xs">
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/png,image/jpeg,image/jpg,image/webp,image/gif,image/svg+xml"
+        className="hidden"
+      />
+
       {/* Card Header */}
       <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#F1F5F9]">
         <div className="flex items-center gap-[12px]">
@@ -46,37 +94,54 @@ export default function GeneralStorageCard({
         <div className="flex flex-col gap-[14px]">
           {/* Logo Section */}
           <div className="flex items-center gap-[14px]">
-            <div className="w-[48px] h-[48px] shrink-0 flex items-center justify-center bg-[#4F46E5] rounded-[10px] text-white shadow-xs">
-              <svg className="w-[24px] h-[24px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect width="16" height="16" x="4" y="4" rx="2" />
-                <rect width="6" height="6" x="9" y="9" rx="1" />
-                <path d="M15 2v2" /><path d="M15 20v2" /><path d="M2 15h2" /><path d="M2 9h2" /><path d="M20 15h2" /><path d="M20 9h2" /><path d="M9 2v2" /><path d="M9 20v2" />
-              </svg>
-            </div>
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                alt={projectName || "Project Logo"}
+                className="w-[48px] h-[48px] shrink-0 rounded-[10px] object-cover shadow-xs border border-[#E2E8F0] bg-[#F8FAFC]"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
+            ) : (
+              <div className="w-[48px] h-[48px] shrink-0 flex items-center justify-center bg-[#4F46E5] rounded-[10px] text-white shadow-xs">
+                <svg className="w-[24px] h-[24px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect width="16" height="16" x="4" y="4" rx="2" />
+                  <rect width="6" height="6" x="9" y="9" rx="1" />
+                  <path d="M15 2v2" /><path d="M15 20v2" /><path d="M2 15h2" /><path d="M2 9h2" /><path d="M20 15h2" /><path d="M20 9h2" /><path d="M9 2v2" /><path d="M9 20v2" />
+                </svg>
+              </div>
+            )}
             <div className="flex flex-col gap-[4px]">
               <div className="flex items-center gap-[8px]">
                 <button
                   type="button"
-                  onClick={() => alert("Chọn file hình ảnh logo mới (PNG, JPG, SVG)")}
-                  className="flex items-center gap-[6px] h-[30px] px-[10px] bg-[#F8FAFC] border border-[#CBD5E1] hover:bg-[#F1F5F9] text-[#334155] rounded-[6px] text-[12px] font-medium transition-colors cursor-pointer"
+                  disabled={isUploadingLogo}
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-[6px] h-[30px] px-[10px] bg-[#F8FAFC] border border-[#CBD5E1] hover:bg-[#F1F5F9] disabled:opacity-50 text-[#334155] rounded-[6px] text-[12px] font-medium transition-colors cursor-pointer"
                 >
-                  <svg className="w-[12px] h-[12px] text-[#475569]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="17 8 12 3 7 8" />
-                    <line x1="12" x2="12" y1="3" y2="15" />
-                  </svg>
-                  <span>Đổi Logo</span>
+                  {isUploadingLogo ? (
+                    <div className="w-3 h-3 border-2 border-[#4F46E5] border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <svg className="w-[12px] h-[12px] text-[#475569]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="17 8 12 3 7 8" />
+                      <line x1="12" x2="12" y1="3" y2="15" />
+                    </svg>
+                  )}
+                  <span>{isUploadingLogo ? "Đang tải..." : "Đổi Logo"}</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => alert("Đã đặt lại logo mặc định")}
-                  className="h-[30px] px-[8px] text-[12px] text-[#94A3B8] hover:text-[#EF4444] transition-colors cursor-pointer"
-                >
-                  Gỡ bỏ
-                </button>
+                {logoUrl && (
+                  <button
+                    type="button"
+                    disabled={isUploadingLogo}
+                    onClick={onRemoveLogo}
+                    className="h-[30px] px-[8px] text-[12px] text-[#94A3B8] hover:text-[#EF4444] disabled:opacity-50 transition-colors cursor-pointer"
+                  >
+                    Gỡ bỏ
+                  </button>
+                )}
               </div>
               <span className="text-[11px] text-[#94A3B8]">
-                Định dạng PNG, JPG hoặc SVG tối đa 2MB (1:1).
+                Định dạng PNG, JPG, WebP hoặc SVG tối đa 2MB (1:1).
               </span>
             </div>
           </div>
@@ -89,7 +154,7 @@ export default function GeneralStorageCard({
             <input
               type="text"
               value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
+              onChange={(e) => handleNameChange(e.target.value)}
               className="w-full h-[42px] px-[14px] bg-white border border-[#CBD5E1] rounded-[8px] text-[14px] font-semibold text-[#0F172A] focus:outline-none focus:border-[#4F46E5] focus:ring-2 focus:ring-[#4F46E5]/20 transition-all"
             />
           </div>
@@ -102,7 +167,7 @@ export default function GeneralStorageCard({
             <textarea
               rows={3}
               value={projectDesc}
-              onChange={(e) => setProjectDesc(e.target.value)}
+              onChange={(e) => handleDescChange(e.target.value)}
               className="w-full p-[12px_14px] bg-white border border-[#CBD5E1] rounded-[8px] text-[13px] text-[#334155] focus:outline-none focus:border-[#4F46E5] focus:ring-2 focus:ring-[#4F46E5]/20 transition-all resize-none leading-relaxed"
             />
           </div>
@@ -122,7 +187,7 @@ export default function GeneralStorageCard({
             </div>
             <select
               value={maxFileSize}
-              onChange={(e) => setMaxFileSize(e.target.value)}
+              onChange={(e) => handleSizeChange(e.target.value)}
               className="h-[40px] px-[12px] bg-[#F8FAFC] border border-[#CBD5E1] rounded-[8px] text-[13px] font-semibold text-[#1E293B] focus:outline-none focus:border-[#4F46E5] cursor-pointer"
             >
               <option value="10 MB">10 MB / tệp</option>
@@ -144,8 +209,19 @@ export default function GeneralStorageCard({
               </span>
             </div>
 
+            <div className="p-3 bg-indigo-50/60 border border-indigo-100 rounded-lg text-[12px] text-indigo-900 flex items-start gap-2">
+              <svg className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="16" x2="12" y2="12" />
+                <line x1="12" y1="8" x2="12.01" y2="8" />
+              </svg>
+              <span>
+                <strong>Khả năng AI RAG:</strong> Chỉ các tệp <strong>PDF, Word, Markdown và Text (.txt)</strong> mới được hệ thống hỗ trợ trích xuất văn bản và nạp embeddings vào PGVector để hỏi đáp AI. Các tệp khác (ảnh, video, bảng tính, nén) chỉ phục vụ lưu trữ trên MinIO.
+              </span>
+            </div>
+
             {/* Format Pills */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {allFormats.map((fmt) => {
                 const isChecked = allowedFormats.includes(fmt.id);
                 return (
@@ -153,23 +229,31 @@ export default function GeneralStorageCard({
                     key={fmt.id}
                     type="button"
                     onClick={() => onToggleFormat(fmt.id)}
-                    className={`h-[36px] px-[10px] flex items-center gap-[8px] rounded-[8px] border text-[12px] font-semibold transition-all cursor-pointer ${isChecked
+                    className={`h-[38px] px-[10px] flex items-center justify-between rounded-[8px] border text-[12px] font-semibold transition-all cursor-pointer ${
+                      isChecked
                         ? "bg-[#EEF2FF] border-[#C7D2FE] text-[#3730A3]"
                         : "bg-[#F8FAFC] border-[#E2E8F0] text-[#94A3B8] hover:bg-[#F1F5F9]"
-                      }`}
+                    }`}
                   >
-                    <svg
-                      className={`w-[13px] h-[13px] shrink-0 ${isChecked ? "text-[#4F46E5]" : "text-[#CBD5E1]"}`}
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                    <span className="truncate">{fmt.label}</span>
+                    <div className="flex items-center gap-[6px] truncate">
+                      <svg
+                        className={`w-[13px] h-[13px] shrink-0 ${isChecked ? "text-[#4F46E5]" : "text-[#CBD5E1]"}`}
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      <span className="truncate">{fmt.label}</span>
+                    </div>
+                    {fmt.ragSupported && (
+                      <span className="px-1.5 py-0.5 text-[9px] font-bold bg-indigo-200/70 text-indigo-800 rounded shrink-0">
+                        AI RAG
+                      </span>
+                    )}
                   </button>
                 );
               })}
