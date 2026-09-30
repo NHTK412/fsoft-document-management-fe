@@ -138,11 +138,10 @@ export default function AdminUsers() {
     >
       {/* Toast Alert */}
       {toast.message && (
-        <div className={`fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl shadow-lg border text-sm font-medium flex items-center gap-2 transition-all ${
-          toast.type === "error"
-            ? "bg-red-50 text-red-700 border-red-200"
-            : "bg-emerald-50 text-emerald-800 border-emerald-200"
-        }`}>
+        <div className={`fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl shadow-lg border text-sm font-medium flex items-center gap-2 transition-all ${toast.type === "error"
+          ? "bg-red-50 text-red-700 border-red-200"
+          : "bg-emerald-50 text-emerald-800 border-emerald-200"
+          }`}>
           {toast.type === "error" ? (
             <svg className="w-4 h-4 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
@@ -236,6 +235,7 @@ export default function AdminUsers() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                <th className="py-3 px-6">ID</th>
                 <th className="py-3 px-6">Người dùng</th>
                 <th className="py-3 px-6">Email</th>
                 <th className="py-3 px-6">Vai trò hệ thống</th>
@@ -266,14 +266,16 @@ export default function AdminUsers() {
                   const isBusy = actionInProgressId === u.id;
                   return (
                     <tr key={u.id} className="hover:bg-slate-50/60 transition-colors">
+                      <td className="py-3.5 px-6">
+                        <span className="text-[11px] text-slate-400">{u.id}</span>
+                      </td>
                       {/* Name & Avatar */}
                       <td className="py-3.5 px-6">
                         <div className="flex items-center gap-3">
-                          <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${
-                            u.role === "ROLE_ADMIN"
-                              ? "bg-gradient-to-tr from-purple-600 to-indigo-600 text-white"
-                              : "bg-slate-200 text-slate-700"
-                          }`}>
+                          <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${u.role === "ROLE_ADMIN"
+                            ? "bg-gradient-to-tr from-purple-600 to-indigo-600 text-white"
+                            : "bg-slate-200 text-slate-700"
+                            }`}>
                             {u.avatarUrl ? (
                               <img src={u.avatarUrl} alt="" className="w-full h-full rounded-full object-cover" />
                             ) : (
@@ -291,7 +293,7 @@ export default function AdminUsers() {
                                 </span>
                               )}
                             </div>
-                            <span className="text-[11px] text-slate-400">ID: #{u.id}</span>
+
                           </div>
                         </div>
                       </td>
@@ -307,11 +309,10 @@ export default function AdminUsers() {
                           disabled={isCurrent || isBusy}
                           value={u.role || "ROLE_USER"}
                           onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                          className={`text-xs font-semibold px-2.5 py-1 rounded-lg border focus:outline-hidden transition-colors cursor-pointer ${
-                            u.role === "ROLE_ADMIN"
-                              ? "bg-purple-50 text-purple-700 border-purple-200 focus:border-purple-400"
-                              : "bg-slate-50 text-slate-700 border-slate-200 focus:border-indigo-400"
-                          } ${isCurrent ? "opacity-60 cursor-not-allowed" : ""}`}
+                          className={`text-xs font-semibold px-2.5 py-1 rounded-lg border focus:outline-hidden transition-colors cursor-pointer ${u.role === "ROLE_ADMIN"
+                            ? "bg-purple-50 text-purple-700 border-purple-200 focus:border-purple-400"
+                            : "bg-slate-50 text-slate-700 border-slate-200 focus:border-indigo-400"
+                            } ${isCurrent ? "opacity-60 cursor-not-allowed" : ""}`}
                         >
                           <option value="ROLE_USER">Thành viên</option>
                           <option value="ROLE_ADMIN">Quản trị viên</option>
@@ -320,13 +321,12 @@ export default function AdminUsers() {
 
                       {/* Status */}
                       <td className="py-3.5 px-6">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          u.isActive
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                            : "bg-red-50 text-red-700 border border-red-200"
-                        }`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${u.isActive ? "bg-emerald-500" : "bg-red-500"}`} />
-                          {u.isActive ? "Hoạt động" : "Đã khóa"}
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${u.active
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : "bg-red-50 text-red-700 border border-red-200"
+                          }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${u.active ? "bg-emerald-500" : "bg-red-500"}`} />
+                          {u.active ? "Hoạt động" : "Đã khóa"}
                         </span>
                       </td>
 
@@ -337,15 +337,14 @@ export default function AdminUsers() {
                           <button
                             type="button"
                             disabled={isCurrent || isBusy}
-                            onClick={() => handleToggleStatus(u.id, u.isActive)}
-                            className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-colors border ${
-                              u.isActive
-                                ? "text-amber-700 bg-amber-50 hover:bg-amber-100 border-amber-200"
-                                : "text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border-emerald-200"
-                            } ${isCurrent ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}
-                            title={u.isActive ? "Khóa tài khoản" : "Mở khóa tài khoản"}
+                            onClick={() => handleToggleStatus(u.id, u.active)}
+                            className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-colors border ${u.active
+                              ? "text-amber-700 bg-amber-50 hover:bg-amber-100 border-amber-200"
+                              : "text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border-emerald-200"
+                              } ${isCurrent ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}
+                            title={u.active ? "Khóa tài khoản" : "Mở khóa tài khoản"}
                           >
-                            {u.isActive ? "Khóa" : "Mở khóa"}
+                            {u.active ? "Khóa" : "Mở khóa"}
                           </button>
 
                           {/* Delete */}
@@ -353,9 +352,8 @@ export default function AdminUsers() {
                             type="button"
                             disabled={isCurrent || isBusy}
                             onClick={() => setDeleteConfirmUser(u)}
-                            className={`p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors ${
-                              isCurrent ? "opacity-30 cursor-not-allowed" : "cursor-pointer"
-                            }`}
+                            className={`p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors ${isCurrent ? "opacity-30 cursor-not-allowed" : "cursor-pointer"
+                              }`}
                             title="Xóa tài khoản"
                           >
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
